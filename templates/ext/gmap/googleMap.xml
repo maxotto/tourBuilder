@@ -1,0 +1,8 @@
+<krpano>
+    <action name="skin_showmap" scope="local" args="show">
+        if(show == null, set(show,true); );
+        if(show,
+        jscall(googleMap.vm.openApp());
+        );
+    </action>
+</krpano>

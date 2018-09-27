@@ -5,6 +5,7 @@ const config = {
   templatesFolder: './templates',
   googleApiKey: 'AIzaSyARIMiX_C7rE4U-pM6nih2n2z2z0YfhrfY',
   showMap: true,
+  useCustomMap: false,
   mapCenter: {
     lat: 56.0740,
     lng: 37.5964
@@ -12,11 +13,11 @@ const config = {
   floorSelect: [
     {
       floor: 1,
-      image: 'map_1st_floor.png',
+      image: 'map_1_floor.jpg',
     },
     {
       floor: 2,
-      image: 'map_2nd_floor.png',
+      image: 'map_2_floor.jpg',
     },
   ],
 };

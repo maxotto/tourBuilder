@@ -1,0 +1,18 @@
+{
+  "name": "tourbuilder",
+  "version": "1.0.0",
+  "description": "krpano custom tour builder",
+  "main": "build.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "krpano"
+  ],
+  "author": "Andrey Mikhailichenko",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^7.0.0",
+    "xml2js": "^0.4.19"
+  }
+}

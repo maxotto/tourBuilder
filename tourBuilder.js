@@ -1,8 +1,6 @@
 const Fs = require('fs-extra');
 const Xml2js = require('xml2js');
-const Util = require('util');
 const Path = require('path');
-const Await = require('asyncawait/await');
 
 
 module.exports = function (config) {
@@ -19,21 +17,34 @@ module.exports = function (config) {
   let mapHotspots = {};
 
   const initOutFolder = function () {
-      let itemsToCopy = [
-        'panos',
-        'plugins',
-        'skin',
-        'tour.js',
-        'tour.swf',
+    let itemsToCopy = [
+      'panos',
+      'plugins',
+      'skin',
+      'tour.js',
+      'tour.swf',
 //        'tour.html',
-        'tour.xml',
-        // 'tour_testingserver.exe'
-      ];
-      copy(inFolder, outFolder, itemsToCopy);
-      itemsToCopy = ['ext'];
-      copy(templatesFolder, outFolder, itemsToCopy);
+      'tour.xml',
+      // 'tour_testingserver.exe'
+    ];
+    copy(inFolder, outFolder, itemsToCopy);
+    itemsToCopy = ['ext'];
+    copy(templatesFolder, outFolder, itemsToCopy);
+    if(config.useCustomMap){
       itemsToCopy = ['index.html'];
       copy(templatesFolder, outFolder, itemsToCopy);
+    } else {
+      itemsToCopy = [
+        'tour.html'
+      ];
+      copy(inFolder, outFolder, itemsToCopy);
+      Fs.renameSync(Path.resolve(outFolder,'tour.html'), Path.resolve(outFolder,'index.html'));
+    }
+    itemsToCopy = [];
+    config.floorSelect.forEach(item => {
+      itemsToCopy.push(item.image);
+    });
+    copy(Path.resolve(inFolder, 'custom'), Path.resolve(outFolder,'ext/tour'), itemsToCopy);
   };
 
   const loadXml = function(file) {
@@ -78,6 +89,7 @@ module.exports = function (config) {
   const setSkinSettings = function(xml) {
     xml.krpano.skin_settings[0]['$']['maps'] = config.showMap;
     xml.krpano.skin_settings[0]['$']['maps_google_api_key'] = config.googleApiKey;
+    // xml.krpano.skin_settings[0]['$']['maps_zoombuttons'] = true;
     return xml;
   };
 
@@ -118,6 +130,7 @@ module.exports = function (config) {
       const hotspots = xml.krpano.scene[i]['hotspot'];
       hotspots.forEach((hs, hsI) => {
         xml.krpano.scene[i]['hotspot'][hsI]['$']['linkedscene_lookat'] = 0;
+        xml.krpano.scene[i]['hotspot'][hsI]['$']['style'] = 'hotspot_ani_white';
       });
     });
     return xml;
@@ -195,10 +208,16 @@ module.exports = function (config) {
 
     for (let floor in floorsList) {
       if (floorsList.hasOwnProperty(floor)){
+        let imageUrl = `map_${floor}_floor.png`;
+        config.floorSelect.forEach(item => {
+          if(item.floor == floor){
+            imageUrl = item.image;
+          }
+        });
         xml.krpano.layer.push({
           '$': {
             name: `map_${floor}_floor`,
-            url: `map_${floor}_floor.jpg`,
+            url: imageUrl,
             keep: true, 
             handcursor: false, 
             align: `leftbottom`, 
@@ -226,7 +245,7 @@ module.exports = function (config) {
             }
           }
         );
-        mapHotspots[floor].forEach((hotspot, i) => {
+        mapHotspots[floor].forEach((hotspot) => {
           xml.krpano.layer.push(
             {
               '$': {
@@ -276,20 +295,21 @@ module.exports = function (config) {
         return loadXml(Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
       })
       .then((xml) => {
-        const action = `if(show == null, set(show,true); );
+        if(config.useCustomMap){
+          xml.krpano.action[0]['_'] = `if(show == null, set(show,true); );
         if(show,
         jscall(googleMap.vm.openApp({lat: ${config.mapCenter.lat}, lng: ${config.mapCenter.lng} }));
         );`;
-        xml.krpano.action[0]['_'] = action;
+        } else {
+          xml.krpano.action[0]['$']['name'] = 'switched_off';
+          // delete xml.krpano.action;
+        }
         return saveXml(xml, Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
       })
-      //todo картинки этажей из папки inFolder/custom
-      //todo правильный вид хотспотов
-      .then(res => log(res))
+      .then(res => log(res, 'Finish run'))
       .catch(err => {
         log(err);
       });
-    log('Finish run');
   };
 
   return o;

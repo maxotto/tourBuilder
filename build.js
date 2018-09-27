@@ -5,7 +5,10 @@ const config = {
   templatesFolder: './templates',
   googleApiKey: 'AIzaSyARIMiX_C7rE4U-pM6nih2n2z2z0YfhrfY',
   showMap: true,
-  useCustomMap: false,
+  useCustomMap: true,
+  language: 'ru',
+  googleMapUnits: 'metric',
+  // googleMapUnits: 'imperial',
   mapCenter: {
     lat: 56.0740,
     lng: 37.5964

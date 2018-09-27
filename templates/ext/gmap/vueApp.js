@@ -37,10 +37,20 @@ class GoogleMapApp {
                         {name: 'Entertainment', cat:['casino', 'gym', 'stadium', 'movie_theater', 'travel_agency']},
                         {name: 'Where to buy', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',]},
                     ],
+                  searchRules: {
+                    'school': {name: 'Schools', cat:['school'], icon: 'school.png'},
+                    'eat-drink': {name: 'To eat&drink', cat:['restaurant', 'cafe', 'bar', 'meal_delivery'], icon: 'fastfood.png'},
+                    'entertainment': {name: 'Entertainment', cat:['casino', 'gym', 'stadium', 'movie_theater', 'travel_agency'], icon: 'stadium.png'},
+                    'stores': {name: 'Where to buy', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',], icon: 'mall.png'},
+                  },
+                  categories: [
+                    {id: 'school', cat:['school'], text: "Schools", icon: 'static/img/gmap/school.png'},
+                    {id: 'eat-drink', cat:['restaurant', 'cafe', 'bar', 'meal_delivery'], text: "Eat & Drink", icon: 'static/img/gmap/fastfood.png'},
+                    {id: 'entertainment', cat:['casino', 'gym', 'stadium', 'movie_theater', 'travel_agency'], text: "Entertainment", icon: 'static/img/gmap/stadium.png'},
+                    {id: 'stores', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',], text: "Stores", icon: 'static/img/gmap/mall.png'},
+                  ],
                     valuesToSearch: [],
-                    searchRules: {
 
-                    },
                     notFound: false,
 
                     tableHeight: 0,
@@ -153,20 +163,29 @@ class GoogleMapApp {
     }
     findPlaces() {
         this.vm.placesList.loading = true;
-        var promise = this.placesLib.getPlaces(this.vm.valuesToSearch, this.center);
+        const searchCriteria = {};
+      console.log(this.vm.valuesToSearch);
+      this.vm.valuesToSearch.forEach((set) => {
+        console.log(set);
+        this.vm.searchRules[set]['cat'].forEach((category) => {
+          searchCriteria[category] = this.vm.searchRules[set]['icon'];
+        });
+      });
+      console.log(searchCriteria);
+      var promise = this.placesLib.getPlaces(searchCriteria, this.center);
         promise.then(
             results => {
-                console.log(results);
-                this.clearPlaces();
-                this.vm.placesList.places = [];
-                this.vm.placeObjects = [];
-                this.vm.onTableParentResize();
-                if (results.length === 0){
-                    this.vm.placesList.loading = false;
-                } else {
-                    this.createMarkers(results);
-                    this.updateList(results);
-                }
+              console.log(results);
+              this.clearPlaces();
+              this.vm.placesList.places = [];
+              this.vm.placeObjects = [];
+              this.vm.onTableParentResize();
+              if (results.length === 0){
+              } else {
+                this.createMarkers(results);
+                this.updateList(results);
+              }
+              this.vm.placesList.loading = false;
             },
             error => alert("Ошибка: " + error.message) // Ошибка: Not Found
         );
@@ -177,13 +196,13 @@ class GoogleMapApp {
             this.vm.placesList.places.push({
                 value: false,
                 // address: place.formatted_address,
-                distance: 'no data',
+                distance: place.distance,
                 name: place.name,
                 markerIndex: i,
             });
             this.vm.placeObjects.push(place);
         }
-        this.getDistance();
+        //this.getDistance();
     }
 
     getDistance(){
@@ -233,7 +252,7 @@ class GoogleMapApp {
             };
             const marker = new google.maps.Marker({
                 map: this.map,
-                icon: image,
+                icon: 'ext/gmap/img/' + place.icon,
                 title: place.name,
                 position: place.geometry.location,
                 markerIndex: i,

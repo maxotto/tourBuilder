@@ -11,9 +11,9 @@
                                 <v-toolbar>
                                     <v-select
                                             v-model="valuesToSearch"
-                                            :items="itemsToSearch"
-                                            item-text="name"
-                                            item-value="cat"
+                                            :items="categories"
+                                            item-text="text"
+                                            item-value="id"
                                             chips
                                             dense
                                             multiple
@@ -23,7 +23,7 @@
                                                 slot-scope="{ item, index }"
                                         >
                                             <v-chip v-if="index === 0">
-                                                <span>{{ item.name }}</span>
+                                                <span>{{ item.text }}</span>
                                             </v-chip>
                                             <span
                                                     v-if="index === 1"
@@ -111,19 +111,18 @@
                                             <v-toolbar id="toolbar" ref="toolbar">
                                                 <v-select
                                                         v-model="valuesToSearch"
-                                                        :items="itemsToSearch"
-                                                        item-text="name"
-                                                        item-value="cat"
+                                                        :items="categories"
+                                                        item-text="text"
+                                                        item-value="id"
                                                         chips
                                                         dense
-                                                        multiple
-                                                >
+                                                        multiple                                                >
                                                     <template
                                                             slot="selection"
                                                             slot-scope="{ item, index }"
                                                     >
                                                         <v-chip v-if="index === 0">
-                                                            <span>{{ item.name }}</span>
+                                                            <span>{{ item.text }}</span>
                                                         </v-chip>
                                                         <span
                                                                 v-if="index === 1"

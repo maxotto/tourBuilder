@@ -121,10 +121,13 @@ class GoogleMapApp {
                   runSearch(){
                       self.findPlaces();
                   },
-                  openApp(center){
+                  openApp(config){
                     this.dialog = true;
-                    self.center = center;
-                    this.center = center;
+                    self.center.lat = config.lat;
+                    self.center.lng = config.lng;
+                    this.center = self.center;
+                    self.language = config.language;
+                    self.googleMapUnits = config.googleMapUnits;
                     self.findPlaces();
                   },
                   showBalloon(markerIndex){
@@ -164,7 +167,7 @@ class GoogleMapApp {
           searchCriteria[category] = this.vm.searchRules[set]['icon'];
         });
       });
-      var promise = this.placesLib.getPlaces(searchCriteria, this.center);
+      var promise = this.placesLib.getPlaces(searchCriteria, this.center, this.googleMapUnits);
         promise.then(
             results => {
               this.clearPlaces();

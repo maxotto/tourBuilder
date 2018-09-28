@@ -7,8 +7,8 @@ const config = {
   showMap: true,
   useCustomMap: true,
   language: 'ru',
-  googleMapUnits: 'metric',
-  // googleMapUnits: 'imperial',
+  // googleMapUnits: 'METRIC',
+  googleMapUnits: 'IMPERIAL',
   mapCenter: {
     lat: 56.0740,
     lng: 37.5964

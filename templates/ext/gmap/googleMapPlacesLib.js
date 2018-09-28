@@ -4,8 +4,10 @@ class GoogleMapPlaces{
     this.distanceService = null;
     this.map = null;
     this.center = undefined;
+    this.googleMapUnits = undefined;
     this.maxAttempts = 10;
     this.attemptsTimeout = 500;
+
   }
   initService(map){
     if(!this.service){
@@ -14,9 +16,9 @@ class GoogleMapPlaces{
       this.distanceService = new google.maps.DistanceMatrixService();
     }
   }
-  getPlaces(catList, center){
-    // console.log(catList);
+  getPlaces(catList, center, units){
     this.center = center;
+    this.googleMapUnits = units;
     const promises = [];
     for (let category in catList){
       if(catList.hasOwnProperty(category)){
@@ -27,7 +29,7 @@ class GoogleMapPlaces{
           icon: catList[category]
         }).then(places => {
             // console.log(places);
-          return this.addDistancePromise(places, center);
+          return this.addDistancePromise(places);
         });
         promises.push(promise);
       }
@@ -42,13 +44,15 @@ class GoogleMapPlaces{
         });
   }
 
-  addDistancePromise(places, center){
+  addDistancePromise(places){
     const destinations = [];
     if(places.length === 0) return Promise.resolve([]);
     places.forEach((place, index) => {
       destinations.push(place.geometry.location);
     });
-    return this.getDistancePromise(center, destinations, 'DRIVING', google.maps.UnitSystem.METRIC)
+    let units = google.maps.UnitSystem.METRIC;
+    if (this.googleMapUnits === 'IMPERIAL') units = google.maps.UnitSystem.IMPERIAL;
+    return this.getDistancePromise(this.center, destinations, 'DRIVING', units)
         .then(distanceInfo => {
           distanceInfo.rows[0].elements.forEach((d,i) => {
             places[i].distance = d;

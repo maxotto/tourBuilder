@@ -301,7 +301,13 @@ module.exports = function (config) {
         if(config.useCustomMap){
           xml.krpano.action[0]['_'] = `if(show == null, set(show,true); );
         if(show,
-        jscall(googleMap.vm.openApp({lat: ${config.mapCenter.lat}, lng: ${config.mapCenter.lng} }));
+        jscall(googleMap.vm.openApp(
+        {
+          lat: ${config.mapCenter.lat}, 
+          lng: ${config.mapCenter.lng},
+          language: '${config.language}',
+          googleMapUnits: '${config.googleMapUnits}' 
+        }));
         );`;
         } else {
           xml.krpano.action[0]['$']['name'] = 'switched_off';

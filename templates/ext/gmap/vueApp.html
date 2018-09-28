@@ -56,7 +56,7 @@
                                     <template slot="items" slot-scope="props">
                                         <tr @click="showBalloon(props.item.markerIndex)">
                                             <td align="center">{{ props.item.name }}</td>
-                                            <td align="center">{{ props.item.distance }}</td>
+                                            <td align="center">{{ props.item.distanceText }}</td>
                                         </tr>
                                     </template>
                                     <v-alert slot="no-results" :value="true" color="error" icon="warning">
@@ -64,7 +64,7 @@
                                     </v-alert>
                                     <template slot="no-data">
                                         <v-alert :value="true" color="error" icon="warning">
-                                            Sorry, nothing to display here :(
+                                            Нет данных :(
                                         </v-alert>
                                     </template>
                                 </v-data-table>
@@ -157,7 +157,7 @@
                                                     <template slot="items" slot-scope="props">
                                                         <tr @click="showBalloon(props.item.markerIndex)">
                                                             <td align="center">{{ props.item.name }}</td>
-                                                            <td align="center">{{ props.item.distance }}</td>
+                                                            <td align="center">{{ props.item.distanceText }}</td>
                                                         </tr>
                                                     </template>
                                                     <v-alert slot="no-results" :value="true" color="error" icon="warning">

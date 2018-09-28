@@ -89,6 +89,9 @@ module.exports = function (config) {
   const setSkinSettings = function(xml) {
     xml.krpano.skin_settings[0]['$']['maps'] = config.showMap;
     xml.krpano.skin_settings[0]['$']['maps_google_api_key'] = config.googleApiKey;
+    if(config.useCustomMap){
+      xml.krpano.skin_settings[0]['$']['maps_type'] = 'bing';
+    }
     // xml.krpano.skin_settings[0]['$']['maps_zoombuttons'] = true;
     return xml;
   };

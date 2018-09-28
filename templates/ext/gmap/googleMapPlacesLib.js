@@ -26,7 +26,7 @@ class GoogleMapPlaces{
           type: [category],
           icon: catList[category]
         }).then(places => {
-            console.log(places);
+            // console.log(places);
           return this.addDistancePromise(places, center);
         });
         promises.push(promise);
@@ -51,10 +51,8 @@ class GoogleMapPlaces{
     return this.getDistancePromise(center, destinations, 'DRIVING', google.maps.UnitSystem.METRIC)
         .then(distanceInfo => {
           distanceInfo.rows[0].elements.forEach((d,i) => {
-            const dist = d.distance.text + ', ' + d.duration.text;
-            // const address = d.rows[0].elements[0].distance.text + ' ' + d.rows[0].elements[0].duration.text;
-            places[i].distance = dist;
-            // places[i].address = dist;
+            places[i].distance = d;
+            // console.log(JSON.stringify(d));
           });
           distanceInfo.destinationAddresses.forEach((a,i) => {
             places[i].address = a;

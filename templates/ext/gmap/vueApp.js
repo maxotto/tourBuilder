@@ -23,76 +23,70 @@ class GoogleMapApp {
             this.vm = new Vue ({
                 el: '#googleApp',
                 data: {
-                    center: self.center,
-                    centerIcon: {
-                        url: 'skin/vtourskin_mapspotactive.png',
-                        size: {width: 40, height: 46, f: 'px', b: 'px'},
-                        scaledSize: {width: 40, height: 46, f: 'px', b: 'px'}
-                    },
-                    dialog: false,
-                    xs_dialog: false,
-                    itemsToSearch: [
-                        {name: 'Schools', cat:['school']},
-                        {name: 'To eat&drink', cat:['restaurant', 'cafe', 'bar', 'meal_delivery']},
-                        {name: 'Entertainment', cat:['casino', 'gym', 'stadium', 'movie_theater', 'travel_agency']},
-                        {name: 'Where to buy', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',]},
-                    ],
+                  center: self.center,
+                  centerIcon: {
+                      url: 'skin/vtourskin_mapspotactive.png',
+                      size: {width: 40, height: 46, f: 'px', b: 'px'},
+                      scaledSize: {width: 40, height: 46, f: 'px', b: 'px'}
+                  },
+                  dialog: false,
+                  xs_dialog: false,
                   searchRules: {
-                    'school': {name: 'Schools', cat:['school'], icon: 'school.png'},
-                    'eat-drink': {name: 'To eat&drink', cat:['restaurant', 'cafe', 'bar', 'meal_delivery'], icon: 'fastfood.png'},
-                    'entertainment': {name: 'Entertainment', cat:['casino', 'gym', 'stadium', 'movie_theater', 'travel_agency'], icon: 'stadium.png'},
-                    'stores': {name: 'Where to buy', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',], icon: 'mall.png'},
+                    'school': {name: 'Школы', cat:['school'], icon: 'school.png'},
+                    'eat-drink': {name: 'Покушать', cat:['restaurant', 'cafe', 'bar', 'meal_delivery'], icon: 'fastfood.png'},
+                    'entertainment': {name: 'Развлечься', cat:['casino', 'gym', 'stadium', 'movie_theater', 'travel_agency'], icon: 'stadium.png'},
+                    'stores': {name: 'Купить', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',], icon: 'mall.png'},
                   },
                   categories: [
-                    {id: 'school', cat:['school'], text: "Schools", icon: 'static/img/gmap/school.png'},
-                    {id: 'eat-drink', cat:['restaurant', 'cafe', 'bar', 'meal_delivery'], text: "Eat & Drink", icon: 'static/img/gmap/fastfood.png'},
-                    {id: 'entertainment', cat:['casino', 'gym', 'stadium', 'movie_theater', 'travel_agency'], text: "Entertainment", icon: 'static/img/gmap/stadium.png'},
-                    {id: 'stores', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',], text: "Stores", icon: 'static/img/gmap/mall.png'},
+                    {id: 'school', cat:['school'], text: "Школы", icon: 'static/img/gmap/school.png'},
+                    {id: 'eat-drink', cat:['restaurant', 'cafe', 'bar', 'meal_delivery'], text: "Покушать", icon: 'static/img/gmap/fastfood.png'},
+                    {id: 'entertainment', cat:['casino', 'gym', 'stadium', 'movie_theater', 'travel_agency'], text: "Развлечься", icon: 'static/img/gmap/stadium.png'},
+                    {id: 'stores', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',], text: "Купить", icon: 'static/img/gmap/mall.png'},
                   ],
-                    valuesToSearch: [],
+                  valuesToSearch: [],
 
-                    notFound: false,
+                  notFound: false,
 
-                    tableHeight: 0,
-                    placesList: {
-                        search: '',
-                        headersSmallScreen: [
-                            {
-                                text: 'Name',
-                                align: 'center',
-                                sortable: false,
-                                value: 'name',
-                            }
-                        ],
-                        headers: [
-                            {
-                                text: 'Name',
-                                align: 'center',
-                                sortable: false,
-                                value: 'name',
-                            },
-                            {
-                                text: 'Distance (miles)',
-                                value: 'distance',
-                                sortable: true,
-                                align: 'center',
-                            }
-                        ],
-                        places: [],
-                        loading: false
-                    },
-                    placeObjects: [],
-                    markers: [],
-                    infoWindowPos: null,
-                    infoWinOpen: false,
-                    infoContent: '',
-                    currentInfoWindowIdx: -1,
-                    infoOptions: {
-                        pixelOffset: {
-                            width: 0,
-                            height: -35
-                        }
-                    },
+                  tableHeight: 0,
+                  placesList: {
+                      search: '',
+                      headersSmallScreen: [
+                          {
+                              text: 'Наименование',
+                              align: 'center',
+                              sortable: false,
+                              value: 'name',
+                          }
+                      ],
+                      headers: [
+                          {
+                              text: 'Наименование',
+                              align: 'center',
+                              sortable: false,
+                              value: 'name',
+                          },
+                          {
+                              text: 'Расстояние',
+                              value: 'distanceValue',
+                              sortable: true,
+                              align: 'center',
+                          }
+                      ],
+                      places: [],
+                      loading: false
+                  },
+                  placeObjects: [],
+                  markers: [],
+                  infoWindowPos: null,
+                  infoWinOpen: false,
+                  infoContent: '',
+                  currentInfoWindowIdx: -1,
+                  infoOptions: {
+                      pixelOffset: {
+                          width: 0,
+                          height: -35
+                      }
+                  },
                 },
                 watch: {
                     valuesToSearch (val){
@@ -107,26 +101,26 @@ class GoogleMapApp {
                     this.onTableParentResize();
                 },
                 methods: {
-                    setMedia(media){
-                        if (!media.matches) {
-                            this.xs_dialog = false;
-                        }
-                    },
-                    onTableParentResize(){
-                        const parentHeight =this.getHeightById('map-container');
-                        const toolbarHeight =this.getHeightById('toolbar');
-                        this.tableHeight = parentHeight - toolbarHeight - 10;
-                    },
-                    getHeightById(elmID) {
-                        var elmPadding, elmHeight, elmMargin, elm = document.getElementById(elmID);
-                        elmHeight = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('height'));
-                        elmMargin = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-bottom'));
-                        elmPadding = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-bottom'));
-                        return (elmHeight + elmMargin + elmPadding);
-                    },
-                    runSearch(){
-                        self.findPlaces();
-                    },
+                  setMedia(media){
+                      if (!media.matches) {
+                          this.xs_dialog = false;
+                      }
+                  },
+                  onTableParentResize(){
+                      const parentHeight =this.getHeightById('map-container');
+                      const toolbarHeight =this.getHeightById('toolbar');
+                      this.tableHeight = parentHeight - toolbarHeight - 10;
+                  },
+                  getHeightById(elmID) {
+                      var elmPadding, elmHeight, elmMargin, elm = document.getElementById(elmID);
+                      elmHeight = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('height'));
+                      elmMargin = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-bottom'));
+                      elmPadding = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-bottom'));
+                      return (elmHeight + elmMargin + elmPadding);
+                  },
+                  runSearch(){
+                      self.findPlaces();
+                  },
                   openApp(center){
                     this.dialog = true;
                     self.center = center;
@@ -142,10 +136,11 @@ class GoogleMapApp {
                             const place = this.placeObjects[markerIndex];
                             const listItem = this.placesList.places[markerIndex];
                             const balloonText = "<div style=\"color: #1e88e5\">" +
-                                "<h3>" + place.name + "</h3>" +
-                                "<span style='color: mediumblue'>Distance/time: " + listItem.distance + "</span> </p>" +
-                                "</div>";
-                            this.infoContent = `<div v-html="${balloonText}"></div>`;
+                              "<h3>" + place.name + "</h3>" +
+                              "<span style='color: #0000b6'><u><b>Адрес:</b></u> " + place.address + "</span><br>" +
+                              "<span style='color: mediumblue'><u><b>Расстояние/время:</b></u> " + listItem.distanceText + "</span>" +
+                              "</div>";
+                            this.infoContent = balloonText;
                             this.infoWindowPos = marker.position;
                             this.infoWinOpen = true;
                             const bounds = new google.maps.LatLngBounds();
@@ -162,20 +157,16 @@ class GoogleMapApp {
         }
     }
     findPlaces() {
-        this.vm.placesList.loading = true;
-        const searchCriteria = {};
-      console.log(this.vm.valuesToSearch);
+      this.vm.placesList.loading = true;
+      const searchCriteria = {};
       this.vm.valuesToSearch.forEach((set) => {
-        console.log(set);
         this.vm.searchRules[set]['cat'].forEach((category) => {
           searchCriteria[category] = this.vm.searchRules[set]['icon'];
         });
       });
-      console.log(searchCriteria);
       var promise = this.placesLib.getPlaces(searchCriteria, this.center);
         promise.then(
             results => {
-              console.log(results);
               this.clearPlaces();
               this.vm.placesList.places = [];
               this.vm.placeObjects = [];
@@ -195,14 +186,13 @@ class GoogleMapApp {
         for (let i = 0, place; place = places[i]; i++) {
             this.vm.placesList.places.push({
                 value: false,
-                // address: place.formatted_address,
-                distance: place.distance,
+                distanceValue: place.distance.distance.value,
+                distanceText: place.distance.distance.text + ', ' + place.distance.duration.text,
                 name: place.name,
                 markerIndex: i,
             });
             this.vm.placeObjects.push(place);
         }
-        //this.getDistance();
     }
 
     getDistance(){

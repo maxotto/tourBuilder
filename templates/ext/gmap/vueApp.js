@@ -195,29 +195,6 @@ class GoogleMapApp {
         }
     }
 
-    getDistance(){
-        const origin = this.center;
-        // todo сделать через Promise.all
-        const all = this.vm.placeObjects.length-1;
-        if(all === 0) {
-            this.vm.placesList.loading = false;
-        } else {
-            for (let i = 0, place; place = this.vm.placeObjects[i]; i++) {
-                let promise = this.placesLib.getDistancePromise(origin,[place.geometry.location], 'DRIVING', google.maps.UnitSystem.IMPERIAL);
-                promise
-                    .then((distances) => {
-                            this.vm.placesList.places[i].distance = distances.rows[0].elements[0].distance.text + '/' + distances.rows[0].elements[0].duration.text;
-                            if (i === all) {
-                                this.vm.placesList.loading = false;
-                            }
-                        }
-                    ).catch((error) => {
-                    console.log(error);
-                });
-            }
-        }
-    }
-
     clearPlaces(){
         this.vm.infoWinOpen=false;
         for (let i = 0; i < this.vm.markers.length; i++) {

@@ -7,7 +7,7 @@ class GoogleMapPlaces{
     this.googleMapUnits = undefined;
     this.maxAttempts = 10;
     this.attemptsTimeout = 500;
-
+    this.cache = {};
   }
   initService(map){
     if(!this.service){
@@ -22,15 +22,23 @@ class GoogleMapPlaces{
     const promises = [];
     for (let category in catList){
       if(catList.hasOwnProperty(category)){
-        const promise = this.nearBySearchPromise({
-          location: center,
-          rankBy: google.maps.places.RankBy.DISTANCE,
-          type: [category],
-          icon: catList[category]
-        }).then(places => {
+        let promise = undefined;
+        if(this.cache.hasOwnProperty(category)){
+          promise = Promise.resolve(this.cache[category]);
+        } else {
+          promise = this.nearBySearchPromise({
+            location: center,
+            rankBy: google.maps.places.RankBy.DISTANCE,
+            type: [category],
+            icon: catList[category]
+          }).then(places => {
             // console.log(places);
-          return this.addDistancePromise(places);
-        });
+            return this.addDistancePromise(places);
+          }).then(places => {
+                this.cache[category] = places;
+                return Promise.resolve(this.cache[category]);
+              });
+        }
         promises.push(promise);
       }
     }

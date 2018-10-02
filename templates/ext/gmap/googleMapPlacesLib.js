@@ -1,4 +1,5 @@
 class GoogleMapPlaces{
+
   constructor(self){
     this.service = null;
     this.distanceService = null;
@@ -9,6 +10,7 @@ class GoogleMapPlaces{
     this.attemptsTimeout = 500;
     this.cache = {};
   }
+
   initService(map){
     if(!this.service){
       this.map = map;
@@ -16,6 +18,7 @@ class GoogleMapPlaces{
       this.distanceService = new google.maps.DistanceMatrixService();
     }
   }
+
   getPlaces(catList, center, units){
     this.center = center;
     this.googleMapUnits = units;
@@ -90,6 +93,7 @@ class GoogleMapPlaces{
     }
     return out;
   }
+
   getDistancePromise(origin, destinations, travelMode, unitSystem){
     const request = {
       origins: [origin],
@@ -131,6 +135,7 @@ class GoogleMapPlaces{
           }
         });
   }
+
   nearBySearchPromise(request){
     return new Promise((resolve, reject) => {
       this.service.nearbySearch(request, (places, status) => {
@@ -171,4 +176,4 @@ class GoogleMapPlaces{
     });
   };
 }
-console.log("GoogleMapPlaces.js started");
+// console.log("GoogleMapPlaces.js started");

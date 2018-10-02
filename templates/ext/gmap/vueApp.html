@@ -4,76 +4,6 @@
     <div id="googleApp" style="z-index: 8000; overflow-y: hidden">
         <v-app>
             <v-layout row justify-center>
-                <v-dialog v-model="xs_dialog" scrollable full-width>
-                    <div grid-list-md text-xs-center>
-                        <v-layout row wrap>
-                            <v-flex xs12>
-                                <v-toolbar>
-                                    <v-select
-                                            v-model="valuesToSearch"
-                                            :items="categories"
-                                            item-text="text"
-                                            item-value="id"
-                                            chips
-                                            dense
-                                            multiple
-                                    >
-                                        <template
-                                                slot="selection"
-                                                slot-scope="{ item, index }"
-                                        >
-                                            <v-chip v-if="index === 0">
-                                                <span>{{ item.text }}</span>
-                                            </v-chip>
-                                            <span
-                                                    v-if="index === 1"
-                                                    class="grey--text caption"
-                                            >(+{{ valuesToSearch.length - 1 }} others)</span>
-                                        </template>
-                                    </v-select>
-                                    <v-btn icon
-                                           :loading="placesList.loading"
-                                           :disabled="placesList.loading"
-                                           color="info"
-                                           @click.native="runSearch()"
-                                           small
-                                    >
-                                        <v-icon>search</v-icon>
-                                    </v-btn>
-                                </v-toolbar>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-data-table
-                                        :headers="placesList.headers"
-                                        :items="placesList.places"
-                                        :loading="placesList.loading"
-                                        :search="placesList.search"
-                                        class="elevation-1"
-                                        hide-actions
-                                        must-sort
-                                >
-                                    <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
-                                    <template slot="items" slot-scope="props">
-                                        <tr @click="showBalloon(props.item.markerIndex)">
-                                            <td align="center">{{ props.item.name }}</td>
-                                            <td align="center">{{ props.item.distanceText }}</td>
-                                        </tr>
-                                    </template>
-                                    <v-alert slot="no-results" :value="true" color="error" icon="warning">
-                                        Your filter for "{{ placesList.search }}" found no results.
-                                    </v-alert>
-                                    <template slot="no-data">
-                                        <v-alert :value="true" color="error" icon="warning">
-                                            Нет данных :(
-                                        </v-alert>
-                                    </template>
-                                </v-data-table>
-                            </v-flex>
-                        </v-layout>
-                    </div>
-                </v-dialog>
-            </v-layout>
-            <v-layout row justify-center>
                 <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
                     <v-flex>
                         <v-btn style="z-index: 9000"
@@ -88,125 +18,74 @@
                             <v-icon>close</v-icon>
                         </v-btn>
                     </v-flex>
-                    <v-flex hidden-sm-and-up>
-                        <v-btn
-                                style="z-index: 9000"
-                                absolute
-                                bottom
-                                left
-                                small
-                                color="error"
-                                icon @click.native="xs_dialog = true"
-                        >
-                            <v-icon>fas fa-angle-double-right </v-icon>
-                        </v-btn>
-
-                    </v-flex>
-                    <v-container fluid row fill-height>
+                    <v-container fluid row fill-height style="padding: unset">
                         <v-layout>
-                            <v-flex hidden-xs-only sm5 md4 lg3 id="map-container">
-                                <div style="width: 100%; height: 100%; background-color: aliceblue">
-                                    <v-layout justify-center>
-                                        <v-flex xs12 v-resize="onTableParentResize">
-                                            <v-toolbar id="toolbar" ref="toolbar">
-                                                <v-select
-                                                        v-model="valuesToSearch"
-                                                        :items="categories"
-                                                        item-text="text"
-                                                        item-value="id"
-                                                        chips
-                                                        dense
-                                                        multiple                                                >
-                                                    <template
-                                                            slot="selection"
-                                                            slot-scope="{ item, index }"
-                                                    >
-                                                        <v-chip v-if="index === 0">
-                                                            <span>{{ item.text }}</span>
-                                                        </v-chip>
-                                                        <span
-                                                                v-if="index === 1"
-                                                                class="grey--text caption"
-                                                        >(+{{ valuesToSearch.length - 1 }} others)</span>
-                                                    </template>
-                                                </v-select>
-                                                <v-btn icon
-                                                       :loading="placesList.loading"
-                                                       :disabled="placesList.loading"
-                                                       color="info"
-                                                       @click.native="runSearch()"
-                                                       small
-                                                >
-                                                    <v-icon>search</v-icon>
-                                                </v-btn>
-                                            </v-toolbar>
-                                            <v-flex  hidden-sm-and-down>
-                                                <v-data-table
-                                                        :style="{'max-height': `${tableHeight}px`, 'height': `${tableHeight}px`, 'overflow-y': `auto`}"
-                                                        id="foundList"
-                                                        ref="foundList"
-                                                        :headers="placesList.headers"
-                                                        :items="placesList.places"
-                                                        :loading="placesList.loading"
-                                                        :search="placesList.search"
-                                                        class="elevation-1"
-                                                        hide-actions
-                                                        must-sort
-                                                >
-                                                    <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
-                                                    <template slot="items" slot-scope="props">
-                                                        <tr @click="showBalloon(props.item.markerIndex)">
-                                                            <td align="center">{{ props.item.name }}</td>
-                                                            <td align="center">{{ props.item.distanceText }}</td>
-                                                        </tr>
-                                                    </template>
-                                                    <v-alert slot="no-results" :value="true" color="error" icon="warning">
-                                                        Your filter for "{{ placesList.search }}" found no results.
-                                                    </v-alert>
-                                                    <template slot="no-data">
-                                                        <v-alert :value="true" color="error" icon="warning">
-                                                            Нет данных :(
-                                                        </v-alert>
-                                                    </template>
-                                                </v-data-table>
-                                            </v-flex>
-                                            <v-flex  hidden-md-and-up>
-                                                <v-data-table
-                                                        :style="{'max-height': `${tableHeight}px`, 'height': `${tableHeight}px`, 'overflow-y': `auto`}"
-                                                        id="foundList"
-                                                        ref="foundList"
-                                                        :headers="placesList.headersSmallScreen"
-                                                        :items="placesList.places"
-                                                        :loading="placesList.loading"
-                                                        :search="placesList.search"
-                                                        class="elevation-1"
-                                                        hide-actions
-                                                        must-sort
-                                                >
-                                                    <v-progress-linear slot="progress" color="blue" indeterminate></v-progress-linear>
-                                                    <template slot="items" slot-scope="props">
-                                                        <tr @click="showBalloon(props.item.markerIndex)">
-                                                            <td align="center">{{ props.item.name }}</td>
-                                                        </tr>
-                                                    </template>
-                                                    <template slot="no-data">
-                                                        <v-alert :value="true" color="error" icon="warning">
-                                                            Нет данных :(
-                                                        </v-alert>
-                                                    </template>
-                                                </v-data-table>
-                                            </v-flex>
-                                        </v-flex>
-                                    </v-layout>
-                                </div>
-                            </v-flex>
-                            <v-flex xs12 sm7 md8 lg9>
-                                <google-map ref="mapRef" :center="center" :zoom="17" :options="{gestureHandling: 'greedy'}" style="width: 100%; height: 100%" id="myPanel">
+                            <v-flex>
+                                <google-map
+                                        ref="mapRef"
+                                        :center="center"
+                                        :zoom="17"
+                                        :options="mapOptions"
+                                        style="width: 100%; height: 100%" id="myPanel">
                                     <google-marker :position="center" :icon="centerIcon"></google-marker>
                                     <gmap-info-window :options="infoOptions" :position="infoWindowPos" :opened="infoWinOpen" @closeclick="infoWinOpen=false">
                                         <div v-html="infoContent"></div>
                                     </gmap-info-window>
                                 </google-map>
+                                <v-btn-toggle
+                                        v-model="valuesToSearch"
+                                        multiple
+                                        style="position: absolute; z-index: 9000; bottom: 5px; left: 5px">
+                                    <v-btn
+                                            small
+                                            color="info"
+                                            value="school"
+                                            :loading="placesList.loading"
+                                            :disabled="placesList.loading"
+                                    >
+                                        Schools
+                                        <span slot="loader" class="custom-loader">
+                                            <v-icon light>cached</v-icon>
+                                        </span>
+                                    </v-btn>
+                                    <v-btn
+                                            small
+                                            color="purple"
+                                            value="eat-drink"
+                                            :loading="placesList.loading"
+                                            :disabled="placesList.loading"
+                                    >
+                                        To eat & drink
+                                        <span slot="loader" class="custom-loader">
+                                            <v-icon light>cached</v-icon>
+                                        </span>
+                                    </v-btn>
+                                    <v-btn
+                                            small
+                                            color="orange"
+                                            value="entertainment"
+                                            :loading="placesList.loading"
+                                            :disabled="placesList.loading"
+                                    >
+                                        Entertainment
+                                        <span slot="loader" class="custom-loader">
+                                            <v-icon light>cached</v-icon>
+                                        </span>
+                                    </v-btn>
+                                    <v-btn
+                                            small
+                                            color="cyan"
+                                            value="stores"
+                                            :loading="placesList.loading"
+                                            :disabled="placesList.loading"
+                                    >
+                                        To buy
+                                        <span slot="loader" class="custom-loader">
+                                            <v-icon light>cached</v-icon>
+                                        </span>
+                                    </v-btn>
+                                </v-btn-toggle>
+
                             </v-flex>
                         </v-layout>
                     </v-container>

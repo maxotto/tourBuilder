@@ -52,7 +52,7 @@ class GoogleMapApp {
                       search: '',
                       headersSmallScreen: [
                           {
-                              text: 'Наименование',
+                              text: 'Name',
                               align: 'center',
                               sortable: false,
                               value: 'name',
@@ -60,13 +60,13 @@ class GoogleMapApp {
                       ],
                       headers: [
                           {
-                              text: 'Наименование',
+                              text: 'Name',
                               align: 'center',
                               sortable: false,
                               value: 'name',
                           },
                           {
-                              text: 'Расстояние',
+                              text: 'Distance',
                               value: 'distanceValue',
                               sortable: true,
                               align: 'center',
@@ -77,6 +77,10 @@ class GoogleMapApp {
                   },
                   placeObjects: [],
                   markers: [],
+                  mapOptions: {
+                    gestureHandling: 'greedy',
+                    mapTypeControl: false,
+                  },
                   infoWindowPos: null,
                   infoWinOpen: false,
                   infoContent: '',
@@ -89,8 +93,8 @@ class GoogleMapApp {
                   },
                 },
                 watch: {
-                    valuesToSearch (val){
-                        // this.runSearch();
+                    valuesToSearch (currentList, oldList){
+                        this.runSearch();
                     }
                 },
                 mounted(){
@@ -107,9 +111,9 @@ class GoogleMapApp {
                       }
                   },
                   onTableParentResize(){
-                      const parentHeight =this.getHeightById('map-container');
-                      const toolbarHeight =this.getHeightById('toolbar');
-                      this.tableHeight = parentHeight - toolbarHeight - 10;
+                      // const parentHeight =this.getHeightById('map-container');
+                      // const toolbarHeight =this.getHeightById('toolbar');
+                      // this.tableHeight = parentHeight - toolbarHeight - 10;
                   },
                   getHeightById(elmID) {
                       var elmPadding, elmHeight, elmMargin, elm = document.getElementById(elmID);
@@ -122,6 +126,12 @@ class GoogleMapApp {
                       self.findPlaces();
                   },
                   openApp(config){
+                    this.mapOptions.mapTypeControl = true;
+                    this.mapOptions.fullscreenControl = false;
+                    this.mapOptions.mapTypeControlOptions = {
+                      style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+                      position: google.maps.ControlPosition.TOP_CENTER
+                    };
                     this.dialog = true;
                     self.center.lat = config.lat;
                     self.center.lng = config.lng;
@@ -140,8 +150,8 @@ class GoogleMapApp {
                             const listItem = this.placesList.places[markerIndex];
                             const balloonText = "<div style=\"color: #1e88e5\">" +
                               "<h3>" + place.name + "</h3>" +
-                              "<span style='color: #0000b6'><u><b>Адрес:</b></u> " + place.address + "</span><br>" +
-                              "<span style='color: mediumblue'><u><b>Расстояние/время:</b></u> " + listItem.distanceText + "</span>" +
+                              "<span style='color: #0000b6'><u><b>Address:</b></u> " + place.address + "</span><br>" +
+                              "<span style='color: mediumblue'><u><b>Distance/time:</b></u> " + listItem.distanceText + "</span>" +
                               "</div>";
                             this.infoContent = balloonText;
                             this.infoWindowPos = marker.position;
@@ -159,6 +169,7 @@ class GoogleMapApp {
             this.ready = true;
         }
     }
+
     findPlaces() {
       this.vm.placesList.loading = true;
       const searchCriteria = {};
@@ -212,14 +223,6 @@ class GoogleMapApp {
         let count = 0;
         for (let i = 0, place; place = places[i]; i++) {
             count++;
-            const image = {
-                url: "http://maps.google.com/mapfiles/ms/micons/red.png",
-                // url: place.icon
-                size: new google.maps.Size(71, 71),
-                origin: new google.maps.Point(0, 0),
-                anchor: new google.maps.Point(17, 34)
-                // scaledSize: new google.maps.Size(25, 25)
-            };
             const marker = new google.maps.Marker({
                 map: this.map,
                 icon: 'ext/gmap/img/' + place.icon,
@@ -262,26 +265,6 @@ function httpGet(theUrl)
     return xmlHttp.responseText;
 }
 
-/**
- * @function promisify: convert api based callbacks to promises
- * @description takes in a factory function and promisifies it
- * @params {function} input function to promisify
- * @params {array} an array of inputs to the function to be promisified
- * @return {function} promisified function
- * */
-function promisify(fn) {
-    return function () {
-        var args = Array.prototype.slice.call(arguments);
-        return new Promise(function(resolve, reject) {
-            fn.apply(null, args.concat(function (err, result) {
-                if (err) reject(err);
-                else resolve(result);
-            }));
-        });
-    }
-}
-
-
 console.log("vueApp.js started");
 Vue.use(VueGoogleMaps, {
     load: {
@@ -309,99 +292,4 @@ Vue.use(VueGoogleMaps, {
 var googleMap = new GoogleMapApp();
 googleMap.createApp();
 
-/*
-                    obj_types:[
-                        'no filter',
-                        'accounting',
-                        'airport',
-                        'amusement_park',
-                        'aquarium',
-                        'art_gallery',
-                        'atm',
-                        'bakery',
-                        'bank',
-                        'bar',
-                        'beauty_salon',
-                        'bicycle_store',
-                        'book_store',
-                        'bowling_alley',
-                        'bus_station',
-                        'cafe',
-                        'campground',
-                        'car_dealer',
-                        'car_rental',
-                        'car_repair',
-                        'car_wash',
-                        'casino',
-                        'cemetery',
-                        'church',
-                        'city_hall',
-                        'clothing_store',
-                        'convenience_store',
-                        'courthouse',
-                        'dentist',
-                        'department_store',
-                        'doctor',
-                        'electrician',
-                        'electronics_store',
-                        'embassy',
-                        'fire_station',
-                        'florist',
-                        'funeral_home',
-                        'furniture_store',
-                        'gas_station',
-                        'gym',
-                        'hair_care',
-                        'hardware_store',
-                        'hindu_temple',
-                        'home_goods_store',
-                        'hospital',
-                        'insurance_agency',
-                        'jewelry_store',
-                        'laundry',
-                        'lawyer',
-                        'library',
-                        'liquor_store',
-                        'local_government_office',
-                        'locksmith',
-                        'lodging',
-                        'meal_delivery',
-                        'meal_takeaway',
-                        'mosque',
-                        'movie_rental',
-                        'movie_theater',
-                        'moving_company',
-                        'museum',
-                        'night_club',
-                        'painter',
-                        'park',
-                        'parking',
-                        'pet_store',
-                        'pharmacy',
-                        'physiotherapist',
-                        'plumber',
-                        'police',
-                        'post_office',
-                        'real_estate_agency',
-                        'restaurant',
-                        'roofing_contractor',
-                        'rv_park',
-                        'school',
-                        'shoe_store',
-                        'shopping_mall',
-                        'spa',
-                        'stadium',
-                        'storage',
-                        'store',
-                        'subway_station',
-                        'supermarket',
-                        'synagogue',
-                        'taxi_stand',
-                        'train_station',
-                        'transit_station',
-                        'travel_agency',
-                        'veterinary_care',
-                        'zoo',
-                    ],
 
- */

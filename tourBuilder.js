@@ -88,6 +88,7 @@ module.exports = function (config) {
 
   const setSkinSettings = function(xml) {
     xml.krpano.skin_settings[0]['$']['maps'] = config.showMap;
+    xml.krpano.skin_settings[0]['$']['loadingtext'] = config.loadingtext;
     xml.krpano.skin_settings[0]['$']['maps_google_api_key'] = config.googleApiKey;
     if(config.useCustomMap){
       xml.krpano.skin_settings[0]['$']['maps_type'] = 'bing';
@@ -130,7 +131,10 @@ module.exports = function (config) {
       xml.krpano.scene[i]['$']['lat'] = config.mapCenter.lat;
       xml.krpano.scene[i]['$']['lng'] = config.mapCenter.lng;
       // hotspots
-      const hotspots = xml.krpano.scene[i]['hotspot'];
+      const hotspots = xml.krpano.scene[i]['hotspot'] || [];
+      if (hotspots.length === 0){
+        log('Warning! Scene "' + xml.krpano.scene[i]['$']['name'] + '" has no hotspots!');
+      }
       hotspots.forEach((hs, hsI) => {
         xml.krpano.scene[i]['hotspot'][hsI]['$']['linkedscene_lookat'] = 0;
         xml.krpano.scene[i]['hotspot'][hsI]['$']['style'] = 'hotspot_ani_white';
@@ -192,7 +196,54 @@ module.exports = function (config) {
         );
       }
     }
+    // actions
+    // 1 delete all actions
+    xml.krpano.action = [];
+    // recreate actions
+    let body = '\nturnOffAllButtons();\n';
+    for (let floor in floorsList) {
+      if (floorsList.hasOwnProperty(floor)){
+        body = body + 'if(floor_settings.current == ' + floor + ',\n' +
+          'set(layer[fs' + floor + 'Off].visible, false);\n' +
+          'set(layer[fs' + floor + 'On].visible, true);\n' +
+          ');\n';
+      }
+    }
+    xml.krpano.action.push(createAction('setButtonsByFloor', body));
+
+    body = '\nturnOffAllMaps();\n' +
+      'setButtonsByFloor();\n';
+    for (let floor in floorsList) {
+      if (floorsList.hasOwnProperty(floor)){
+        body = body + 'if(floor_settings.current === ' + floor + ',\n' +
+          'loadscene(get(floor_settings.start_scene_' + floor + '),null,MERGE,COLORBLEND(1.0,0x000000,easeOutSine));\n' +
+          ',);\n';
+      }
+    }
+    xml.krpano.action.push(createAction('toggleButtons', body));
+
+    body = '\n';
+    for (let floor in floorsList) {
+      if (floorsList.hasOwnProperty(floor)){
+        body = body + 'set(layer[fs' + floor + 'Off].visible, true);\n';
+        body = body + 'set(layer[fs' + floor + 'On].visible, false);\n';
+      }
+    }
+    xml.krpano.action.push(createAction('turnOffAllButtons', body));
+    // log(xml.krpano.action);
+
     return xml;
+  };
+
+  const createTag = function(params, body) {
+    const tag = {};
+    tag['$'] = params;
+    tag['_'] = body;
+    return tag;
+  };
+
+  const createAction = function(name, body) {
+    return createTag({name: name} , body);
   };
 
   const composeFloorMap = function(xml) {

@@ -7,13 +7,19 @@ const config = {
   showMap: true,
   useCustomMap: true,
   language: 'ru',
+  loadingtext: '',
   // googleMapUnits: 'METRIC',
   googleMapUnits: 'IMPERIAL',
+  //43.76841812480301, lng->-79.39991750129661
   mapCenter: {
-    lat: 56.0740,
-    lng: 37.5964
+    lat: 43.76841812480301,
+    lng: -79.39991750129661
   },
   floorSelect: [
+    {
+      floor: 0,
+      image: 'map_basement.png',
+    },
     {
       floor: 1,
       image: 'map_1_floor.jpg',

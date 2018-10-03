@@ -17,7 +17,7 @@ class GoogleMapApp {
         if (!this.ready) {
             const self = this;
             const appDiv = document.getElementById('vueAppContainer');
-            appDiv.innerHTML = httpGet('/ext/gmap/vueApp.html');
+            appDiv.innerHTML = httpGet('ext/gmap/vueApp.html');
             Vue.component('google-map', VueGoogleMaps.Map);
             Vue.component('google-marker', VueGoogleMaps.Marker);
             this.vm = new Vue ({

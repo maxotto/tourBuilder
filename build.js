@@ -30,6 +30,13 @@ const config = {
       image: 'map_2_floor.jpg',
     },
   ],
+  ftp_deploy: {
+    run: true,
+    host: 'host',
+    user: 'username',
+    password: 'password',
+    destinationPath: '224HollyWoodAve',
+  }
 };
 const myBuilder = Builder(config);
 myBuilder.run();

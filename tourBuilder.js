@@ -40,11 +40,6 @@ module.exports = function (config) {
       copy(inFolder, outFolder, itemsToCopy);
       Fs.renameSync(Path.resolve(outFolder,'tour.html'), Path.resolve(outFolder,'index.html'));
     }
-    itemsToCopy = [];
-    config.floorSelect.forEach(item => {
-      itemsToCopy.push(item.image);
-    });
-    copy(Path.resolve(inFolder, 'custom'), Path.resolve(outFolder,'ext/tour'), itemsToCopy);
   };
 
   const loadXml = function(file) {
@@ -106,7 +101,10 @@ module.exports = function (config) {
 
   const updateScenes = function(xml) {
     xml.krpano.scene.forEach((scene, i) => {
+
+      // if floor for a scene is not set, we assume that floor = 1
       const floor = scene['$']['floor'] || 1;
+
       const mapActionName = `map_${floor}_floor`;
       // список сцен на этаже
       if (!floorsList[floor]) floorsList[floor] = [];
@@ -140,6 +138,22 @@ module.exports = function (config) {
         xml.krpano.scene[i]['hotspot'][hsI]['$']['style'] = 'hotspot_ani_white';
       });
     });
+
+    for (let f in mapHotspots ){
+      if(mapHotspots.hasOwnProperty(f)){
+        if (mapHotspots[f].length === 0) {
+          // console.error('ERROR! There are no scenes marked as hotspots to show them on floor #' + f + ' map! Please, correct TOUR.XML in ' + inFolder + '!\n');
+          throw new Error('\nAt least the first scene of each floor must be marked as \'hotspot="true"\' to show them on floor #' + f + ' map!\nPlease, correct TOUR.XML in ' + inFolder + ' according to ReadMe.docx!\n');
+        }
+      }
+    }
+    itemsToCopy = [];
+    config.floorSelect.forEach(item => {
+      if (floorsList.hasOwnProperty(item.floor)){
+        itemsToCopy.push(item.image);
+      }
+    });
+    copy(Path.resolve(inFolder, 'custom'), Path.resolve(outFolder,'ext/tour'), itemsToCopy);
     return xml;
   };
 
@@ -155,45 +169,48 @@ module.exports = function (config) {
     // add real
     xml.krpano.layer = [];
     let i = 0;
-    for (let floor in floorsList) {
-      if (floorsList.hasOwnProperty(floor)){
-        i++;
-        let itemName = `start_scene_${floor}`;
-        xml.krpano.floor_settings[0].$[itemName] = floorsList[floor][0];
-        xml.krpano.layer.push(
-          { '$':
-            { name: `fs${floor}Off`,
-              visible: `false`,
-              url: `${floor}FloorUp.jpg`,
-              keep: `true`,
-              handcursor: `true`,
-              capture: `false`,
-              align: `rightbottom`,
-              y: `${20 + 38*floor}`,
-              x: `21`,
-              scale: `0.5`,
-              scalechildren: `true`,
-              onclick: `set(floor_settings.current,${floor});toggleButtons();`
-            }
-          },
-        );
-        xml.krpano.layer.push(
-          { '$':
-            { name: `fs${floor}On`,
-              visible: `true`,
-              url: `${floor}FloorDown.jpg`,
-              keep: `true`,
-              handcursor: `true`,
-              capture: `false`,
-              align: `rightbottom`,
-              y: `${20 + 38*floor}`,
-              x: `21`,
-              scale: `0.5`,
-              scalechildren: `true`,
-              onclick: ``
-            }
-          },
-        );
+    var floorsCount = Object.keys(floorsList).length;
+    if (floorsCount !== 1) {
+      for (let floor in floorsList) {
+        if (floorsList.hasOwnProperty(floor)){
+          i++;
+          let itemName = `start_scene_${floor}`;
+          xml.krpano.floor_settings[0].$[itemName] = floorsList[floor][0];
+          xml.krpano.layer.push(
+            { '$':
+                { name: `fs${floor}Off`,
+                  visible: `false`,
+                  url: `${floor}FloorUp.jpg`,
+                  keep: `true`,
+                  handcursor: `true`,
+                  capture: `false`,
+                  align: `rightbottom`,
+                  y: `${20 + 38*floor}`,
+                  x: `21`,
+                  scale: `0.5`,
+                  scalechildren: `true`,
+                  onclick: `set(floor_settings.current,${floor});toggleButtons();`
+                }
+            },
+          );
+          xml.krpano.layer.push(
+            { '$':
+                { name: `fs${floor}On`,
+                  visible: `true`,
+                  url: `${floor}FloorDown.jpg`,
+                  keep: `true`,
+                  handcursor: `true`,
+                  capture: `false`,
+                  align: `rightbottom`,
+                  y: `${20 + 38*floor}`,
+                  x: `21`,
+                  scale: `0.5`,
+                  scalechildren: `true`,
+                  onclick: ``
+                }
+            },
+          );
+        }
       }
     }
     // actions

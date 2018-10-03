@@ -1,7 +1,6 @@
 const Fs = require('fs-extra');
 const Xml2js = require('xml2js');
 const Path = require('path');
-const Ftp = require('promise-ftp');
 
 
 module.exports = function (config) {
@@ -336,10 +335,6 @@ module.exports = function (config) {
     return xml;
   };
 
-  const deploy = function(){
-    return Promise.resolve('Done!');
-  };
-
   const o = {};
 
   o.run = function(){
@@ -387,9 +382,6 @@ module.exports = function (config) {
           // delete xml.krpano.action;
         }
         return saveXml(xml, Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
-      })
-      .then(res => {
-        return deploy();
       })
       .then(res => log(res, 'Finish run'))
       .catch(err => {

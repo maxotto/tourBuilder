@@ -44,10 +44,12 @@ class GoogleMapApp {
                     {id: 'stores', cat:['clothing_store', 'bakery', 'convenience_store', 'department_store', 'electronics_store', 'hardware_store', 'store',], text: "Купить", icon: 'static/img/gmap/mall.png'},
                   ],
                   valuesToSearch: [],
-
+                  showTableButton: false,
+                  showTableButtonSelected: '',
+                  showTable: false,
                   notFound: false,
 
-                  tableHeight: 0,
+                  tableHeight: 330,
                   placesList: {
                       search: '',
                       headersSmallScreen: [
@@ -93,9 +95,20 @@ class GoogleMapApp {
                   },
                 },
                 watch: {
-                    valuesToSearch (currentList, oldList){
-                        this.runSearch();
+                  valuesToSearch (currentList, oldList){
+                    this.showTableButton = (currentList.length !==0 );
+                    if(currentList.length === 0){
+                      this.showTable = false;
+                      this.showTableButtonSelected = null;
                     }
+                    this.runSearch();
+                  },
+                  showTableButtonSelected(active){
+                    this.showTable = (active === 0);
+                  },
+                  showTable(val){
+                    if (val) this.onTableParentResize();
+                  }
                 },
                 mounted(){
                     this.$refs.mapRef.$mapPromise.then((map) => {
@@ -111,9 +124,8 @@ class GoogleMapApp {
                       }
                   },
                   onTableParentResize(){
-                      // const parentHeight =this.getHeightById('map-container');
-                      // const toolbarHeight =this.getHeightById('toolbar');
-                      // this.tableHeight = parentHeight - toolbarHeight - 10;
+                    const parentHeight =this.getHeightById('googleApp');
+                    this.tableHeight = parentHeight - 37;
                   },
                   getHeightById(elmID) {
                       var elmPadding, elmHeight, elmMargin, elm = document.getElementById(elmID);

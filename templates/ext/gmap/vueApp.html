@@ -3,8 +3,32 @@
 <div id="map" style="background-color: azure; color: black; overflow-y: hidden">
     <div id="googleApp" style="z-index: 8000; overflow-y: hidden">
         <v-app>
-            <v-layout row justify-center>
+            <v-layout row justify-center v-resize="onTableParentResize">
                 <v-dialog v-model="dialog" fullscreen hide-overlay transition="dialog-bottom-transition">
+                    <div v-show="showTable" id="data-table"
+                         :style="{
+                                'position': 'absolute',
+                                'bottom': '37px',
+                                'left': '5px',
+                                'width': '405px',
+                                'z-index': '8500',
+                                'max-height': `${tableHeight}px`,
+                                'height': `${tableHeight}px`,
+                                'overflow-y': `auto`}">
+                        <v-data-table
+                                :headers="placesList.headers"
+                                :items="placesList.places"
+                                hide-actions
+                                class="elevation-5"
+                        >
+                            <template slot="items" slot-scope="props">
+                                <tr @click="showBalloon(props.item.markerIndex)">
+                                    <td>{{ props.item.name }}</td>
+                                    <td>{{ props.item.distanceText }}</td>
+                                </tr>
+                            </template>
+                        </v-data-table>
+                    </div>
                     <v-flex>
                         <v-btn style="z-index: 9000"
                                absolute
@@ -85,7 +109,18 @@
                                         </span>
                                     </v-btn>
                                 </v-btn-toggle>
+                                <v-btn-toggle
+                                        v-model = "showTableButtonSelected"
+                                        style="position: absolute; z-index: 9000; bottom: 5px; left: 370px">
+                                    <v-btn
+                                       v-if = "showTableButton"
+                                       small
+                                       @click.native="tableDialog = true"
+                                    >
+                                        <v-icon color="indigo">list_alt</v-icon>
+                                    </v-btn>
 
+                                </v-btn-toggle>
                             </v-flex>
                         </v-layout>
                     </v-container>

@@ -282,7 +282,7 @@ module.exports = function (config) {
       if (floorsList.hasOwnProperty(floor)){
         let imageUrl = `map_${floor}_floor.png`;
         config.floorSelect.forEach(item => {
-          if(item.floor == floor){
+          if(item.floor === Number(floor)){
             imageUrl = item.image;
           }
         });

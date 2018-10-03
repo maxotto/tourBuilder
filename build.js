@@ -1,4 +1,5 @@
 const Builder = require('./tourBuilder');
+const FtpConfig = require('./ftpConfig');
 const config = {
   inFolder: './inFolder',
   outFolder: './outFolder',
@@ -10,8 +11,6 @@ const config = {
   loadingtext: '',
   // googleMapUnits: 'METRIC',
   googleMapUnits: 'IMPERIAL',
-  //43.76841812480301, lng->-79.39991750129661
-  // 43,7604; -79,4116
   mapCenter: {
     lat: 43.7604,
     lng: -79.4116
@@ -30,13 +29,7 @@ const config = {
       image: 'map_2_floor.jpg',
     },
   ],
-  ftp_deploy: {
-    run: true,
-    host: 'host',
-    user: 'username',
-    password: 'password',
-    destinationPath: '224HollyWoodAve',
-  }
+  ftp_deploy: FtpConfig
 };
 const myBuilder = Builder(config);
 myBuilder.run();

@@ -337,7 +337,7 @@ module.exports = function (config) {
   };
 
   const deploy = function(){
-
+    return Promise.resolve('Done!');
   };
 
   const o = {};

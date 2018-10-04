@@ -351,7 +351,7 @@ module.exports = function (config, ftp_deploy) {
         if (err) {
           reject(err)
         } else {
-          resolve(result);
+          resolve('Deployed by FTP.');
         }
       });
 

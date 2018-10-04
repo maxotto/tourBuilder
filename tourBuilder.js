@@ -340,11 +340,11 @@ module.exports = function (config, ftp_deploy) {
   const deploy = function() {
     log(config.ftp_deploy);
     FtpSync.settings = {
-      host: config.ftp_deploy.host,
-      user: config.ftp_deploy.user,
-      pass: config.ftp_deploy.password,
+      host: config.FtpConfig.host,
+      user: config.FtpConfig.user,
+      pass: config.FtpConfig.password,
       local: outFolder,
-      remote: config.ftp_deploy.destinationPath
+      remote: config.FtpConfig.destinationPath
     };
     return new Promise((resolve, reject) => {
       FtpSync.run(function(err, result) {

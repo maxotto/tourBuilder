@@ -36,8 +36,9 @@ const config = {
     },
   ]
 };
+let ftp_deploy = undefined;
 if (FtpConfig.run) {
-  config.ftp_deploy = FtpConfig
+  ftp_deploy = FtpConfig
 }
-const myBuilder = Builder(config);
+const myBuilder = Builder(config, ftp_deploy);
 myBuilder.run();

@@ -4,12 +4,13 @@ const Path = require('path');
 const FtpSync = require('ftpsync');
 
 
-module.exports = function (config) {
+module.exports = function (config, ftp_deploy) {
 
   const log = function(...args){
     console.log(...args);
   };
   log('Module created with config', config);
+  config.FtpConfig = ftp_deploy;
   const inFolder = Path.resolve(config.inFolder);
   const outFolder = Path.resolve(config.outFolder);
   const templatesFolder = Path.resolve(config.templatesFolder);

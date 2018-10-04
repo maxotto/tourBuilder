@@ -1,3 +1,4 @@
 node_modules
 .idea
 ftpConfig.js
+localSettings.js

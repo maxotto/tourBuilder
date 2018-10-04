@@ -118,11 +118,6 @@ class GoogleMapApp {
                     this.onTableParentResize();
                 },
                 methods: {
-                  setMedia(media){
-                      if (!media.matches) {
-                          this.xs_dialog = false;
-                      }
-                  },
                   onTableParentResize(){
                     const parentHeight =this.getHeightById('googleApp');
                     this.tableHeight = parentHeight - 37;
@@ -177,7 +172,6 @@ class GoogleMapApp {
                     }
                 },
             });
-            matchMedia('(max-width: 599px)').addListener(this.vm.setMedia);
             this.ready = true;
         }
     }

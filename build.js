@@ -1,8 +1,9 @@
 const Builder = require('./tourBuilder');
 const FtpConfig = require('./ftpConfig');
+const LocalSettings = require('./localSettings');
 const config = {
-  inFolder: 'e:/krpano/inFolder',
-  outFolder: 'e:/krpano/outFolder',
+  inFolder: LocalSettings.inFolder,
+  outFolder: LocalSettings.outFolder,
   templatesFolder: './templates',
   googleApiKey: 'AIzaSyARIMiX_C7rE4U-pM6nih2n2z2z0YfhrfY',
   showMap: true,

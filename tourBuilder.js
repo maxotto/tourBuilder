@@ -1,6 +1,7 @@
 const Fs = require('fs-extra');
 const Xml2js = require('xml2js');
 const Path = require('path');
+const FtpSync = require('ftpsync');
 
 
 module.exports = function (config) {
@@ -335,6 +336,29 @@ module.exports = function (config) {
     return xml;
   };
 
+  const deploy = function() {
+    log(config.ftp_deploy);
+    const options = {
+      host: config.ftp_deploy.host,
+      user: config.ftp_deploy.user,
+      pass: config.ftp_deploy.password,
+      local: outFolder,
+      remote: config.ftp_deploy.destinationPath
+    };
+    FtpSync.settings = options;
+    return new Promise((resolve, reject) => {
+      FtpSync.run(function(err, result) {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(result);
+        }
+      });
+
+    });
+    // return Promise.resolve('Deployed by FTP.\n');
+  };
+
   const o = {};
 
   o.run = function(){
@@ -383,7 +407,14 @@ module.exports = function (config) {
         }
         return saveXml(xml, Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
       })
-      .then(res => log(res, 'Finish run'))
+      .then((res) => {
+        if (config.ftp_deploy && config.ftp_deploy.run) {
+          return deploy();
+        } else {
+          return Promise.resolve('Deploy skipped.');
+        }
+      })
+      .then(res => log(res, 'Finish.'))
       .catch(err => {
         log(err);
       });

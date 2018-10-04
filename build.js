@@ -1,8 +1,8 @@
 const Builder = require('./tourBuilder');
 const FtpConfig = require('./ftpConfig');
 const config = {
-  inFolder: './inFolder_224hollywoodave',
-  outFolder: './outFolder',
+  inFolder: '../inFolder',
+  outFolder: '../outFolder',
   templatesFolder: './templates',
   googleApiKey: 'AIzaSyARIMiX_C7rE4U-pM6nih2n2z2z0YfhrfY',
   showMap: true,
@@ -34,8 +34,10 @@ const config = {
       floor: 2,
       image: 'map_2_floor.jpg',
     },
-  ],
-  ftp_deploy: FtpConfig
+  ]
 };
+if (FtpConfig.run) {
+  config.ftp_deploy = FtpConfig
+}
 const myBuilder = Builder(config);
 myBuilder.run();

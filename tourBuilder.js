@@ -339,14 +339,13 @@ module.exports = function (config, ftp_deploy) {
 
   const deploy = function() {
     log(config.ftp_deploy);
-    const options = {
+    FtpSync.settings = {
       host: config.ftp_deploy.host,
       user: config.ftp_deploy.user,
       pass: config.ftp_deploy.password,
       local: outFolder,
       remote: config.ftp_deploy.destinationPath
     };
-    FtpSync.settings = options;
     return new Promise((resolve, reject) => {
       FtpSync.run(function(err, result) {
         if (err) {
@@ -409,7 +408,7 @@ module.exports = function (config, ftp_deploy) {
         return saveXml(xml, Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
       })
       .then((res) => {
-        if (config.ftp_deploy && config.ftp_deploy.run) {
+        if (config.FtpConfig && config.FtpConfig.run) {
           return deploy();
         } else {
           return Promise.resolve('Deploy skipped.');

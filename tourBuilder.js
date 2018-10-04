@@ -347,6 +347,7 @@ module.exports = function (config, ftp_deploy) {
       remote: config.FtpConfig.destinationPath
     };
     return new Promise((resolve, reject) => {
+      FtpSync.mkdir = [config.FtpConfig.destinationPath];
       FtpSync.run(function(err, result) {
         if (err) {
           reject(err)

@@ -338,16 +338,14 @@ module.exports = function (config, ftp_deploy) {
   };
 
   const deploy = function() {
-    log(config.ftp_deploy);
     FtpSync.settings = {
       host: config.FtpConfig.host,
       user: config.FtpConfig.user,
       pass: config.FtpConfig.password,
-      local: outFolder,
+      local: Path.resolve(outFolder, '../'),
       remote: config.FtpConfig.destinationPath
     };
     return new Promise((resolve, reject) => {
-      FtpSync.mkdir = [config.FtpConfig.destinationPath];
       FtpSync.run(function(err, result) {
         if (err) {
           reject(err)
@@ -355,9 +353,7 @@ module.exports = function (config, ftp_deploy) {
           resolve('Deployed by FTP.');
         }
       });
-
     });
-    // return Promise.resolve('Deployed by FTP.\n');
   };
 
   const o = {};
@@ -404,11 +400,11 @@ module.exports = function (config, ftp_deploy) {
         );`;
         } else {
           xml.krpano.action[0]['$']['name'] = 'switched_off';
-          // delete xml.krpano.action;
         }
         return saveXml(xml, Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
       })
       .then((res) => {
+        log('Local copy is ready.');
         if (config.FtpConfig && config.FtpConfig.run) {
           return deploy();
         } else {

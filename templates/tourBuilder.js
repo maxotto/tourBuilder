@@ -343,7 +343,8 @@ module.exports = function (config, ftp_deploy) {
       user: config.FtpConfig.user,
       pass: config.FtpConfig.password,
       local: Path.resolve(outFolder, '../'),
-      remote: config.FtpConfig.destinationPath
+      remote: config.FtpConfig.destinationPath,
+      connections: 1,
     };
     return new Promise((resolve, reject) => {
       FtpSync.run(function(err, result) {

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<krpano>
+    <action args="show" scope="local" name="skin_showmap">
+        if(show == null, set(show,true); );
+        if(show, jscall(window.vueApp.$emit('openMap', {
+        lat: 43.7604,
+        lng: -79.4116,
+        language: 'ru',
+        googleMapUnits: 'IMPERIAL'
+        })); );
+    </action>
+  <action name="skin_addmapspots" scope="local">&#xD;
+        for(set(i,0), i LT scene.count, inc(i),&#xD;
+        if(scene[get(i)].lat,&#xD;
+        calc(spotname, 'spot' + i);&#xD;
+        calc(spotclickevent, 'skin_hidetooltips(); activatespot(' + spotname + '); skin_loadscene(' + scene[get(i)].name + ',get(skin_settings.loadscene_blend)); skin_updatescroll(); delayedcall(0.5,skin_showmap(false));' );&#xD;
+        copy(scene[get(i)].mapspotname, spotname);&#xD;
+        caller.addspot(get(spotname), get(scene[get(i)].lat), get(scene[get(i)].lng), get(scene[get(i)].heading), false, get(spotclickevent), null);&#xD;
+        if(skin_settings.tooltips_mapspots,&#xD;
+        set(layer[skin_map].spot[get(spotname)].tooltip, get(scene[get(i)].title) );&#xD;
+        txtadd(layer[skin_map].spot[get(spotname)].onover, 'set(hovering,true);',  get(style[skin_tooltips].onover) );&#xD;
+        txtadd(layer[skin_map].spot[get(spotname)].onout,  'set(hovering,false);', get(style[skin_tooltips].onout)  );&#xD;
+        );&#xD;
+        );&#xD;
+        );&#xD;
+&#xD;
+        caller.activatespot( calc(xml.scene != null ? scene[get(xml.scene)].mapspotname : 'spot0') );&#xD;
+        caller.pantospot( calc(xml.scene != null ? scene[get(xml.scene)].mapspotname : 'spot0') );&#xD;&#xD;
+        caller.setzoom(17);&#xD;&#xD;
+    </action>
+</krpano>

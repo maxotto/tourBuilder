@@ -13,13 +13,27 @@ module.exports = function (config, ftp_deploy) {
   config.FtpConfig = ftp_deploy;
   const inFolder = Path.resolve(config.inFolder);
   const outFolder = Path.resolve(config.outFolder);
+  const tourFolder = Path.resolve(outFolder, 'tour');
   const templatesFolder = Path.resolve(config.templatesFolder);
   let mainXML = undefined;
   let floorsList = {};
   let mapHotspots = {};
 
   const initOutFolder = function () {
-    let itemsToCopy = [
+    let itemsToCopy;
+
+    itemsToCopy = [
+      'css',
+      'fonts',
+      'js',
+      'libs',
+      'tour',
+      'index.html'
+    ];
+
+    copy(Path.resolve(templatesFolder, 'www'), Path.resolve(outFolder), itemsToCopy);
+
+    itemsToCopy = [
       'panos',
       'plugins',
       'skin',
@@ -29,19 +43,8 @@ module.exports = function (config, ftp_deploy) {
       'tour.xml',
       // 'tour_testingserver.exe'
     ];
-    copy(inFolder, outFolder, itemsToCopy);
-    itemsToCopy = ['ext'];
-    copy(templatesFolder, outFolder, itemsToCopy);
-    if(config.useCustomMap){
-      itemsToCopy = ['index.html'];
-      copy(templatesFolder, outFolder, itemsToCopy);
-    } else {
-      itemsToCopy = [
-        'tour.html'
-      ];
-      copy(inFolder, outFolder, itemsToCopy);
-      Fs.renameSync(Path.resolve(outFolder,'tour.html'), Path.resolve(outFolder,'index.html'));
-    }
+    copy(inFolder, Path.resolve(outFolder, 'tour'), itemsToCopy);
+    log('Out folder initialized.')
   };
 
   const loadXml = function(file) {
@@ -361,47 +364,46 @@ module.exports = function (config, ftp_deploy) {
   o.run = function(){
     log('Start run');
     initOutFolder();
-    loadXml(Path.resolve(outFolder, 'tour.xml'))
+    // return;
+    loadXml(Path.resolve(tourFolder, 'tour.xml'))
       .then( xml => {
         mainXML = xml;
         xml = setIncludes(xml);
         xml = setSkinSettings(xml);
         xml = updateScenes(xml);
-        return saveXml(xml, Path.resolve(outFolder, 'tour.xml'));
+        return saveXml(xml, Path.resolve(tourFolder, 'tour.xml'));
       })
       .then(() => {
-        return loadXml(Path.resolve(outFolder, 'ext/tour/floorMap.xml'));
+        return loadXml(Path.resolve(tourFolder, 'ext/tour/floorMap.xml'));
       })
       .then((xml) => {
         xml = composeFloorMap(xml);
-        return saveXml(xml, Path.resolve(outFolder, 'ext/tour/floorMap.xml'));
+        return saveXml(xml, Path.resolve(tourFolder, 'ext/tour/floorMap.xml'));
       })
       .then(() => {
-        return loadXml(Path.resolve(outFolder, 'ext/tour/floorSelector.xml'));
+        return loadXml(Path.resolve(tourFolder, 'ext/tour/floorSelector.xml'));
       })
       .then((xml) => {
         xml = composeFloorSelector(xml);
-        return saveXml(xml, Path.resolve(outFolder, 'ext/tour/floorSelector.xml'));
+        return saveXml(xml, Path.resolve(tourFolder, 'ext/tour/floorSelector.xml'));
       })
       .then(() => {
-        return loadXml(Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
+        return loadXml(Path.resolve(tourFolder, 'ext/gmap/googleMap.xml'));
       })
       .then((xml) => {
         if(config.useCustomMap){
           xml.krpano.action[0]['_'] = `if(show == null, set(show,true); );
-        if(show,
-        jscall(googleMap.vm.openApp(
+        if(show, jscall(window.vueApp.$emit('openMap', 
         {
           lat: ${config.mapCenter.lat}, 
           lng: ${config.mapCenter.lng},
           language: '${config.language}',
           googleMapUnits: '${config.googleMapUnits}' 
-        }));
-        );`;
+        })); );`;
         } else {
           xml.krpano.action[0]['$']['name'] = 'switched_off';
         }
-        return saveXml(xml, Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
+        return saveXml(xml, Path.resolve(tourFolder, 'ext/gmap/googleMap.xml'));
       })
       .then((res) => {
         log('Local copy is ready.');

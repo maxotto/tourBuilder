@@ -3,7 +3,7 @@ const LocalSettings = require('./localSettings');
 const config = {
   inFolder: LocalSettings.inFolder,
   outFolder: LocalSettings.outFolder,
-  templatesFolder: './templates',
+  templatesFolder: './templatePWA1',
   googleApiKey: 'AIzaSyARIMiX_C7rE4U-pM6nih2n2z2z0YfhrfY',
   showMap: true,
   useCustomMap: true,

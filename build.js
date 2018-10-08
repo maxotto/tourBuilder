@@ -1,4 +1,3 @@
-const Builder = require('./tourBuilder');
 const FtpConfig = require('./ftpConfig');
 const LocalSettings = require('./localSettings');
 const config = {
@@ -41,5 +40,6 @@ let ftp_deploy = undefined;
 if (FtpConfig.run) {
   ftp_deploy = FtpConfig
 }
+const Builder = require(config.templatesFolder+'/tourBuilder');
 const myBuilder = Builder(config, ftp_deploy);
 myBuilder.run();

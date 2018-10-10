@@ -16,6 +16,11 @@ table.v-table tbody td {
 .container {
    /* padding: 0px !important;*/
 }
+
+.v-btn__content {
+    text-transform: none !important;
+}
+
 .custom-loader {
     animation: loader 1s infinite;
     display: flex;

@@ -46,10 +46,12 @@ class GoogleMapApp {
                   valuesToSearch: [],
                   showTableButton: false,
                   showTableButtonSelected: '',
+                  showTableButtonLeft: 320,
                   showTable: false,
-                  notFound: false,
 
+                  notFound: false,
                   tableHeight: 330,
+                  tableWidth: 330,
                   placesList: {
                       search: '',
                       headersSmallScreen: [
@@ -119,15 +121,38 @@ class GoogleMapApp {
                 },
                 methods: {
                   onTableParentResize(){
-                    const parentHeight =this.getHeightById('googleApp');
-                    this.tableHeight = parentHeight - 37;
+                    const parentSize =this.getSizeById('googleApp');
+                    this.tableHeight = parentSize.height - 37;
+                    const selectBlockSize = this.getSizeById('select-panel');
+                    this.showTableButtonLeft = selectBlockSize.width;
+                    const showTableButtonSize = this.getSizeById('show-table-button');
+                    this.tableWidth = selectBlockSize.width+showTableButtonSize.width -5;
                   },
                   getHeightById(elmID) {
-                      var elmPadding, elmHeight, elmMargin, elm = document.getElementById(elmID);
-                      elmHeight = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('height'));
-                      elmMargin = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-bottom'));
-                      elmPadding = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-bottom'));
-                      return (elmHeight + elmMargin + elmPadding);
+                    const size = this.getSizeById(elmID);
+                    return (size.height);
+                  },
+                  getSizeById(elmID){
+                    var elmPadding, elmHeight, elmWidth, elmMargin, elm = document.getElementById(elmID);
+                    const out = {
+                      height: 0,
+                      width: 0
+                    };
+
+                    elmHeight = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('height'));
+                    elmMargin = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-bottom'));
+                    elmPadding = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-bottom'));
+                    out.height = elmHeight + elmMargin + elmPadding;
+
+                    elmWidth = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('width'));
+                    elmMargin = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-left'))
+                      + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-right'));
+                    elmPadding = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-left'))
+                      + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-right'));
+                    out.width = elmWidth + elmMargin + elmPadding;
+
+                    return out;
+
                   },
                   runSearch(){
                       self.findPlaces();

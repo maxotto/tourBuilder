@@ -1,10 +1,19 @@
-const FtpConfig = require('./ftpConfig');
+let FtpConfig = undefined;
+try {
+  FtpConfig = require('./ftpConfig');
+}
+catch (e) {
+  FtpConfig = {
+    run: false,
+  };
+  console.log('Ftp config does not exist.');
+}
 const LocalSettings = require('./localSettings');
 // do not use VAR or CONST to make config global, visible inside planEditor Web server
 config = {
   inFolder: LocalSettings.inFolder,
   outFolder: LocalSettings.outFolder,
-  templatesFolder: './templatePWA1',
+  templatesFolder: './templates',
   googleApiKey: 'AIzaSyARIMiX_C7rE4U-pM6nih2n2z2z0YfhrfY',
   showMap: true,
   useCustomMap: true,
@@ -43,7 +52,7 @@ if (FtpConfig.run) {
 }
 const Builder = require(config.templatesFolder+'/tourBuilder');
 const myBuilder = Builder(config, ftp_deploy);
-// myBuilder.run();
-const Server = require('./planEditor/bin/www');
-console.log('Server is running. Open http://localhost:3000 to justify hotstops on floors` maps.');
-console.log('Type Ctrl-C to terminate WEB server.');
+myBuilder.run();
+// const Server = require('./planEditor/bin/www');
+// console.log('Server is running. Open http://localhost:3000 to justify hotstops on floors` maps.');
+// console.log('Type Ctrl-C to terminate WEB server.');

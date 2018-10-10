@@ -1,6 +1,7 @@
 const FtpConfig = require('./ftpConfig');
 const LocalSettings = require('./localSettings');
-const config = {
+// do not use VAR or CONST to make config global, visible inside planEditor Web server
+config = {
   inFolder: LocalSettings.inFolder,
   outFolder: LocalSettings.outFolder,
   templatesFolder: './templatePWA1',
@@ -42,4 +43,7 @@ if (FtpConfig.run) {
 }
 const Builder = require(config.templatesFolder+'/tourBuilder');
 const myBuilder = Builder(config, ftp_deploy);
-myBuilder.run();
+// myBuilder.run();
+const Server = require('./planEditor/bin/www');
+console.log('Server is running. Open http://localhost:3000 to justify hotstops on floors` maps.');
+console.log('Type Ctrl-C to terminate WEB server.');

@@ -1,8 +1,6 @@
 const Fs = require('fs-extra');
 const Xml2js = require('xml2js');
 const Path = require('path');
-const FtpSync = require('ftpsync');
-
 
 module.exports = function (config, ftp_deploy) {
 
@@ -347,13 +345,7 @@ module.exports = function (config, ftp_deploy) {
       connections: 1,
     };
     return new Promise((resolve, reject) => {
-      FtpSync.run(function(err, result) {
-        if (err) {
-          reject(err)
-        } else {
-          resolve('Deployed by FTP.');
-        }
-      });
+      resolve('Ftp deploy is not implemented yet');
     });
   };
 
@@ -362,7 +354,7 @@ module.exports = function (config, ftp_deploy) {
   o.run = function(){
     log('Start run');
     initOutFolder();
-    loadXml(Path.resolve(outFolder, 'tour.xml'))
+    return loadXml(Path.resolve(outFolder, 'tour.xml'))
       .then( xml => {
         mainXML = xml;
         xml = setIncludes(xml);
@@ -411,10 +403,6 @@ module.exports = function (config, ftp_deploy) {
         } else {
           return Promise.resolve('Deploy skipped.');
         }
-      })
-      .then(res => log(res, 'Finish.'))
-      .catch(err => {
-        log(err);
       });
   };
 

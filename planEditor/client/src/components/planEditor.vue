@@ -1,14 +1,40 @@
 <template>
-  <div class="hello" style="background-color: lightblue">
-    <h1>Floor is {{ floor }}</h1>
-    {{xmlData}}
+  <div style="width: 100%; height: 100%">
+    <v-container grid-list-md text-xs-center>
+      <v-layout row wrap>
+        <v-flex xs2>
+          <v-card dark color="primary">
+            <v-card-text class="px-0">{{currentHS}}</v-card-text>
+            <v-card-text class="px-0">{{valid}}</v-card-text>
+            <v-card-text class="px-0">Frames={{frames}}</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+            <v-card-text class="px-0">2</v-card-text>
+          </v-card>
+        </v-flex>
+        <v-flex xs10>
+          <div>
+            <canvas class="image-input__canvas"
+                    style="border:4px solid red; background-color: #0c82df"
+                    ref="canvas"
+                    v-bind:height="height"
+                    v-bind:width="width"
+                    v-bind:class="{ 'is-draggable': hoverIsDraggable }">
+            </canvas>
+          </div>
+        </v-flex>
+      </v-layout>
+    </v-container>
     <div>
-    <canvas class="image-input__canvas"
-        ref="canvas"
-        v-bind:height="height"
-        v-bind:width="width"
-        v-bind:class="{ 'is-draggable': hoverIsDraggable }">
-    </canvas>
+      <h1>{{mouse}}</h1>
+      <span>{{hotspots}}</span>
+      <span>{{xmlData}}</span>
     </div>
   </div>
 </template>
@@ -24,34 +50,176 @@ export default {
   data: function () {
     return {
       hoverIsDraggable: false,
-      width: 200,
-      height: 300,  
+      width: 100,
+      height: 100,
       ctx: null, 
       canvas: null,
       img: null, 
       hotspots: [],
       radars: [],
+      currentHS: undefined,
+      hotspotImg: undefined,
+      hotspotDim: {
+        w: 10,
+        h: 10
+      },
+      interval: 30,
+      mouse: {x: 0, y: 0},
+      gragging: false,
+      dragoffx: 0, // See mousedown and mousemove events for explanation
+      dragoffy: 0,
+      valid: false,
+      frames: 0,
+    }
+  },
+  methods: {
+    updateHotSpots: function(floor){
+      this.hotspots = [...this.xmlData[floor]['hotspots']];
+    },
+    onMouseDown: function(e){
+      const mouse = this.getMousePos(e);
+      this.mouse = mouse;
+      const mx = mouse.x;
+      const my = mouse.y;
+      for (let i=this.hotspots.length - 1; i >= 0; i--){
+        let hs = this.hotspots[i];
+        if (
+          (mx >= hs.x) &&
+          (mx <= (parseInt(hs.x) + this.hotspotDim.w)) &&
+          (my >= hs.y) && (my <= (parseInt(hs.y) + this.hotspotDim.h))
+        )
+        {
+          this.currentHS = hs;
+          this.dragoffx = mx - hs.x;
+          this.dragoffy = my - hs.y;
+          this.dragging = true;
+          this.valid = false;
+          return;
+        }
+      }
+      // havent returned means we have failed to select anything.
+      // If there was an object selected, we deselect it
+      if (this.currentHS) {
+        this.currentHS = undefined;
+        this.valid = false; // Need to clear the old selection border
+      }
+    },
+    getMousePos: function(e){
+      let element = this.canvas;
+      let offsetX = 0;
+      let offsetY = 0;
+      let mx;
+      let my;
+
+      if (element.offsetParent !== undefined) {
+        do {
+          offsetX += element.offsetLeft;
+          offsetY += element.offsetTop;
+        } while ((element = element.offsetParent));
+      }
+      const html = document.body.parentNode;
+      const htmlTop = html.offsetTop;
+      const htmlLeft = html.offsetLeft;
+      let stylePaddingLeft, stylePaddingTop, styleBorderLeft, styleBorderTop;
+      if (document.defaultView && document.defaultView.getComputedStyle) {
+        stylePaddingLeft = parseInt(document.defaultView.getComputedStyle(this.canvas, null)['paddingLeft'], 10)      || 0;
+        stylePaddingTop  = parseInt(document.defaultView.getComputedStyle(this.canvas, null)['paddingTop'], 10)       || 0;
+        styleBorderLeft  = parseInt(document.defaultView.getComputedStyle(this.canvas, null)['borderLeftWidth'], 10)  || 0;
+        styleBorderTop   = parseInt(document.defaultView.getComputedStyle(this.canvas, null)['borderTopWidth'], 10)   || 0;
+      }
+      // Add padding and border style widths to offset
+      // Also add the <html> offsets in case there's a position:fixed bar
+      offsetX += stylePaddingLeft + styleBorderLeft + htmlLeft;
+      offsetY += stylePaddingTop + styleBorderTop + htmlTop;
+
+      mx = e.pageX - offsetX;
+      my = e.pageY - offsetY;
+
+      // We return a simple javascript object (a hash) with x and y defined
+      return {x: mx, y: my};
+
+    },
+    onMouseMove: function(e){
+      if (this.dragging){
+        var mouse = this.getMousePos(e);
+        // We don't want to drag the object by its top-left corner, we want to drag it
+        // from where we clicked. Thats why we saved the offset and use it here
+        this.currentHS.x = mouse.x - this.dragoffx;
+        this.currentHS.y = mouse.y - this.dragoffy;
+        this.valid = false; // Something's dragging so we must redraw
+      }
+    },
+    onMouseUp: function(e){
+      this.dragging = false;
+    },
+    drawHotSpots: function(){
+      this.hotspots.forEach((hs, i) => {
+        this.ctx.drawImage(this.hotspotImg, hs.x, hs.y);
+      });
+    },
+    draw: function(){
+      if (this.floor){
+        if(!this.valid){
+          console.log('draw');
+          this.frames++;
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+          this.ctx.drawImage(this.img,0,0);
+          // console.log('Draw');
+          this.drawHotSpots();
+
+          if (this.currentHS !== undefined) {
+            this.ctx.strokeStyle = '#CC0000';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(this.currentHS.x, this.currentHS.y, this.hotspotDim.w, this.hotspotDim.h);
+          }
+          if(this.frames>10) this.valid = true;
+        }
+      }
     }
   },
   watch:{
       floor(val){
-          alert('Need to load the picture: ' + this.xmlData[this.floor]['image']);
+        console.log('Floor changed');
+        const image = this.xmlData[val]['image'];
+        var _this = this;
+        this.currentHS = undefined;
+        // const elem = document.getElementById('test');
+        this.img = new Image;      // First create the image...
+        this.img.onload = function() {  // ...then set the onload handler...
+          _this.canvas.height = _this.img.height;
+          _this.canvas.width = _this.img.width;
+          _this.ctx.drawImage(_this.img,0,0);
+
+        };
+        this.img.src = '/getimage?image=' + image;
+        this.updateHotSpots(val);
+        this.drawHotSpots();
+        this.valid = false;
       }
   },
   mounted: function(){
+    console.log('mounted');
+    var _this = this;
     this.canvas = this.$refs.canvas;
     this.ctx = this.canvas.getContext("2d");
-    this.img = document.createElement("img");
-    var grd = this.ctx.createLinearGradient(0, 0, 200, 0);
+    var grd = this.ctx.createLinearGradient(0, 0, 100, 0);
     grd.addColorStop(0, "red");
     grd.addColorStop(1, "white");
-
-    // Fill with gradient
     this.ctx.fillStyle = grd;
-    this.ctx.fillRect(10, 10, 150, 80); 
-    this.ctx.moveTo(0, 0);
-    this.ctx.lineTo(200, 100);
-    this.ctx.stroke(); 
+    this.ctx.fillRect(10, 10, 80, 80);
+    this.hotspotImg = new Image;
+    this.hotspotImg.onload = function() {  // ...then set the onload handler...
+      _this.hotspotDim = {
+        w: _this.hotspotImg.width,
+        h: _this.hotspotImg.height};
+      _this.ctx.drawImage(_this.hotspotImg,0,0);
+    };
+    this.hotspotImg.src = '/getimage?image=camicon.png';
+    setInterval(function(){ _this.draw(); }, _this.interval);
+    this.canvas.addEventListener('mousedown', function(e){_this.onMouseDown(e);}, true);
+    this.canvas.addEventListener('mousemove', function(e){_this.onMouseMove(e);}, true);
+    this.canvas.addEventListener('mouseup', function(e){_this.onMouseUp(e);}, true);
   }
 }
 </script>

@@ -2,13 +2,13 @@
 <v-container fluid>
     <v-slide-y-transition mode="out-in">
       <v-layout column align-center>
+
         <v-select
           v-model="floor"
-          :hint="`${floor.floor}, ${floor.image}`"
           :items="items"
           item-text="name"
           item-value="name"
-          label="Select"
+          label="Select floor to edit"
           persistent-hint
           return-object
           single-line

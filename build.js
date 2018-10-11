@@ -24,8 +24,8 @@ config = {
   //43.76841812480301, lng->-79.39991750129661
   // 43.7604; -79.4116
   mapCenter: {
-    lat: 43.7604,
-    lng: -79.4116
+    lat: 43.76841812480301,
+    lng: -79.39991750129661
   },
   floorMapShift:{
     x: 0,
@@ -52,7 +52,21 @@ if (FtpConfig.run) {
 }
 const Builder = require(config.templatesFolder+'/tourBuilder');
 const myBuilder = Builder(config, ftp_deploy);
-myBuilder.run();
-// const Server = require('./planEditor/bin/www');
-// console.log('Server is running. Open http://localhost:3000 to justify hotstops on floors` maps.');
-// console.log('Type Ctrl-C to terminate WEB server.');
+myBuilder.run()
+  .then(res => {
+    console.log(res, 'Build finished.');
+    var exec = require('child_process').exec;
+    exec('buildPlanEditorClient.cmd', function callback(error, stdout, stderr){
+      if(error) {
+        console.log(error);
+      } else {
+        console.log(stdout);
+        const Server = require('./planEditor/bin/www');
+        console.log('Server is running. Open http://localhost:3000 to justify hotstops on floors` maps.');
+        console.log('Type Ctrl-C to terminate WEB server.');
+      }
+    });
+  })
+  .catch(err => {
+    console.log(err);
+  });

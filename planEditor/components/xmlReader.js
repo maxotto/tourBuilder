@@ -6,9 +6,10 @@ module.exports = function (config) {
         console.log(...args);
     };
     // todo workPath depends on template used. Invent config for this
-    const workPath = Path.resolve(config.outFolder,'ext/tour');
-    log(workPath);
-    const floooMapXmlPath = Path.resolve(workPath,'floorMap.xml');
+    const extPath = Path.resolve(config.outFolder,'ext/tour');
+    const tourXmlPath = Path.resolve(config.outFolder,'tour.xml');
+    const floooMapXmlPath = Path.resolve(extPath,'floorMap.xml');
+    const hotSpotParents = {};
     log('Xml reader created with config', config);
     const loadXml = function(file) {
         var parser = new Xml2js.Parser();
@@ -30,12 +31,12 @@ module.exports = function (config) {
     };
 
     const parseXml = function(xml) {
-        const out = {}
+        const out = {};
         xml.krpano.layer.forEach(layer => {
             if (layer['$']['name'].indexOf('map_') >= 0) {
                 out[layer['$']['name']] = {
                     floor: layer['$']['floor'], 
-                    image: Path.resolve(workPath, layer['$']['url']),
+                    image: layer['$']['url'],
                     hotspots: []
                 }        
             }        
@@ -44,17 +45,50 @@ module.exports = function (config) {
             if (out.hasOwnProperty(map)) {
                 xml.krpano.layer.forEach(layer => {
                     const s = 'spot' + out[map]['floor'];
-                    log(map, s);
+                    // log(map, s);
                     if (layer['$']['name'].indexOf(s) >= 0) {
                         out[map]['hotspots'].push(
-                            layer
+                            layer['$']
                         );
                     }        
                 });
             }
         }
         return out;
-    };  
+    };
+
+    const addParentInfo = function(data, tourXml){
+      // console.log(tourXml.krpano['scene']);
+      for (f in data) {
+        if (data.hasOwnProperty(f)) {
+          data[f]['hotspots'].forEach((hs, i) => {
+            data[f]['hotspots'][i]['parent'] = findParentScene(hs.name, tourXml);
+          });
+        }
+      }
+      return data;
+    };
+
+    const findParentScene = function(hsName, tourXml) {
+      if (!hotSpotParents.hasOwnProperty(hsName)) {
+        tourXml.krpano['scene'].forEach(s => {
+          let scene = s['$'];
+          let onstart = scene.onstart;
+          let pos = onstart.indexOf('updateradar(spot');
+          if (pos >= 0){ // the scene has hotspot
+            let commaPos = onstart.indexOf(',');
+            hsn = onstart.substring(pos+12, commaPos);
+            let angle = onstart.substring(commaPos+1, onstart.length-2);
+            hotSpotParents[hsn] = {
+              name: scene.name,
+              angle: Number(angle)
+            };
+          }
+        });
+      }
+      return hotSpotParents[hsName];
+
+    };
     const reader = {};
     reader.read = function() {
 /***
@@ -63,11 +97,15 @@ module.exports = function (config) {
  * 2 - файл tour.xml - основной файл тура. Туда мы потом поместим информацию о напрвлении радара хотспотов. То есть - считывать его не надо
  * 3 - файл \tour\ext\tour\floorMap.xml. Отсюда берем url картинки плана, url картинок хотспотов, а также перечень этих хотспотов с исходными координатами
  */
-        
+        let data = undefined;
         return loadXml(floooMapXmlPath)
         .then(xml => {
-            return Promise.resolve(parseXml(xml));
-        });    
+          return Promise.resolve(parseXml(xml));
+        }).then(result => {
+          data = result;
+          return loadXml(tourXmlPath);
+        })
+        .then(xml => Promise.resolve(addParentInfo(data, xml)));
     };
     return reader;
 }

@@ -3,25 +3,33 @@
     <v-container grid-list-md text-xs-center>
       <v-layout row wrap>
         <v-flex xs2>
-          <v-card dark color="primary">
-            <v-card-text class="px-0">{{currentHS}}</v-card-text>
-            <v-card-text class="px-0">{{valid}}</v-card-text>
-            <v-card-text class="px-0">Frames={{frames}}</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
-            <v-card-text class="px-0">2</v-card-text>
+          <v-card>
+            <h2>Saving: {{saving}}</h2>
+          </v-card>
+          <v-card>
+            <h2>Floor: {{floor}}</h2>
+          </v-card>
+          <v-card>
+            <h2>X:{{x}}, Y:{{y}}</h2>
+          </v-card>
+          <v-card>
+            <v-btn
+                    :loading="saving"
+                    :disabled="!changed || saving"
+                    color="success"
+                    @click.native="saveJob()"
+            >
+              Save job
+            </v-btn>
+          </v-card>
+          <v-card color="blue">
+            <v-card-text class="px-0"><img id="scene-img" src=""/></v-card-text>
           </v-card>
         </v-flex>
         <v-flex xs10>
           <div>
             <canvas class="image-input__canvas"
-                    style="border:4px solid red; background-color: #0c82df"
+                    style="border:6px solid green; background-color: #0c82df"
                     ref="canvas"
                     v-bind:height="height"
                     v-bind:width="width"
@@ -32,8 +40,7 @@
       </v-layout>
     </v-container>
     <div>
-      <h1>{{mouse}}</h1>
-      <span>{{hotspots}}</span>
+      <h4>{{hotspots}}</h4>
       <span>{{xmlData}}</span>
     </div>
   </div>
@@ -57,7 +64,12 @@ export default {
       img: null, 
       hotspots: [],
       radars: [],
-      currentHS: undefined,
+      x:0,
+      y:0,
+      currentHS: -1,
+      currentScene:{
+        img: undefined,
+      },
       hotspotImg: undefined,
       hotspotDim: {
         w: 10,
@@ -70,9 +82,19 @@ export default {
       dragoffy: 0,
       valid: false,
       frames: 0,
+      changed: false,
+    }
+  },
+  computed:{
+    saving(){
+      return this.$store.getters['getSaving'];
     }
   },
   methods: {
+    saveJob(){
+      this.$store.dispatch('saveFloorJob', {floor: this.floor, hotspots: this.hotspots});
+
+    },
     updateHotSpots: function(floor){
       this.hotspots = [...this.xmlData[floor]['hotspots']];
     },
@@ -89,7 +111,9 @@ export default {
           (my >= hs.y) && (my <= (parseInt(hs.y) + this.hotspotDim.h))
         )
         {
-          this.currentHS = hs;
+          this.currentHS = i;
+          this.x = this.hotspots[this.currentHS].x;
+          this.y = this.hotspots[this.currentHS].y;
           this.dragoffx = mx - hs.x;
           this.dragoffy = my - hs.y;
           this.dragging = true;
@@ -100,7 +124,7 @@ export default {
       // havent returned means we have failed to select anything.
       // If there was an object selected, we deselect it
       if (this.currentHS) {
-        this.currentHS = undefined;
+        this.currentHS = -1;
         this.valid = false; // Need to clear the old selection border
       }
     },
@@ -141,11 +165,14 @@ export default {
     },
     onMouseMove: function(e){
       if (this.dragging){
+        this.changed = true;
         var mouse = this.getMousePos(e);
         // We don't want to drag the object by its top-left corner, we want to drag it
         // from where we clicked. Thats why we saved the offset and use it here
-        this.currentHS.x = mouse.x - this.dragoffx;
-        this.currentHS.y = mouse.y - this.dragoffy;
+        this.hotspots[this.currentHS].x = mouse.x - this.dragoffx;
+        this.hotspots[this.currentHS].y = mouse.y - this.dragoffy;
+        this.x = this.hotspots[this.currentHS].x;
+        this.y = this.hotspots[this.currentHS].y;
         this.valid = false; // Something's dragging so we must redraw
       }
     },
@@ -168,10 +195,10 @@ export default {
           // console.log('Draw');
           this.drawHotSpots();
 
-          if (this.currentHS !== undefined) {
+          if (this.currentHS >= 0) {
             this.ctx.strokeStyle = '#CC0000';
             this.ctx.lineWidth = 2;
-            this.ctx.strokeRect(this.currentHS.x, this.currentHS.y, this.hotspotDim.w, this.hotspotDim.h);
+            this.ctx.strokeRect(this.hotspots[this.currentHS].x, this.hotspots[this.currentHS].y, this.hotspotDim.w, this.hotspotDim.h);
           }
           if(this.frames>10) this.valid = true;
         }
@@ -179,11 +206,37 @@ export default {
     }
   },
   watch:{
+    saving(val){
+      if(!val && this.changed){
+        this.changed = false;
+      }
+    },
+      changed(val){
+        if(val){
+          this.canvas.style.borderColor = "red";
+        } else
+        {
+          this.canvas.style.borderColor = "green";
+        }
+      },
+      currentHS(hs){
+        const sceneImg = document.getElementById('scene-img');
+        if(hs>=0){
+          sceneImg.src = '/getimage?scene=' + this.hotspots[hs].parent.name.substring(6);
+          this.x = this.hotspots[hs].x;
+          this.y = this.hotspots[hs].y;
+        } else {
+          this.x = 0;
+          this.y = 0;
+          sceneImg.src = '';
+        }
+      },
       floor(val){
-        console.log('Floor changed');
+        this.frames = 0;
+        this.changed = false;
+        this.currentHS = -1;
         const image = this.xmlData[val]['image'];
         var _this = this;
-        this.currentHS = undefined;
         // const elem = document.getElementById('test');
         this.img = new Image;      // First create the image...
         this.img.onload = function() {  // ...then set the onload handler...
@@ -220,6 +273,7 @@ export default {
     this.canvas.addEventListener('mousedown', function(e){_this.onMouseDown(e);}, true);
     this.canvas.addEventListener('mousemove', function(e){_this.onMouseMove(e);}, true);
     this.canvas.addEventListener('mouseup', function(e){_this.onMouseUp(e);}, true);
+    this.canvas.addEventListener('mouseout', function(e){_this.dragging = false}, true);
   }
 }
 </script>

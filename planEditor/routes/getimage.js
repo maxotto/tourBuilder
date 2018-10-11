@@ -4,9 +4,14 @@ var router = express.Router();
 
 /* read data from XML. */
 router.get('/', function(req, res, next) {
-  var config = req.app.get('config');
-  const fileName = Path.resolve(config.outFolder, 'ext/tour', req.query.image);
-  console.log(fileName);
+  const config = req.app.get('config');
+  let fileName;
+  if(req.query.image){
+    fileName = Path.resolve(config.outFolder, 'ext/tour', req.query.image);
+  }
+  if(req.query.scene){
+    fileName = Path.resolve(config.outFolder, 'panos', req.query.scene+'.tiles', 'thumb.jpg');
+  }
   res.sendFile(fileName);
 });
 

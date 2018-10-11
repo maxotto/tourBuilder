@@ -45,5 +45,6 @@ exec('buildPlanEditorClient.cmd', function callback(error, stdout, stderr){
     const Server = require('./planEditor/bin/www');
     console.log('Server is running. Open http://localhost:3000 to justify hotstops on floors` maps.');
     console.log('Type Ctrl-C to terminate WEB server.');
+    console.log("\007");
   }
 });

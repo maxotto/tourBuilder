@@ -44,17 +44,26 @@ export default new Vuex.Store({
       }); 
     },
 
-    writeDatToXmlFile({commit}){
-      setTimeout(()=>{
+    writeDatToXmlFile({commit, dispatch}, data){
+      axios.post('/writexml', data).then(response => {
+        if(response.data.status === 'ok'){
+          dispatch('fetchXmlData');
+        } else {
+          console.log(response.data.message);
+        }
         commit('setSaving', false);
-      }, 3000);
+      }
+      ).catch(error => {
+        console.log({error});
+        commit('setSaving', false);
+      });
     },
 
     saveFloorJob({commit, dispatch}, data){
       // console.log(data);
       commit('setHotspotsByFloor', data);
       commit('setSaving', true);
-      dispatch('writeDatToXmlFile');
+      dispatch('writeDatToXmlFile', data);
     }
   }
 });

@@ -100,6 +100,8 @@ module.exports = function (config) {
         let data = undefined;
         return loadXml(floooMapXmlPath)
         .then(xml => {
+          const util = require('util');
+          //console.log(util.inspect(xml, {showHidden: false, depth: null}));
           return Promise.resolve(parseXml(xml));
         }).then(result => {
           data = result;

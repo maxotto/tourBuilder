@@ -3,6 +3,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
+var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var readXmlRouter = require('./routes/readxml');
@@ -11,7 +12,10 @@ var getImageRouter = require('./routes/getimage');
 
 var app = express();
 // var config = require('../localSettings');
-app.set('config', config); 
+app.set('config', config);
+
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 app.use(logger('dev'));
 app.use(express.json());

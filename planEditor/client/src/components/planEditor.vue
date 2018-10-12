@@ -4,45 +4,35 @@
       <v-layout row wrap>
         <v-flex xs2>
           <v-card>
-            <h2>Saving: {{saving}}</h2>
-          </v-card>
-          <v-card>
-            <h2>Floor: {{floor}}</h2>
-          </v-card>
-          <v-card>
             <h2>X:{{x}}, Y:{{y}}</h2>
           </v-card>
           <v-card>
             <v-btn
-                    :loading="saving"
-                    :disabled="!changed || saving"
-                    color="success"
-                    @click.native="saveJob()"
+              :loading="saving"
+              :disabled="!changed || saving"
+              color="success"
+              @click.native="saveJob()"
             >
               Save job
             </v-btn>
           </v-card>
-          <v-card color="blue">
-            <v-card-text class="px-0"><img id="scene-img" src=""/></v-card-text>
+          <v-card>
+            <img style="border:6px solid green; background-color: #0c82df" id="scene-img" src=""/>
           </v-card>
         </v-flex>
         <v-flex xs10>
           <div>
             <canvas class="image-input__canvas"
-                    style="border:6px solid green; background-color: #0c82df"
-                    ref="canvas"
-                    v-bind:height="height"
-                    v-bind:width="width"
-                    v-bind:class="{ 'is-draggable': hoverIsDraggable }">
+              style="border:6px solid green; background-color: #0c82df"
+              ref="canvas"
+              v-bind:height="height"
+              v-bind:width="width"
+              v-bind:class="{ 'is-draggable': hoverIsDraggable }">
             </canvas>
           </div>
         </v-flex>
       </v-layout>
     </v-container>
-    <div>
-      <h4>{{hotspots}}</h4>
-      <span>{{xmlData}}</span>
-    </div>
   </div>
 </template>
 
@@ -277,3 +267,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+  .container {
+    padding: unset!important;
+  }
+</style>

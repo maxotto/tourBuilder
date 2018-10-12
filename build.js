@@ -54,7 +54,8 @@ const Builder = require(config.templatesFolder+'/tourBuilder');
 const myBuilder = Builder(config, ftp_deploy);
 myBuilder.run()
   .then(res => {
-    console.log(res, 'Build finished.');
+    console.log(res, 'Build finished.');console.log("\007");
+    /*
     var exec = require('child_process').exec;
     exec('buildPlanEditorClient.cmd', function callback(error, stdout, stderr){
       if(error) {
@@ -66,6 +67,7 @@ myBuilder.run()
         console.log('Type Ctrl-C to terminate WEB server.');
       }
     });
+    */
   })
   .catch(err => {
     console.log(err);

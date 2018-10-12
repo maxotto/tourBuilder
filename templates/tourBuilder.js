@@ -77,7 +77,9 @@ module.exports = function (config, ftp_deploy) {
 
   const copy = function(source, dest, items) {
     items.forEach((item)=>{
+      log('Start to copy', item);
       Fs.copySync(Path.resolve(source, item), Path.resolve(dest, item));
+      log(item, 'copied');
     });
   };
 

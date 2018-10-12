@@ -74,6 +74,12 @@ class GoogleMapApp {
                               value: 'distanceValue',
                               sortable: true,
                               align: 'center',
+                          },
+                          {
+                              text: 'Rating',
+                              value: 'rating',
+                              sortable: true,
+                              align: 'center',
                           }
                       ],
                       places: [],
@@ -173,28 +179,27 @@ class GoogleMapApp {
                     self.findPlaces();
                   },
                   showBalloon(markerIndex){
-                        if ( markerIndex === this.currentInfoWindowIdx ){
-                            this.infoWinOpen = !this.infoWinOpen;
-                        } else {
-                            this.currentInfoWindowIdx = markerIndex;
-                            const marker = this.markers[markerIndex];
-                            const place = this.placeObjects[markerIndex];
-                            const listItem = this.placesList.places[markerIndex];
-                            const balloonText = "<div style=\"color: #1e88e5\">" +
-                              "<h3>" + place.name + "</h3>" +
-                              "<span style='color: #0000b6'><u><b>Address:</b></u> " + place.address + "</span><br>" +
-                              "<span style='color: mediumblue'><u><b>Distance/time:</b></u> " + listItem.distanceText + "</span>" +
-                              "</div>";
-                            this.infoContent = balloonText;
-                            this.infoWindowPos = marker.position;
-                            this.infoWinOpen = true;
-                            const bounds = new google.maps.LatLngBounds();
-                            bounds.extend(self.center);
-                            bounds.extend(place.geometry.location);
-                            self.map.fitBounds(bounds);
-                            self.map.setZoom(self.map.getZoom()-1);
-                        }
+                    if ( markerIndex === this.currentInfoWindowIdx ){
+                        this.infoWinOpen = !this.infoWinOpen;
+                    } else {
+                      this.currentInfoWindowIdx = markerIndex;
+                      const marker = this.markers[markerIndex];
+                      const place = this.placeObjects[markerIndex];
+                      const listItem = this.placesList.places[markerIndex];
+                      this.infoContent = "<div style=\"color: #1e88e5\">" +
+                        "<h3>" + place.name + "</h3>" +
+                        "<span style='color: #0000b6'><u><b>Address:</b></u> " + place.address + "</span><br>" +
+                        "<span style='color: mediumblue'><u><b>Distance/time:</b></u> " + listItem.distanceText + "</span><br>" +
+                        "<span style='color: mediumblue'><u><b>Rating:</b></u> " + listItem.rating + "</span>";
+                      this.infoWindowPos = marker.position;
+                      this.infoWinOpen = true;
+                      const bounds = new google.maps.LatLngBounds();
+                      bounds.extend(self.center);
+                      bounds.extend(place.geometry.location);
+                      self.map.fitBounds(bounds);
+                      self.map.setZoom(self.map.getZoom()-1);
                     }
+                  }
                 },
             });
             this.ready = true;
@@ -234,6 +239,7 @@ class GoogleMapApp {
                 distanceValue: place.distance.distance.value,
                 distanceText: place.distance.distance.text + ', ' + place.distance.duration.text,
                 name: place.name,
+                rating: place.rating,
                 markerIndex: i,
             });
             this.vm.placeObjects.push(place);

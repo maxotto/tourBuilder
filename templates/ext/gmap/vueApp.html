@@ -23,8 +23,17 @@
                         >
                             <template slot="items" slot-scope="props">
                                 <tr @click="showBalloon(props.item.markerIndex)">
-                                    <td>{{ props.item.name }}</td>
-                                    <td>{{ props.item.distanceText }}</td>
+                                    <td align="center">{{ props.item.name }}</td>
+                                    <td align="center">{{ props.item.distanceText }}</td>
+                                    <td align="center"><v-rating
+                                            background-color="orange lighten-3"
+                                            color="orange"
+                                            color="yellow darken-3"
+                                            half-increments
+                                            size="8"
+                                            v-model="props.item.rating"></v-rating>
+                                        {{ props.item.rating }}
+                                    </td>
                                 </tr>
                             </template>
                         </v-data-table>

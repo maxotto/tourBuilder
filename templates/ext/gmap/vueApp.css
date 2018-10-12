@@ -57,3 +57,7 @@ table.v-table tbody td {
         transform: rotate(360deg);
     }
 }
+
+.v-rating .v-icon {
+    padding: unset!important;
+}

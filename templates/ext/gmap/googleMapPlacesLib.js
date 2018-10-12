@@ -35,9 +35,12 @@ class GoogleMapPlaces{
             type: [category],
             icon: catList[category]
           }).then(places => {
-            // console.log(places);
             return this.addDistancePromise(places);
-          }).then(places => {
+          })
+            .then(places => {
+              return this.addDetailsPromise(places);
+            })
+            .then(places => {
                 this.cache[category] = places;
                 return Promise.resolve(this.cache[category]);
               });
@@ -46,13 +49,40 @@ class GoogleMapPlaces{
       }
     }
     return Promise.all(promises).then((results) => {
-      const fullList = GoogleMapPlaces.makeOneList(results);
+      const fullList = GoogleMapPlaces.makeOneList(results); //method is STATIC! no THIS here
       return Promise.resolve(fullList);
     })
         .catch((error) => {
           console.log(error);
           alert("GoogleMapPlaces error: " + error);
         });
+  }
+
+  addDetailsPromise(places){
+    const placesIdList = [];
+    if(places.length === 0) return Promise.resolve([]);
+    const promises = [];
+    places.forEach((place, index) => {
+      promises.push(
+        this.getDetailsPromise(place.place_id, ['rating'])
+      );
+    });
+    return Promise.all(promises)
+      .then(results => {
+        const all = this.addDetailsInfo(places, results);
+        return Promise.resolve(all);
+      });
+  }
+
+  addDetailsInfo(places, results){
+    results.forEach((details,i) => {
+      let rating = '-';
+      if(details.rating){
+        rating = details.rating;
+      }
+      places[i]['rating'] = rating
+    });
+    return places;
   }
 
   addDistancePromise(places){
@@ -126,6 +156,47 @@ class GoogleMapPlaces{
               }).then(() => {
                 // alert('start new attempt');
                 return this.getDistancePromise(origin, destinations, travelMode, unitSystem);
+              });
+            } else {
+              return Promise.reject(error);
+            }
+          } else {
+            return Promise.reject(error);
+          }
+        });
+  }
+
+  getDetailsPromise(placeId, fields){
+    const request = {
+      placeId: placeId,
+      fields: fields
+
+    };
+    return new Promise((resolve, reject) => {
+      this.service.getDetails(request, (place, status) => {
+        if(status === 'OK'){
+          resolve(place);
+        } else {
+          reject({
+            status: status,
+            dest: place
+          });
+        }
+      });
+    })
+        .then((place) => {
+          return Promise.resolve(place);
+        })
+        .catch((error) => {
+          if (error.status === "OVER_QUERY_LIMIT"){
+            if (this.maxAttempts > 0) {
+              return new Promise((resolve, reject) => {
+                setTimeout(()=> {
+                  resolve();
+                }, this.attemptsTimeout);
+              }).then(() => {
+                // alert('start new attempt');
+                return this.getDetailsPromise(placeId, fields);
               });
             } else {
               return Promise.reject(error);

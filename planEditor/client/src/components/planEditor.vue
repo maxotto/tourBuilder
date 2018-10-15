@@ -4,13 +4,16 @@
       <v-layout row wrap>
         <v-flex xs2>
           <v-card>
-            <h2>X:{{x}}, Y:{{y}}</h2>
+            <h2>X: {{x}}, Y: {{y}}</h2>
+          </v-card>
+          <v-card>
+            <h2>Radar angle: {{angle}}</h2>
           </v-card>
           <v-card>
             <v-btn
               :loading="saving"
               :disabled="!changed || saving"
-              color="success"
+              color="error"
               @click.native="saveJob()"
             >
               Save job
@@ -77,6 +80,7 @@ export default {
 
       radarRadius: 150,
       radarWidth: 90,  //degree
+      angle: 0,
       valid: false,
       frames: 0,
       changed: false,
@@ -111,6 +115,8 @@ export default {
           this.currentHS = i;
           this.x = this.hotspots[this.currentHS].x;
           this.y = this.hotspots[this.currentHS].y;
+          this.x = this.hotspots[this.currentHS].x;
+          this.angle = this.hotspots[this.currentHS].parent.angle;
           this.dragoffx = mx - hs.x;
           this.dragoffy = my - hs.y;
           this.dragging = true;
@@ -186,7 +192,8 @@ export default {
         const dX = mouse.x - rg.x;
         const dY = mouse.y - rg.y;
         const newAngle =Math.atan2(dY,dX)/Math.PI*180;
-        this.hotspots[this.currentHS].parent.angle = Math.round((newAngle - this.dragRadarStartAngleDiff) * 100)/100;
+        this.hotspots[this.currentHS].parent.angle = (Math.round((newAngle - this.dragRadarStartAngleDiff) * 100)/100);
+        this.angle = this.hotspots[this.currentHS].parent.angle;
         this.valid = false; // Something's dragging so we must redraw
       }
     },
@@ -289,6 +296,7 @@ export default {
           this.x = 0;
           this.y = 0;
           sceneImg.src = '';
+          this.angle = 0;
         }
       },
       floor(val){

@@ -23,7 +23,7 @@
       "planEditor/public/css/*.*"
     ],
     "ext": "js,html,css,vue,json",
-    "exec": "node planBuilder.js"
+    "exec": "node planBuilderDev.js"
   },
   "author": "Andrey Mikhailichenko",
   "license": "ISC",

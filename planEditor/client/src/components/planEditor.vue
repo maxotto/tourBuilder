@@ -7,6 +7,9 @@
             <h2>X:{{x}}, Y:{{y}}</h2>
           </v-card>
           <v-card>
+            <h2>{{hotspots[currentHS]}}</h2>
+          </v-card>
+          <v-card>
             <v-btn
               :loading="saving"
               :disabled="!changed || saving"
@@ -173,7 +176,40 @@ export default {
       this.hotspots.forEach((hs, i) => {
         this.ctx.drawImage(this.hotspotImg, hs.x, hs.y);
       });
+      if (this.currentHS >= 0) {
+        this.ctx.strokeStyle = '#CC0000';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(this.hotspots[this.currentHS].x, this.hotspots[this.currentHS].y, this.hotspotDim.w, this.hotspotDim.h);
+      }
     },
+
+    drawRadar: function(){
+      if(this.currentHS === -1) return;
+      const newAngle = this.hotspots[this.currentHS].parent.angle;
+      const center = {
+        x: parseInt(this.hotspots[this.currentHS].x)+Math.floor(this.hotspotDim.w/2),
+        y: parseInt(this.hotspots[this.currentHS].y)+Math.floor(this.hotspotDim.h/2),
+      };
+      console.log(JSON.stringify(this.hotspotDim));
+      console.log({center});
+      this.ctx.save();
+
+      this.ctx.beginPath();
+      const startAngle = 0;
+      const endAngle = Math.PI/4;
+      this.ctx.moveTo(center.x, center.y);
+      this.ctx.arc(center.x, center.y, 150,
+          startAngle, endAngle, false);
+      this.ctx.closePath();
+      this.ctx.fillStyle = "#FFDAB9";
+      this.ctx.fill();
+
+
+// return things back
+     this.ctx.restore();
+
+    },
+
     draw: function(){
       if (this.floor){
         if(!this.valid){
@@ -184,12 +220,7 @@ export default {
           this.ctx.drawImage(this.img,0,0);
           // console.log('Draw');
           this.drawHotSpots();
-
-          if (this.currentHS >= 0) {
-            this.ctx.strokeStyle = '#CC0000';
-            this.ctx.lineWidth = 2;
-            this.ctx.strokeRect(this.hotspots[this.currentHS].x, this.hotspots[this.currentHS].y, this.hotspotDim.w, this.hotspotDim.h);
-          }
+          this.drawRadar();
           if(this.frames>10) this.valid = true;
         }
       }

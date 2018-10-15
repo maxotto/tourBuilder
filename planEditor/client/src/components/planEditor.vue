@@ -7,6 +7,9 @@
             <h2>X:{{x}}, Y:{{y}}</h2>
           </v-card>
           <v-card>
+            <h2>DragRadarStartAngle:{{dragRadarStartAngleDiff}}</h2>
+          </v-card>
+          <v-card>
             <h2>{{hotspots[currentHS]}}</h2>
           </v-card>
           <v-card>
@@ -40,7 +43,7 @@
 </template>
 
 <script>
-// todo https://codepen.io/dannyrb/pen/ZLWVBq
+// todo delete hotspots
 export default {
   name: 'planEditor',
   props: {
@@ -73,6 +76,13 @@ export default {
       gragging: false,
       dragoffx: 0, // See mousedown and mousemove events for explanation
       dragoffy: 0,
+      dragRadar: false,
+      dragRadarX: 0,
+      dragRadarY: 0,
+      dragRadarStartAngleDiff: 0,
+
+      radarRadius: 150,
+      radarWidth: 90,  //degree
       valid: false,
       frames: 0,
       changed: false,
@@ -116,9 +126,22 @@ export default {
       }
       // havent returned means we have failed to select anything.
       // If there was an object selected, we deselect it
-      if (this.currentHS) {
-        this.currentHS = -1;
-        this.valid = false; // Need to clear the old selection border
+      if(this.currentHS >=0){
+        this.drawRadar();
+        if(this.ctx.isPointInPath(mx, my)){
+          this.dragRadar = true;
+          this.dragRadarX = mx;
+          this.dragRadarY = my;
+          const rg = this.getRadarGeometry();
+          const dX = mouse.x - rg.x;
+          const dY = mouse.y - rg.y;
+          this.dragRadarStartAngleDiff = Math.atan2(dY,dX)/Math.PI*180-this.hotspots[this.currentHS].parent.angle;
+          this.valid = false;
+          // alert('Yes');
+        } else {
+          this.currentHS = -1;
+          this.valid = false; // Need to clear the old selection border
+        }
       }
     },
     getMousePos: function(e){
@@ -157,9 +180,9 @@ export default {
 
     },
     onMouseMove: function(e){
+      var mouse = this.getMousePos(e);
       if (this.dragging){
         this.changed = true;
-        var mouse = this.getMousePos(e);
         // We don't want to drag the object by its top-left corner, we want to drag it
         // from where we clicked. Thats why we saved the offset and use it here
         this.hotspots[this.currentHS].x = mouse.x - this.dragoffx;
@@ -168,9 +191,20 @@ export default {
         this.y = this.hotspots[this.currentHS].y;
         this.valid = false; // Something's dragging so we must redraw
       }
+      if (this.dragRadar) {
+        this.changed = true;
+        const rg = this.getRadarGeometry();
+        const dX = mouse.x - rg.x;
+        const dY = mouse.y - rg.y;
+        const newAngle =Math.atan2(dY,dX)/Math.PI*180;
+        this.hotspots[this.currentHS].parent.angle = newAngle - this.dragRadarStartAngleDiff;
+        this.valid = false; // Something's dragging so we must redraw
+      }
     },
+
     onMouseUp: function(e){
       this.dragging = false;
+      this.dragRadar = false;
     },
     drawHotSpots: function(){
       this.hotspots.forEach((hs, i) => {
@@ -185,40 +219,56 @@ export default {
 
     drawRadar: function(){
       if(this.currentHS === -1) return;
-      const newAngle = this.hotspots[this.currentHS].parent.angle;
-      const center = {
+      const rg = this.getRadarGeometry();
+      this.ctx.save();
+      this.ctx.beginPath();
+      const startAngle = rg.start;
+      const endAngle = rg.end;
+      this.ctx.moveTo(rg.x, rg.y);
+      this.ctx.arc(rg.x, rg.y, this.radarRadius, startAngle, endAngle, false);
+      this.ctx.closePath();
+      this.ctx.fillStyle = "rgba(255, 200, 200, 0.5)";
+      this.ctx.fill();
+      this.ctx.restore();
+    },
+
+    getRadarGeometry: function(){
+      const newAngle = this.hotspots[this.currentHS].parent.angle*Math.PI/180;
+      const startAngle = (-1)*Math.PI*this.radarWidth/2/180 + newAngle;
+      const endAngle = Math.PI*this.radarWidth/2/180 + newAngle;
+      return {
         x: parseInt(this.hotspots[this.currentHS].x)+Math.floor(this.hotspotDim.w/2),
         y: parseInt(this.hotspots[this.currentHS].y)+Math.floor(this.hotspotDim.h/2),
+        start: startAngle,
+        end: endAngle
       };
-      console.log(JSON.stringify(this.hotspotDim));
-      console.log({center});
-      this.ctx.save();
+    },
 
-      this.ctx.beginPath();
-      const startAngle = 0;
-      const endAngle = Math.PI/4;
-      this.ctx.moveTo(center.x, center.y);
-      this.ctx.arc(center.x, center.y, 150,
-          startAngle, endAngle, false);
-      this.ctx.closePath();
-      this.ctx.fillStyle = "#FFDAB9";
-      this.ctx.fill();
+    isInsideSector: function(point, center, sectorStart, sectorEnd, radiusSquared) {
+      var relPoint = {
+        x: point.x - center.x,
+        y: point.y - center.y
+      };
+      console.log({relPoint});
+      return !this.areClockwise(sectorStart, relPoint) &&
+        this.areClockwise(sectorEnd, relPoint) &&
+        this.isWithinRadius(relPoint, radiusSquared);
+    },
 
+    areClockwise: function(v1, v2) {
+      return -v1.x*v2.y + v1.y*v2.x > 0;
+    },
 
-// return things back
-     this.ctx.restore();
-
+    isWithinRadius: function(v, radiusSquared) {
+      return v.x*v.x + v.y*v.y <= radiusSquared;
     },
 
     draw: function(){
       if (this.floor){
         if(!this.valid){
-          console.log('draw');
           this.frames++;
           this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
           this.ctx.drawImage(this.img,0,0);
-          // console.log('Draw');
           this.drawHotSpots();
           this.drawRadar();
           if(this.frames>10) this.valid = true;

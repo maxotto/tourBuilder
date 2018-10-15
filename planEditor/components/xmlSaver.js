@@ -11,7 +11,7 @@ module.exports = function (config, data) {
   const floorMapXmlPath = Path.resolve(extPath,'floorMap.xml');
   const floorMapXmlPath1 = Path.resolve(extPath,'floorMapTest.xml');
   const hotSpotParents = {};
-  log('Xml writer created with config', config);
+  // log('Xml writer created with config', config);
 
   const loadXml = function(file) {
     var parser = new Xml2js.Parser();
@@ -41,7 +41,7 @@ module.exports = function (config, data) {
           log(err);
           reject(err);
         } else {
-          resolve(file, 'saved');
+          resolve(file + ' saved.');
         }
       })
     });
@@ -68,13 +68,39 @@ module.exports = function (config, data) {
     });
     return(xml);
   };
-
+  const updateMainTour = function(tourXml, data){
+    const angles = {};
+    data.hotspots.forEach(hs=>{
+      let parentName = hs.parent.name;
+      angles[hs.parent.name] = {
+        name: hs.name,
+        angle: hs.parent.angle
+      };
+    });
+    tourXml.krpano.scene.forEach((scene, i) => {
+      if (angles.hasOwnProperty(scene['$'].name)) {
+        let hsName = angles[scene['$'].name].name;
+        let searchStr = 'updateradar(' + hsName +',';
+        let pos = scene['$'].onstart.indexOf(searchStr);
+        tourXml.krpano.scene[i]['$'].onstart = tourXml.krpano.scene[i]['$'].onstart.substring(0, pos) + searchStr + angles[scene['$'].name].angle + ');';
+      }
+    });
+    return tourXml;
+  };
   const writer = {};
   writer.write = function() {
     return loadXml(floorMapXmlPath)
       .then(xml => {
         const updated = updateXml(xml, data);
         return saveXml(updated, floorMapXmlPath);
+      })
+      .then((message) => {
+        console.log(message);
+        return loadXml(tourXmlPath);
+      })
+      .then(tourXml => {
+        const updated = updateMainTour(tourXml, data);
+        return saveXml(updated, tourXmlPath);
       });
   };
 

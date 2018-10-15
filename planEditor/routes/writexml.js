@@ -8,6 +8,7 @@ router.post('/', function(req, res, next) {
   const writer = new XmlWriter(config, req.body);
   writer.write()
     .then((result) => {
+      console.log(result);
       res.send(JSON.stringify(
         {
           status:'ok'

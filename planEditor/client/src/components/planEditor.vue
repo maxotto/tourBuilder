@@ -7,12 +7,6 @@
             <h2>X:{{x}}, Y:{{y}}</h2>
           </v-card>
           <v-card>
-            <h2>DragRadarStartAngle:{{dragRadarStartAngleDiff}}</h2>
-          </v-card>
-          <v-card>
-            <h2>{{hotspots[currentHS]}}</h2>
-          </v-card>
-          <v-card>
             <v-btn
               :loading="saving"
               :disabled="!changed || saving"
@@ -43,7 +37,7 @@
 </template>
 
 <script>
-// todo delete hotspots
+// todo delete hotspots ??
 export default {
   name: 'planEditor',
   props: {
@@ -74,7 +68,7 @@ export default {
       interval: 30,
       mouse: {x: 0, y: 0},
       gragging: false,
-      dragoffx: 0, // See mousedown and mousemove events for explanation
+      dragoffx: 0,
       dragoffy: 0,
       dragRadar: false,
       dragRadarX: 0,
@@ -124,8 +118,6 @@ export default {
           return;
         }
       }
-      // havent returned means we have failed to select anything.
-      // If there was an object selected, we deselect it
       if(this.currentHS >=0){
         this.drawRadar();
         if(this.ctx.isPointInPath(mx, my)){
@@ -137,10 +129,9 @@ export default {
           const dY = mouse.y - rg.y;
           this.dragRadarStartAngleDiff = Math.atan2(dY,dX)/Math.PI*180-this.hotspots[this.currentHS].parent.angle;
           this.valid = false;
-          // alert('Yes');
         } else {
           this.currentHS = -1;
-          this.valid = false; // Need to clear the old selection border
+          this.valid = false;
         }
       }
     },
@@ -183,8 +174,6 @@ export default {
       var mouse = this.getMousePos(e);
       if (this.dragging){
         this.changed = true;
-        // We don't want to drag the object by its top-left corner, we want to drag it
-        // from where we clicked. Thats why we saved the offset and use it here
         this.hotspots[this.currentHS].x = mouse.x - this.dragoffx;
         this.hotspots[this.currentHS].y = mouse.y - this.dragoffy;
         this.x = this.hotspots[this.currentHS].x;
@@ -197,7 +186,7 @@ export default {
         const dX = mouse.x - rg.x;
         const dY = mouse.y - rg.y;
         const newAngle =Math.atan2(dY,dX)/Math.PI*180;
-        this.hotspots[this.currentHS].parent.angle = newAngle - this.dragRadarStartAngleDiff;
+        this.hotspots[this.currentHS].parent.angle = Math.round((newAngle - this.dragRadarStartAngleDiff) * 100)/100;
         this.valid = false; // Something's dragging so we must redraw
       }
     },
@@ -227,7 +216,7 @@ export default {
       this.ctx.moveTo(rg.x, rg.y);
       this.ctx.arc(rg.x, rg.y, this.radarRadius, startAngle, endAngle, false);
       this.ctx.closePath();
-      this.ctx.fillStyle = "rgba(255, 200, 200, 0.5)";
+      this.ctx.fillStyle = "rgba(255, 200, 150, 0.7)";
       this.ctx.fill();
       this.ctx.restore();
     },

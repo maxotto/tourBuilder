@@ -10,7 +10,7 @@ module.exports = function (config) {
     const tourXmlPath = Path.resolve(config.outFolder,'tour.xml');
     const floooMapXmlPath = Path.resolve(extPath,'floorMap.xml');
     const hotSpotParents = {};
-    log('Xml reader created with config', config);
+    // log('Xml reader created with config', config);
     const loadXml = function(file) {
         var parser = new Xml2js.Parser();
         return new Promise((resolve, reject) => {

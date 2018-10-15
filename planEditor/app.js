@@ -5,7 +5,6 @@ var logger = require('morgan');
 
 var bodyParser = require('body-parser');
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var readXmlRouter = require('./routes/readxml');
 var writeXmlRouter = require('./routes/writexml');
 var getImageRouter = require('./routes/getimage');
@@ -24,7 +23,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/readxml', readXmlRouter);
 app.use('/writexml', writeXmlRouter);
 app.use('/getimage', getImageRouter);

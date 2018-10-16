@@ -62,7 +62,6 @@ module.exports = function (config, data) {
           y: hotspots[layerName]['y'],
           zorder: hotspots[layerName]['zorder'],
           onclick: hotspots[layerName]['onclick'],
-          onclick: hotspots[layerName]['onclick'],
         }
       }
     });

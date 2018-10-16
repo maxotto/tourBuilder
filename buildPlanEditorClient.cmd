@@ -1,2 +1,3 @@
 cd planEditor/client
-npm run build
+call npm install
+call npm run build

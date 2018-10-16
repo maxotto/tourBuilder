@@ -20,6 +20,9 @@
             </v-btn>
           </v-card>
           <v-card>
+            <p>{{error}}</p>
+          </v-card>
+          <v-card>
             <img style="border:6px solid green; background-color: #0c82df" id="scene-img" src=""/>
           </v-card>
         </v-flex>
@@ -89,6 +92,9 @@ export default {
   computed:{
     saving(){
       return this.$store.getters['getSaving'];
+    },
+    error(){
+      return this.$store.getters['getError'];
     }
   },
   methods: {

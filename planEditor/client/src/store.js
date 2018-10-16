@@ -7,6 +7,7 @@ export default new Vuex.Store({
   state: {
     xmlData: undefined,
     saving: false,
+    error: '',
   },
   getters:{
     getXmlData: state => {
@@ -14,6 +15,9 @@ export default new Vuex.Store({
     },
     getSaving: state => {
       return state.saving;
+    },
+    getError: state => {
+      return state.error;
     }
   },
   mutations: {
@@ -25,19 +29,25 @@ export default new Vuex.Store({
       state.saving = value;
     },
 
+    setError(state, value){
+      state.error = value;
+    },
+
     setHotspotsByFloor(state, data){
       state.xmlData[data.floor]['hotspots'] = data.hotspots;
     }
   },
   actions: {
     fetchXmlData({commit}){
+      commit('setError', '');
       axios.get('/readxml')
       .then(function (response) {
         commit('setXmlData', response.data);
       })
       .catch(function (error) {
-        // console.log(error);
-        throw error
+        console.log(error);
+        commit('setError', error.message);
+        throw error;
       })
       .then(function () {
         // always executed
@@ -45,6 +55,7 @@ export default new Vuex.Store({
     },
 
     writeDatToXmlFile({commit, dispatch}, data){
+      commit('setError', '');
       axios.post('/writexml', data).then(response => {
         if(response.data.status === 'ok'){
           dispatch('fetchXmlData');
@@ -55,6 +66,7 @@ export default new Vuex.Store({
       }
       ).catch(error => {
         console.log({error});
+        commit('setError', error.message);
         commit('setSaving', false);
       });
     },

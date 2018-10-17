@@ -1,21 +1,36 @@
 <template>
 <v-container fluid>
-    <v-slide-y-transition mode="out-in">
-      <v-layout column align-center>
-
-        <v-select
-          v-model="floor"
-          :items="items"
-          item-text="name"
-          item-value="name"
-          label="Select floor to edit"
-          persistent-hint
-          return-object
-          single-line
-        ></v-select>
-        <plan-editor :floor="floor.name" :xmlData="xmlData"></plan-editor>
-      </v-layout>
-    </v-slide-y-transition>
+      <v-tabs
+              slider-color="green"
+              centered
+      >
+          <v-tab key="1" riple>
+              Hotspots on a plan
+          </v-tab>
+          <v-tab key="2" riple>
+              Hotspots on a scenes
+          </v-tab>
+          <v-tab-item key="1">
+              <v-layout column align-center>
+                  <v-select
+                          v-model="floor"
+                          :items="items"
+                          item-text="name"
+                          item-value="name"
+                          label="Select floor to edit"
+                          persistent-hint
+                          return-object
+                          single-line
+                  ></v-select>
+                  <plan-editor :floor="floor.name" :xmlData="xmlData"></plan-editor>
+              </v-layout>
+          </v-tab-item>
+          <v-tab-item key="2">
+              <v-layout column align-center>
+                  fssdfsdfsdfsdssdf
+              </v-layout>
+          </v-tab-item>
+      </v-tabs>
   </v-container>
 </template>
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -6,13 +6,21 @@
                     <p style="color: crimson" id="angle"> Azimuthal Angle = {{hAngle}}</p>
                     <p style="color: green" id="vangle"> Polar Angle = {{vAngle}}</p>
                     <v-card v-for="s in scenesData" >
-                        <img style="border:6px solid green; background-color: #0c82df" :src='s.url'/>
+                        <span>{{s.name}}</span>
+                        <img
+                                :id="s.name"
+                                style="border:6px solid green; background-color: #0c82df"
+                                :src='s.url'
+                                @click="selectScene"/>
                     </v-card>
                 </v-flex>
                 <v-flex xs8 id="container">
                 </v-flex>
             </v-layout>
         </v-container>
+        <div style="display: none">
+            {{scenes}}
+        </div>
     </div>
 </template>
 
@@ -26,6 +34,11 @@
     },
     data: function () {
       return {
+        selected: {
+          scene: '',
+          hsList: [],
+          hsIndex: -1,
+        },
         camera: undefined,
         controls: undefined,
         renderer: undefined,
@@ -46,6 +59,7 @@
           if(val.hasOwnProperty(s)){
             this.scenesData[s] = val[s];
             this.scenesData[s].url = "/getimage?scene="+s.substring(6);
+            this.scenesData[s].name = s;
           }
         }
       },
@@ -56,8 +70,8 @@
       }
     },
     methods: {
-      test: function(){
-        var scene = new THREE.Scene();
+      selectScene: function(e){
+        console.log(e.target.id);
       },
       getTexturesFromFolder: function(folder){
         var textures = [];
@@ -97,7 +111,7 @@
         this.renderer.setSize( this.panoDim.w, this.panoDim.h );
       },
       animate: function() {
-        this.hAngle = Math.floor(this.controls.getAzimuthalAngle()/Math.PI*180*100)/100;
+        this.hAngle = (-1)*Math.floor(this.controls.getAzimuthalAngle()/Math.PI*180*100)/100;
         this.vAngle = Math.floor(this.controls.getPolarAngle()/Math.PI*180*100)/100;
         requestAnimationFrame( this.animate );
         this.controls.update(); // required when damping is enabled

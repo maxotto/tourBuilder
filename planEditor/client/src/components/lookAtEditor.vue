@@ -2,12 +2,14 @@
     <div style="width: 100%; height: 100%">
         <v-container grid-list-md text-xs-center>
             <v-layout row wrap>
-                <v-flex xs2>
-                    Тут будет выбор сцены и инфо
+                <v-flex xs4>
                     <p style="color: crimson" id="angle"> Azimuthal Angle = {{hAngle}}</p>
                     <p style="color: green" id="vangle"> Polar Angle = {{vAngle}}</p>
+                    <v-card v-for="s in scenesData" >
+                        <img style="border:6px solid green; background-color: #0c82df" :src='s.url'/>
+                    </v-card>
                 </v-flex>
-                <v-flex xs10 id="container">
+                <v-flex xs8 id="container">
                 </v-flex>
             </v-layout>
         </v-container>
@@ -19,18 +21,38 @@
   var OrbitControls = require('three-orbit-controls')(THREE);
   export default {
     name: "lookAtEditor",
+    props: {
+      scenes: Object,
+    },
     data: function () {
       return {
         camera: undefined,
         controls: undefined,
         renderer: undefined,
         scene: undefined,
+        scenesData: {},
         hAngle: 0,
         vAngle: 90,
         panoDim: {
           h:9*40,
           w:16*40,
         }
+      }
+    },
+    watch: {
+      scenes(val) {
+        console.log('Scenes wathed ',val);
+        for (let s in val){
+          if(val.hasOwnProperty(s)){
+            this.scenesData[s] = val[s];
+            this.scenesData[s].url = "/getimage?scene="+s.substring(6);
+          }
+        }
+      },
+    },
+    computed:{
+      error(){
+        return this.$store.getters['getError'];
       }
     },
     methods: {
@@ -84,6 +106,8 @@
   },
     mounted: function(){
       const container = document.getElementById( 'container' );
+      const s = this.scenes;
+      console.log(s);
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setPixelRatio( window.devicePixelRatio );
       this.renderer.setSize( this.panoDim.w, this.panoDim.h );

@@ -27,7 +27,7 @@
           </v-tab-item>
           <v-tab-item key="2">
               <v-layout column align-center>
-                  <look-at-editor></look-at-editor>
+                  <look-at-editor :scenes="scenes"></look-at-editor>
               </v-layout>
           </v-tab-item>
       </v-tabs>
@@ -83,6 +83,11 @@ export default {
           });
         }
       }
+      return data;
+    },
+    scenes(){
+      const data = this.$store.getters['getScenes'];
+      console.log('Scenes computed ',data);
       return data;
     }
   },

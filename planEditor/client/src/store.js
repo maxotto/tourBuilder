@@ -6,12 +6,16 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     xmlData: undefined,
+    scenes: undefined,
     saving: false,
     error: '',
   },
   getters:{
     getXmlData: state => {
       return state.xmlData;
+    },
+    getScenes: state => {
+      return state.scenes;
     },
     getSaving: state => {
       return state.saving;
@@ -23,6 +27,10 @@ export default new Vuex.Store({
   mutations: {
     setXmlData(state, value){
       state.xmlData = value;
+    },
+
+    setScenes(state, value){
+      state.scenes = value;
     },
 
     setSaving(state, value){
@@ -42,7 +50,8 @@ export default new Vuex.Store({
       commit('setError', '');
       axios.get('/readxml')
       .then(function (response) {
-        commit('setXmlData', response.data);
+        commit('setXmlData', response.data.planHotspotsData);
+        commit('setScenes', response.data.lookATData);
       })
       .catch(function (error) {
         console.log(error);

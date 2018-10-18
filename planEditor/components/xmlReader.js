@@ -58,14 +58,23 @@ module.exports = function (config) {
     };
 
     const addParentInfo = function(data, tourXml){
-      // console.log(tourXml.krpano['scene']);
-      for (f in data) {
-        if (data.hasOwnProperty(f)) {
-          data[f]['hotspots'].forEach((hs, i) => {
-            data[f]['hotspots'][i]['parent'] = findParentScene(hs.name, tourXml);
+      for (f in data.planHotspotsData) {
+        if (data.planHotspotsData.hasOwnProperty(f)) {
+          data.planHotspotsData[f]['hotspots'].forEach((hs, i) => {
+            data.planHotspotsData[f]['hotspots'][i]['parent'] = findParentScene(hs.name, tourXml);
           });
         }
       }
+      data.lookATData = {};
+      tourXml.krpano['scene'].forEach(scene => {
+        let sName = scene['$'].name;
+        data.lookATData[sName] = [];
+        if(scene.hotspot){
+          scene.hotspot.forEach(hs => {
+            data.lookATData[sName].push(hs['$']);
+          });
+        }
+      });
       return data;
     };
 
@@ -97,14 +106,17 @@ module.exports = function (config) {
  * 2 - файл tour.xml - основной файл тура. Туда мы потом поместим информацию о напрвлении радара хотспотов. То есть - считывать его не надо
  * 3 - файл \tour\ext\tour\floorMap.xml. Отсюда берем url картинки плана, url картинок хотспотов, а также перечень этих хотспотов с исходными координатами
  */
-        let data = undefined;
+        let data = {
+          planHotspotsData: undefined,
+          lookATData: undefined
+        };
         return loadXml(floooMapXmlPath)
         .then(xml => {
           const util = require('util');
           //console.log(util.inspect(xml, {showHidden: false, depth: null}));
           return Promise.resolve(parseXml(xml));
         }).then(result => {
-          data = result;
+          data.planHotspotsData = result;
           return loadXml(tourXmlPath);
         })
         .then(xml => Promise.resolve(addParentInfo(data, xml)));

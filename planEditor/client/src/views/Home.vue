@@ -8,7 +8,7 @@
               Hotspots on a plan
           </v-tab>
           <v-tab key="2" riple>
-              Hotspots on a scenes
+              LookAt of scenes
           </v-tab>
           <v-tab-item key="1">
               <v-layout column align-center>
@@ -27,7 +27,7 @@
           </v-tab-item>
           <v-tab-item key="2">
               <v-layout column align-center>
-                  fssdfsdfsdfsdssdf
+                  <look-at-editor></look-at-editor>
               </v-layout>
           </v-tab-item>
       </v-tabs>
@@ -57,11 +57,13 @@ a {
 <script>
 // @ is an alias to /src
 import planEditor from '@/components/planEditor.vue'
+import lookAtEditor from '@/components/lookAtEditor.vue'
 
 export default {
   name: 'home',
   components: {
-    planEditor
+    planEditor,
+    lookAtEditor
   },
   data: function () {
     return {

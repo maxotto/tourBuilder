@@ -3,21 +3,26 @@
         <v-container grid-list-md text-xs-center>
             <v-layout row wrap>
                 <v-flex xs4>
+                    <p>{{camToSave}}</p>
                     <p style="color: crimson" id="angle"> Azimuthal Angle = {{hAngle}}</p>
                     <p style="color: green" id="vangle"> Polar Angle = {{vAngle}}</p>
                     <p>{{selected.scene}}</p>
-                    <p>{{selected.hsList}}</p>
                     <p>{{selected.hsIndex}}</p>
+                    <p>{{selected.hsName}}</p>
                     <p>{{selected.hsLinkedScene}}</p>
-                    <div v-for="hs in selected.hsList"
+                    <div v-for="(hs, index) in selected.hsList"
                          style="border:1px solid green;">
                         <div>
                             <span><b>{{hs.name}}</b></span><br>
-                            <img    height="80" width="80"
-                                    :id="hs.name + hs.linkedscene"
-                                    style="background-color: #0c82df"
-                                    :src='getUrlBySceneName(hs.linkedscene)'
-                                    @click="selectHotSpot(hs)"/>
+                            <span v-if="scenesData[selected.scene].hotspots[index]">
+                                {{scenesData[selected.scene].hotspots[index].linkedscene_lookat}}
+                            </span>
+                            <img
+                                height="80" width="80"
+                                :id="hs.name + hs.linkedscene"
+                                style="background-color: #0c82df"
+                                :src='getUrlBySceneName(hs.linkedscene)'
+                                @click="selectHotSpot(hs)"/>
                         </div>
                     </div>
                 </v-flex>
@@ -57,7 +62,8 @@
         selected: {
           scene: '',
           hsList: [],
-          hsIndex: '',
+          hsName: '',
+          hsIndex: -1,
           hsLinkedScene: ''
         },
         camera: undefined,
@@ -70,10 +76,17 @@
         panoDim: {
           h:9*40,
           w:16*40,
-        }
+        },
+        camToSave:
+          { "position": { "x": 0, "y": 6.123233995736766e-19, "z": 0.01 }, "rotation":
+              { "_x": -6.123233995736766e-17, "_y": Math.PI/4, "_z": 0, "_order": "YXZ" }, "controlCenter": { "x": 0, "y": 0, "z": 0 } },
       }
     },
     watch: {
+      hAngle(angle){
+        // console.log(this.scenesData[this.selected.scene]);
+        this.scenesData[this.selected.scene].hotspots[this.selected.hsIndex].linkedscene_lookat = angle;
+      },
       scenes(val) {
         for (let s in val){
           if(val.hasOwnProperty(s)){
@@ -83,7 +96,7 @@
             this.scenesData[s].name = s;
           }
         }
-        console.log('Scenes watched ',JSON.stringify(this.scenesData));
+        // console.log('Scenes watched ',JSON.stringify(this.scenesData));
       },
     },
     computed:{
@@ -92,12 +105,23 @@
       }
     },
     methods: {
+      getHsIndexByName: function(list, name){
+        let out = -1;
+        list.forEach((hs, i) => {
+          if(hs.name === name) {
+            out = i;
+          }
+        });
+        return out;
+      },
       getUrlBySceneName: function(s){
         return "/getimage?scene="+s.substring(6);
       },
       selectHotSpot: function(hs){
-        this.selected.hsIndex = hs.name;
+        this.selected.hsName = hs.name;
+        this.selected.hsIndex = this.getHsIndexByName(this.selected.hsList, this.selected.hsName);
         this.selected.hsLinkedScene = hs.linkedscene;
+        // this.camToSave.controlCenter.x = hs.linkedscene_lookat/180*Math.PI;
         this.reRunPano(hs.linkedscene);
       },
       mySelectScene: function(s){
@@ -147,7 +171,6 @@
         // make container empty
         while (container.firstChild) container.removeChild(container.firstChild);
         const s = this.scenes;
-        console.log(s);
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setPixelRatio( window.devicePixelRatio );
         this.renderer.setSize( this.panoDim.w, this.panoDim.h );
@@ -163,7 +186,11 @@
         this.controls.enablePan = false;
         this.controls.enableDamping = true;
         this.controls.rotateSpeed = - 0.25;
-
+/*
+        this.camToSave.position = this.camera.position.clone();
+        this.camToSave.rotation = this.camera.rotation.clone();
+        this.camToSave.controlCenter = this.controls.center.clone();
+*/
         const textures = this.getTexturesByScene(myScene);
 
         const materials = [];
@@ -175,6 +202,13 @@
         const skyBox = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), materials );
         skyBox.geometry.scale( 1, 1, - 1 );
         this.scene.add( skyBox );
+/*
+        this.camera.position.set(this.camToSave.position.x, this.camToSave.position.y, this.camToSave.position.z);
+        this.camera.rotation.set(this.camToSave.rotation.x, this.camToSave.rotation.y, this.camToSave.rotation.z);
+
+        this.controls.center.set(this.camToSave.controlCenter.x, this.camToSave.controlCenter.y, this.camToSave.controlCenter.z);
+        this.controls.update();
+*/
         this.animate();
       },
       animate: function() {

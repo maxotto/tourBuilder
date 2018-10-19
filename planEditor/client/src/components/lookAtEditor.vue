@@ -1,37 +1,36 @@
 <template>
-    <div style="width: 100%; height: 100%">
+    <v-layout style="width: 100%; height: 100%">
         <v-container grid-list-md text-xs-center>
             <v-layout row wrap>
-                <v-flex xs4>
-                    <p>{{camToSave}}</p>
-                    <p style="color: crimson" id="angle"> Azimuthal Angle = {{hAngle}}</p>
-                    <p style="color: green" id="vangle"> Polar Angle = {{vAngle}}</p>
-                    <p>{{selected.scene}}</p>
-                    <p>{{selected.hsIndex}}</p>
-                    <p>{{selected.hsName}}</p>
-                    <p>{{selected.hsLinkedScene}}</p>
-                    <div v-for="(hs, index) in selected.hsList"
-                         style="border:1px solid green;">
-                        <div>
-                            <span><b>{{hs.name}}</b></span><br>
-                            <span v-if="scenesData[selected.scene].hotspots[index]">
-                                {{scenesData[selected.scene].hotspots[index].linkedscene_lookat}}
-                            </span>
+                <v-flex xs3>
+                    <p style="color: green"><b>Current scene is {{selected.scene}}</b></p>
+                    <v-layout row wrap v-for="(hs, index) in selected.hsList">
+                        <v-flex xs4>
+                            <b>{{hs.name}}</b>
+                        </v-flex>
+                        <v-flex xs4 style="border:1px solid green;">
                             <img
                                 height="80" width="80"
                                 :id="hs.name + hs.linkedscene"
                                 style="background-color: #0c82df"
                                 :src='getUrlBySceneName(hs.linkedscene)'
                                 @click="selectHotSpot(hs)"/>
-                        </div>
-                    </div>
+                        </v-flex>
+                        <v-flex xs4>
+                            <span style="color: crimson" v-if="scenesData[selected.scene].hotspots[index]">
+                                Azimuthal Angle: <br>{{scenesData[selected.scene].hotspots[index].linkedscene_lookat}}
+                            </span>
+                        </v-flex>
+                    </v-layout>
                 </v-flex>
-                <v-flex xs8 id="container">
+                <v-flex xs9 id="container">
                 </v-flex>
             </v-layout>
             <div style="overflow-x: scroll; height: 100%; width: 100%">
                 <div v-for="s in scenesData"
-                     style="display: inline-block; border:6px solid green;">
+                     class="scene"
+                     v-bind:class="{ active: isActiveScene(s.name)}"
+                >
                     <div>
                         <span><b>{{s.name}}</b></span><br>
                         <img
@@ -46,7 +45,7 @@
         <div style="display: none">
             {{scenes}}
         </div>
-    </div>
+    </v-layout>
 </template>
 
 <script>
@@ -76,15 +75,11 @@
         panoDim: {
           h:9*40,
           w:16*40,
-        },
-        camToSave:
-          { "position": { "x": 0, "y": 6.123233995736766e-19, "z": 0.01 }, "rotation":
-              { "_x": -6.123233995736766e-17, "_y": Math.PI/4, "_z": 0, "_order": "YXZ" }, "controlCenter": { "x": 0, "y": 0, "z": 0 } },
+        }
       }
     },
     watch: {
       hAngle(angle){
-        // console.log(this.scenesData[this.selected.scene]);
         this.scenesData[this.selected.scene].hotspots[this.selected.hsIndex].linkedscene_lookat = angle;
       },
       scenes(val) {
@@ -96,7 +91,6 @@
             this.scenesData[s].name = s;
           }
         }
-        // console.log('Scenes watched ',JSON.stringify(this.scenesData));
       },
     },
     computed:{
@@ -105,6 +99,14 @@
       }
     },
     methods: {
+        isActiveScene: function(scene){
+            return (scene === this.selected.scene);
+        },
+      clearPano: function(){
+          const container = document.getElementById( 'container' );
+          // make container empty
+          while (container.firstChild) container.removeChild(container.firstChild);
+      },
       getHsIndexByName: function(list, name){
         let out = -1;
         list.forEach((hs, i) => {
@@ -121,11 +123,12 @@
         this.selected.hsName = hs.name;
         this.selected.hsIndex = this.getHsIndexByName(this.selected.hsList, this.selected.hsName);
         this.selected.hsLinkedScene = hs.linkedscene;
-        // this.camToSave.controlCenter.x = hs.linkedscene_lookat/180*Math.PI;
         this.reRunPano(hs.linkedscene);
       },
       mySelectScene: function(s){
-        this.selected.scene = s;
+          this.clearPano();
+          scroll(0,0);
+          this.selected.scene = s;
         this.selected.hsList = this.scenesData[this.selected.scene].hotspots;
       },
       getTexturesByScene: function(myScene){
@@ -167,9 +170,7 @@
       },
 
       reRunPano: function(myScene){
-        const container = document.getElementById( 'container' );
-        // make container empty
-        while (container.firstChild) container.removeChild(container.firstChild);
+        this.clearPano();
         const s = this.scenes;
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setPixelRatio( window.devicePixelRatio );
@@ -179,18 +180,31 @@
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera( 90, this.panoDim.w/this.panoDim.h, 0.1, 100 );
-        this.camera.position.z = 0.01;
+        this.camera.position.x = 0;
+        this.camera.position.y = 0;
+        this.camera.position.z = 0;
+          this.controls = new OrbitControls( this.camera, this.renderer.domElement );
 
-        this.controls = new OrbitControls( this.camera, this.renderer.domElement );
-        this.controls.enableZoom = false;
-        this.controls.enablePan = false;
-        this.controls.enableDamping = true;
-        this.controls.rotateSpeed = - 0.25;
-/*
-        this.camToSave.position = this.camera.position.clone();
-        this.camToSave.rotation = this.camera.rotation.clone();
-        this.camToSave.controlCenter = this.controls.center.clone();
-*/
+          this.controls.enableZoom = false;
+          this.controls.enablePan = false;
+          this.controls.enableDamping = true;
+          this.controls.rotateSpeed = - 0.25;
+          /**
+           *  https://stackoverflow.com/questions/37192936/three-js-orbitcontrols-how-to-change-center
+
+           You can set the center of rotation for OrbitControls like so:
+
+           controls = new THREE.OrbitControls( camera, renderer.domElement );
+           controls.target.set( x, y, z );
+
+           The Vector3 target is the center of rotation, and the point the camera "looks at".
+           */
+        const r = 0.001;
+        const lookAt = (-1)*this.scenesData[this.selected.scene].hotspots[this.selected.hsIndex].linkedscene_lookat*Math.PI/180;
+        const z = Math.cos(lookAt)*r;
+        const x = Math.sin(lookAt)*r;
+        this.controls.target.set(-x, 0, -z);
+
         const textures = this.getTexturesByScene(myScene);
 
         const materials = [];
@@ -198,17 +212,9 @@
         for ( var i = 0; i < 6; i ++ ) {
           materials.push( new THREE.MeshBasicMaterial( { map: textures[ i ] } ) );
         }
-
         const skyBox = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), materials );
         skyBox.geometry.scale( 1, 1, - 1 );
         this.scene.add( skyBox );
-/*
-        this.camera.position.set(this.camToSave.position.x, this.camToSave.position.y, this.camToSave.position.z);
-        this.camera.rotation.set(this.camToSave.rotation.x, this.camToSave.rotation.y, this.camToSave.rotation.z);
-
-        this.controls.center.set(this.camToSave.controlCenter.x, this.camToSave.controlCenter.y, this.camToSave.controlCenter.z);
-        this.controls.update();
-*/
         this.animate();
       },
       animate: function() {
@@ -220,7 +226,6 @@
       }
   },
     mounted: function(){
-      // this.reRunPano();
       window.addEventListener( 'resize', this.onWindowResize, false );
     }
   }
@@ -232,5 +237,13 @@
     }
     .table-div1:nth-child(n+2) {
         margin-left:-1px;
+    }
+    .scene {
+        display: inline-block;
+        border: 6px solid grey;
+    }
+    .scene.active{
+        display: inline-block;
+        border: 6px solid red;
     }
 </style>

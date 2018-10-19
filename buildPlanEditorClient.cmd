@@ -1,3 +1,6 @@
-cd planEditor/client
-call npm install
+rem call npm install
+cd planEditor
+rem call npm install
+cd client
+rem call npm install
 call npm run build

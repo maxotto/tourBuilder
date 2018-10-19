@@ -5,18 +5,38 @@
                 <v-flex xs4>
                     <p style="color: crimson" id="angle"> Azimuthal Angle = {{hAngle}}</p>
                     <p style="color: green" id="vangle"> Polar Angle = {{vAngle}}</p>
-                    <v-card v-for="s in scenesData" >
-                        <span>{{s.name}}</span>
-                        <img
-                                :id="s.name"
-                                style="border:6px solid green; background-color: #0c82df"
-                                :src='s.url'
-                                @click="selectScene"/>
-                    </v-card>
+                    <p>{{selected.scene}}</p>
+                    <p>{{selected.hsList}}</p>
+                    <p>{{selected.hsIndex}}</p>
+                    <p>{{selected.hsLinkedScene}}</p>
+                    <div v-for="hs in selected.hsList"
+                         style="border:1px solid green;">
+                        <div>
+                            <span><b>{{hs.name}}</b></span><br>
+                            <img    height="80" width="80"
+                                    :id="hs.name + hs.linkedscene"
+                                    style="background-color: #0c82df"
+                                    :src='getUrlBySceneName(hs.linkedscene)'
+                                    @click="selectHotSpot(hs)"/>
+                        </div>
+                    </div>
                 </v-flex>
                 <v-flex xs8 id="container">
                 </v-flex>
             </v-layout>
+            <div style="overflow-x: scroll; height: 100%; width: 100%">
+                <div v-for="s in scenesData"
+                     style="display: inline-block; border:6px solid green;">
+                    <div>
+                        <span><b>{{s.name}}</b></span><br>
+                        <img
+                            :id="s.name"
+                            style="background-color: #0c82df"
+                            :src='s.url'
+                            @click="mySelectScene(s.name)"/>
+                    </div>
+                </div>
+            </div>
         </v-container>
         <div style="display: none">
             {{scenes}}
@@ -37,7 +57,8 @@
         selected: {
           scene: '',
           hsList: [],
-          hsIndex: -1,
+          hsIndex: '',
+          hsLinkedScene: ''
         },
         camera: undefined,
         controls: undefined,
@@ -54,14 +75,15 @@
     },
     watch: {
       scenes(val) {
-        console.log('Scenes wathed ',val);
         for (let s in val){
           if(val.hasOwnProperty(s)){
-            this.scenesData[s] = val[s];
+            this.scenesData[s] = {};
+            this.scenesData[s].hotspots = val[s];
             this.scenesData[s].url = "/getimage?scene="+s.substring(6);
             this.scenesData[s].name = s;
           }
         }
+        console.log('Scenes watched ',JSON.stringify(this.scenesData));
       },
     },
     computed:{
@@ -70,18 +92,27 @@
       }
     },
     methods: {
-      selectScene: function(e){
-        console.log(e.target.id);
+      getUrlBySceneName: function(s){
+        return "/getimage?scene="+s.substring(6);
       },
-      getTexturesFromFolder: function(folder){
+      selectHotSpot: function(hs){
+        this.selected.hsIndex = hs.name;
+        this.selected.hsLinkedScene = hs.linkedscene;
+        this.reRunPano(hs.linkedscene);
+      },
+      mySelectScene: function(s){
+        this.selected.scene = s;
+        this.selected.hsList = this.scenesData[this.selected.scene].hotspots;
+      },
+      getTexturesByScene: function(myScene){
         var textures = [];
         var names = [
-          'pano_r.jpg',
-          'pano_l.jpg',
-          'pano_u.jpg',
-          'pano_d.jpg',
-          'pano_f.jpg',
-          'pano_b.jpg',
+          this.getUrlBySceneName(myScene) + '&vr=r',
+          this.getUrlBySceneName(myScene) + '&vr=l',
+          this.getUrlBySceneName(myScene) + '&vr=u',
+          this.getUrlBySceneName(myScene) + '&vr=d',
+          this.getUrlBySceneName(myScene) + '&vr=f',
+          this.getUrlBySceneName(myScene) + '&vr=b',
         ];
         var imageObj = [];
         for ( var i = 0; i < 6; i ++ ) {
@@ -110,6 +141,42 @@
         this.camera.updateProjectionMatrix();
         this.renderer.setSize( this.panoDim.w, this.panoDim.h );
       },
+
+      reRunPano: function(myScene){
+        const container = document.getElementById( 'container' );
+        // make container empty
+        while (container.firstChild) container.removeChild(container.firstChild);
+        const s = this.scenes;
+        console.log(s);
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setPixelRatio( window.devicePixelRatio );
+        this.renderer.setSize( this.panoDim.w, this.panoDim.h );
+        container.appendChild( this.renderer.domElement );
+
+        this.scene = new THREE.Scene();
+
+        this.camera = new THREE.PerspectiveCamera( 90, this.panoDim.w/this.panoDim.h, 0.1, 100 );
+        this.camera.position.z = 0.01;
+
+        this.controls = new OrbitControls( this.camera, this.renderer.domElement );
+        this.controls.enableZoom = false;
+        this.controls.enablePan = false;
+        this.controls.enableDamping = true;
+        this.controls.rotateSpeed = - 0.25;
+
+        const textures = this.getTexturesByScene(myScene);
+
+        const materials = [];
+
+        for ( var i = 0; i < 6; i ++ ) {
+          materials.push( new THREE.MeshBasicMaterial( { map: textures[ i ] } ) );
+        }
+
+        const skyBox = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), materials );
+        skyBox.geometry.scale( 1, 1, - 1 );
+        this.scene.add( skyBox );
+        this.animate();
+      },
       animate: function() {
         this.hAngle = (-1)*Math.floor(this.controls.getAzimuthalAngle()/Math.PI*180*100)/100;
         this.vAngle = Math.floor(this.controls.getPolarAngle()/Math.PI*180*100)/100;
@@ -119,39 +186,8 @@
       }
   },
     mounted: function(){
-      const container = document.getElementById( 'container' );
-      const s = this.scenes;
-      console.log(s);
-      this.renderer = new THREE.WebGLRenderer();
-      this.renderer.setPixelRatio( window.devicePixelRatio );
-      this.renderer.setSize( this.panoDim.w, this.panoDim.h );
-      container.appendChild( this.renderer.domElement );
-
-      this.scene = new THREE.Scene();
-
-      this.camera = new THREE.PerspectiveCamera( 90, this.panoDim.w/this.panoDim.h, 0.1, 100 );
-      this.camera.position.z = 0.01;
-
-      this.controls = new OrbitControls( this.camera, this.renderer.domElement );
-      this.controls.enableZoom = false;
-      this.controls.enablePan = false;
-      this.controls.enableDamping = true;
-      this.controls.rotateSpeed = - 0.25;
-
-      const textures = this.getTexturesFromFolder();
-
-      const materials = [];
-
-      for ( var i = 0; i < 6; i ++ ) {
-        materials.push( new THREE.MeshBasicMaterial( { map: textures[ i ] } ) );
-      }
-
-      const skyBox = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), materials );
-      skyBox.geometry.scale( 1, 1, - 1 );
-      this.scene.add( skyBox );
-
+      // this.reRunPano();
       window.addEventListener( 'resize', this.onWindowResize, false );
-      this.animate();
     }
   }
 </script>
@@ -159,5 +195,8 @@
 <style scoped>
     .container {
         padding: unset!important;
+    }
+    .table-div1:nth-child(n+2) {
+        margin-left:-1px;
     }
 </style>

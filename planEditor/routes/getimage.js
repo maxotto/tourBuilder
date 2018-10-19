@@ -10,7 +10,11 @@ router.get('/', function(req, res, next) {
     fileName = Path.resolve(config.outFolder, 'ext/tour', req.query.image);
   }
   if(req.query.scene){
-    fileName = Path.resolve(config.outFolder, 'panos', req.query.scene+'.tiles', 'thumb.jpg');
+    if(req.query.vr){
+      fileName = Path.resolve(config.outFolder, 'panos', req.query.scene+'.tiles','vr', 'pano_' + req.query.vr + '.jpg');
+    } else {
+      fileName = Path.resolve(config.outFolder, 'panos', req.query.scene+'.tiles', 'thumb.jpg');
+    }
   }
   res.sendFile(fileName);
 });

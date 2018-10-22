@@ -102,11 +102,16 @@ module.exports = function (config, ftp_deploy) {
   };
 
   const updateScenes = function(xml) {
+    const floorCount = {};
     xml.krpano.scene.forEach((scene, i) => {
 
       // if floor for a scene is not set, we assume that floor = 1
       const floor = scene['$']['floor'] || 1;
-
+      if (!floorCount.hasOwnProperty(floor)) {
+        floorCount[floor] = 1;
+      } else {
+        ++floorCount[floor];
+      }
       const mapActionName = `map_${floor}_floor`;
       // список сцен на этаже
       if (!floorsList[floor]) floorsList[floor] = [];
@@ -117,8 +122,8 @@ module.exports = function (config, ftp_deploy) {
         mapHotspots[floor].push({
           name: `spot${floor}_${i+1}`,
           style: `mapspot${floor}`,
-          x: (i+1)*10,
-          y: (i+1)*10,
+          x: floorCount[floor]*10,
+          y: floorCount[floor]*10,
           zorder: 1,
           onclick: `mapspot_loadscene(${xml.krpano.scene[i]['$']['name']}, map_${floor}_floor);`
         });

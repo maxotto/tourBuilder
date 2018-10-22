@@ -5,7 +5,8 @@ var XmlWriter = require('../components/xmlSaver');
 /* write data from XML. */
 router.post('/', function(req, res, next) {
   var config = req.app.get('config');
-  const writer = new XmlWriter(config, req.body);
+  console.log(req.query.type);
+  const writer = new XmlWriter(config, req.body, req.query.type);
   writer.write()
     .then((result) => {
       console.log(result);

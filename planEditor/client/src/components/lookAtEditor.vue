@@ -3,6 +3,16 @@
         <v-container grid-list-md text-xs-center>
             <v-layout row wrap>
                 <v-flex xs3>
+                    <p>Saving ={{saving}}</p>
+                    <p>Changed ={{changed}}</p>
+                    <v-btn
+                            :loading="saving"
+                            :disabled="!changed || saving"
+                            color="error"
+                            @click.native="saveJob()"
+                    >
+                        Save job
+                    </v-btn>
                     <p style="color: green"><b>Current scene is {{selected.scene}}</b></p>
                     <v-layout row wrap v-for="(hs, index) in selected.hsList">
                         <v-flex xs4>
@@ -54,10 +64,11 @@
   export default {
     name: "lookAtEditor",
     props: {
-      scenes: Object,
+      // scenes: Object,
     },
     data: function () {
       return {
+        changed: false,
         selected: {
           scene: '',
           hsList: [],
@@ -79,10 +90,17 @@
       }
     },
     watch: {
+      saving(val){
+        if(!val && this.changed){
+          this.changed = false;
+        }
+      },
       hAngle(angle){
         this.scenesData[this.selected.scene].hotspots[this.selected.hsIndex].linkedscene_lookat = angle;
       },
       scenes(val) {
+        // todo clear initial selected an other states
+        this.scenesData = {};
         for (let s in val){
           if(val.hasOwnProperty(s)){
             this.scenesData[s] = {};
@@ -94,12 +112,24 @@
       },
     },
     computed:{
+      scenes(){
+        const data = this.$store.getters['getScenes'];
+        return data;
+      },
+      saving(){
+        return this.$store.getters['getSaving'];
+      },
+
       error(){
         return this.$store.getters['getError'];
       }
     },
     methods: {
-        isActiveScene: function(scene){
+      saveJob(){
+        this.$store.dispatch('saveLookAtJob', {scenesData: this.scenesData, dataType: 'lookat'});
+      },
+
+      isActiveScene: function(scene){
             return (scene === this.selected.scene);
         },
       clearPano: function(){
@@ -218,8 +248,13 @@
         this.animate();
       },
       animate: function() {
-        this.hAngle = (-1)*Math.floor(this.controls.getAzimuthalAngle()/Math.PI*180*100)/100;
-        this.vAngle = Math.floor(this.controls.getPolarAngle()/Math.PI*180*100)/100;
+        const newHA = (-1)*Math.floor(this.controls.getAzimuthalAngle()/Math.PI*180*100)/100
+        const newVA = Math.floor(this.controls.getPolarAngle()/Math.PI*180*100)/100;
+        if(this.hAngle !== newHA) {
+          this.hAngle = newHA;
+          this.changed = true;
+        }
+        this.vAngle = newVA;
         requestAnimationFrame( this.animate );
         this.controls.update(); // required when damping is enabled
         this.renderer.render( this.scene, this.camera );

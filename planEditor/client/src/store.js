@@ -64,8 +64,12 @@ export default new Vuex.Store({
     },
 
     writeDatToXmlFile({commit, dispatch}, data){
+      let dataType = 'floor';
+      if(data.dataType){
+        dataType = data.dataType;
+      }
       commit('setError', '');
-      axios.post('/writexml', data).then(response => {
+      axios.post('/writexml?type='+dataType, data).then(response => {
         if(response.data.status === 'ok'){
           dispatch('fetchXmlData');
         } else {
@@ -81,11 +85,16 @@ export default new Vuex.Store({
     },
 
     saveFloorJob({commit, dispatch}, data){
-      // console.log(data);
       commit('setHotspotsByFloor', data);
       commit('setSaving', true);
       dispatch('writeDatToXmlFile', data);
-    }
+    },
+
+    saveLookAtJob({commit, dispatch}, data){
+      commit('setScenes', data.scenesData);
+      commit('setSaving', true);
+      dispatch('writeDatToXmlFile', data);
+    },
   }
 });
 

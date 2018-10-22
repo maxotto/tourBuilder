@@ -1,7 +1,7 @@
 const Fs = require('fs-extra');
 const Xml2js = require('xml2js');
 const Path = require('path');
-module.exports = function (config, data) {
+module.exports = function (config, data, dataType) {
   const log = function(...args){
     console.log(...args);
   };
@@ -67,6 +67,7 @@ module.exports = function (config, data) {
     });
     return(xml);
   };
+
   const updateMainTour = function(tourXml, data){
     const angles = {};
     data.hotspots.forEach(hs=>{
@@ -86,21 +87,44 @@ module.exports = function (config, data) {
     });
     return tourXml;
   };
+
+  const updateMainTourLookAt = function(tourXml, data){
+    console.log(data);
+    return tourXml;
+  };
+
   const writer = {};
-  writer.write = function() {
+
+  floorSaver = function(){
     return loadXml(floorMapXmlPath)
-      .then(xml => {
-        const updated = updateXml(xml, data);
-        return saveXml(updated, floorMapXmlPath);
-      })
-      .then((message) => {
-        console.log(message);
-        return loadXml(tourXmlPath);
-      })
-      .then(tourXml => {
-        const updated = updateMainTour(tourXml, data);
-        return saveXml(updated, tourXmlPath);
-      });
+        .then(xml => {
+          const updated = updateXml(xml, data);
+          return saveXml(updated, floorMapXmlPath);
+        })
+        .then((message) => {
+          console.log(message);
+          return loadXml(tourXmlPath);
+        })
+        .then(tourXml => {
+          const updated = updateMainTour(tourXml, data);
+          return saveXml(updated, tourXmlPath);
+        });
+  };
+
+  lookAtSaver = function(){
+    return loadXml(tourXmlPath)
+        .then(tourXml => {
+          const updated = updateMainTourLookAt(tourXml, data);
+          return saveXml(updated, tourXmlPath);
+        });
+  };
+  writer.write = function() {
+    switch (dataType) {
+      case 'floor':
+        return floorSaver();
+      case 'lookat':
+        return lookAtSaver();
+    }
   };
 
   return writer;

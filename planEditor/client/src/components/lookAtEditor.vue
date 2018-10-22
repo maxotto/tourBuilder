@@ -3,8 +3,6 @@
         <v-container grid-list-md text-xs-center>
             <v-layout row wrap>
                 <v-flex xs3>
-                    <p>Saving ={{saving}}</p>
-                    <p>Changed ={{changed}}</p>
                     <v-btn
                             :loading="saving"
                             :disabled="!changed || saving"
@@ -18,7 +16,10 @@
                         <v-flex xs4>
                             <b>{{hs.name}}</b>
                         </v-flex>
-                        <v-flex xs4 style="border:1px solid green;">
+                        <v-flex xs4
+                                class="hotspot"
+                                v-bind:class="{ active: isActiveHotspot(hs.name)}"
+                        >
                             <img
                                 height="80" width="80"
                                 :id="hs.name + hs.linkedscene"
@@ -39,7 +40,7 @@
             <div style="overflow-x: scroll; height: 100%; width: 100%">
                 <div v-for="s in scenesData"
                      class="scene"
-                     v-bind:class="{ active: isActiveScene(s.name)}"
+                     v-bind:class="{ active: isActiveScene(s.name), changed: isChangedScene(s.name)}"
                 >
                     <div>
                         <span><b>{{s.name}}</b></span><br>
@@ -69,6 +70,7 @@
     data: function () {
       return {
         changed: false,
+        changedList:[],
         selected: {
           scene: '',
           hsList: [],
@@ -86,7 +88,8 @@
         panoDim: {
           h:9*40,
           w:16*40,
-        }
+        },
+        frames:0,
       }
     },
     watch: {
@@ -100,7 +103,17 @@
       },
       scenes(val) {
         // todo clear initial selected an other states
+        this.selected = {
+          scene: '',
+            hsList: [],
+            hsName: '',
+            hsIndex: -1,
+            hsLinkedScene: ''
+        };
+        this.changed = false;
+        this.changedList = [];
         this.scenesData = {};
+        this.clearPano();
         for (let s in val){
           if(val.hasOwnProperty(s)){
             this.scenesData[s] = {};
@@ -129,13 +142,20 @@
         this.$store.dispatch('saveLookAtJob', {scenesData: this.scenesData, dataType: 'lookat'});
       },
 
+      isChangedScene: function(scene){
+        return (this.changedList.indexOf(scene) >= 0);
+      },
       isActiveScene: function(scene){
             return (scene === this.selected.scene);
+      },
+      isActiveHotspot: function(hs){
+            return (hs === this.selected.hsName);
         },
       clearPano: function(){
-          const container = document.getElementById( 'container' );
+        const container = document.getElementById( 'container' );
           // make container empty
-          while (container.firstChild) container.removeChild(container.firstChild);
+        while (container.firstChild) container.removeChild(container.firstChild);
+        this.frames = 0;
       },
       getHsIndexByName: function(list, name){
         let out = -1;
@@ -156,9 +176,16 @@
         this.reRunPano(hs.linkedscene);
       },
       mySelectScene: function(s){
-          this.clearPano();
-          scroll(0,0);
-          this.selected.scene = s;
+        this.clearPano();
+        scroll(0,0);
+        this.selected = {
+          scene: '',
+          hsList: [],
+          hsName: '',
+          hsIndex: -1,
+          hsLinkedScene: ''
+        };
+        this.selected.scene = s;
         this.selected.hsList = this.scenesData[this.selected.scene].hotspots;
       },
       getTexturesByScene: function(myScene){
@@ -230,6 +257,7 @@
            The Vector3 target is the center of rotation, and the point the camera "looks at".
            */
         const r = 0.001;
+        this.hAngle = this.scenesData[this.selected.scene].hotspots[this.selected.hsIndex].linkedscene_lookat;
         const lookAt = (-1)*this.scenesData[this.selected.scene].hotspots[this.selected.hsIndex].linkedscene_lookat*Math.PI/180;
         const z = Math.cos(lookAt)*r;
         const x = Math.sin(lookAt)*r;
@@ -248,11 +276,16 @@
         this.animate();
       },
       animate: function() {
-        const newHA = (-1)*Math.floor(this.controls.getAzimuthalAngle()/Math.PI*180*100)/100
+        ++this.frames;
+        const newHA = (-1)*Math.floor(this.controls.getAzimuthalAngle()/Math.PI*180*100)/100;
         const newVA = Math.floor(this.controls.getPolarAngle()/Math.PI*180*100)/100;
-        if(this.hAngle !== newHA) {
+        const delta = Math.abs(this.hAngle - newHA);
+        if(delta >= 0.01) {
           this.hAngle = newHA;
-          this.changed = true;
+          if(this.frames>10){
+            this.changed = true;
+            this.changedList.push(this.selected.scene);
+          }
         }
         this.vAngle = newVA;
         requestAnimationFrame( this.animate );
@@ -273,6 +306,12 @@
     .table-div1:nth-child(n+2) {
         margin-left:-1px;
     }
+    .hotspot.active{
+        border: 2px solid red;
+    }
+    .hotspot{
+        border: 2px solid grey;
+    }
     .scene {
         display: inline-block;
         border: 6px solid grey;
@@ -280,5 +319,13 @@
     .scene.active{
         display: inline-block;
         border: 6px solid red;
+    }
+    .scene.changed.active{
+        display: inline-block;
+        border: 6px solid #ff860c;
+    }
+    .scene.changed{
+        display: inline-block;
+        border: 6px solid #ffc831;
     }
 </style>

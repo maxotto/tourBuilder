@@ -89,7 +89,36 @@ module.exports = function (config, data, dataType) {
   };
 
   const updateMainTourLookAt = function(tourXml, data){
-    console.log(data);
+    const angles = {};
+    for (let scene in data.scenesData){
+      if(data.scenesData.hasOwnProperty(scene)){
+        if(!angles.hasOwnProperty(scene)){
+          angles[scene] = [];
+        }
+        if(data.scenesData[scene].hotspots){
+          data.scenesData[scene].hotspots.forEach(hs=>{
+            angles[scene].push({
+              name: hs.name,
+              angle: hs. linkedscene_lookat
+            });
+          });
+        }
+      }
+    }
+
+    tourXml.krpano.scene.forEach((scene, i) => {
+      if (angles.hasOwnProperty(scene['$'].name)) {
+        angles[scene['$'].name].forEach((ahs) => {
+          let hsName = ahs.name;
+          scene.hotspot.forEach((hs,j) => {
+            if(hs['$'].name === hsName){
+              tourXml.krpano.scene[i].hotspot[j]['$'].linkedscene_lookat = ahs.angle;
+            }
+          });
+        });
+      }
+    });
+
     return tourXml;
   };
 

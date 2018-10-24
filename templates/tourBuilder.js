@@ -101,6 +101,14 @@ module.exports = function (config, ftp_deploy) {
     return xml;
   };
 
+  const setTitle = function(xml){
+    const title = config.title;
+    const startupFunc = xml.krpano.action[0]['_'];
+    const newLine = `jscall(document.title = "${title}");`;
+    xml.krpano.action[0]['_'] = newLine + startupFunc;
+    return xml;
+  };
+
   const updateScenes = function(xml) {
     const floorCount = {};
     xml.krpano.scene.forEach((scene, i) => {
@@ -367,6 +375,7 @@ module.exports = function (config, ftp_deploy) {
         xml = setIncludes(xml);
         xml = setSkinSettings(xml);
         xml = updateScenes(xml);
+        xml = setTitle(xml);
         return saveXml(xml, Path.resolve(outFolder, 'tour.xml'));
       })
       .then(() => {
@@ -395,7 +404,10 @@ module.exports = function (config, ftp_deploy) {
           lat: ${config.mapCenter.lat}, 
           lng: ${config.mapCenter.lng},
           language: '${config.language}',
-          googleMapUnits: '${config.googleMapUnits}' 
+          googleMapUnits: '${config.googleMapUnits}',
+          useFixedZoom: ${config.useFixedZoom}, 
+          iniZoom: ${config.iniZoom} ,
+          title: ${config.pageTitle} ,
         }));
         );`;
         } else {

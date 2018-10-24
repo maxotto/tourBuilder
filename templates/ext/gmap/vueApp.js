@@ -10,6 +10,7 @@ class GoogleMapApp {
         this.map = undefined;
         this.vm = undefined;
         this.placesLib = new GoogleMapPlaces();
+        this.useFixedZoom = 15;
     }
 
 
@@ -24,6 +25,7 @@ class GoogleMapApp {
                 el: '#googleApp',
                 data: {
                   center: self.center,
+                  zoom: 5,
                   centerIcon: {
                       url: 'skin/vtourskin_mapspotactive.png',
                       size: {width: 40, height: 46, f: 'px', b: 'px'},
@@ -174,6 +176,13 @@ class GoogleMapApp {
                     self.center.lat = config.lat;
                     self.center.lng = config.lng;
                     this.center = self.center;
+                    self.useFixedZoom = config.useFixedZoom;
+                    this.useFixedZoom = self.useFixedZoom;
+                    if(this.useFixedZoom !== false){
+                      this.zoom = this.useFixedZoom;
+                    } else {
+                      this.zoom = config.iniZoom;
+                    }
                     self.language = config.language;
                     self.googleMapUnits = config.googleMapUnits;
                     self.findPlaces();
@@ -273,7 +282,9 @@ class GoogleMapApp {
             this.vm.markers.push(marker);
             bounds.extend(place.geometry.location);
         }
-        this.map.fitBounds(bounds);
+        if(this.useFixedZoom === false){
+          this.map.fitBounds(bounds);
+        }
         if(count <3 ) this.map.setZoom(this.map.getZoom()-1);
     }
 

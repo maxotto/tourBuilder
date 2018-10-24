@@ -27,6 +27,9 @@ config = {
     lat: 43.76841812480301,
     lng: -79.39991750129661
   },
+  useFixedZoom: LocalSettings.useFixedZoom || false,
+  iniZoom: LocalSettings.iniZoom || 17,
+  title: LocalSettings.title || 'My home, sweet home...',
   floorMapShift:{
     x: 0,
     y: 60,

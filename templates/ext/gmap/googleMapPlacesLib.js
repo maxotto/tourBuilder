@@ -38,9 +38,6 @@ class GoogleMapPlaces{
             return this.addDistancePromise(places);
           })
             .then(places => {
-              return this.addDetailsPromise(places);
-            })
-            .then(places => {
                 this.cache[category] = places;
                 return Promise.resolve(this.cache[category]);
               });

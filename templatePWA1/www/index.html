@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#2196f3">
+  <meta name="format-detection" content="telephone=no">
+  <meta name="msapplication-tap-highlight" content="no">
+  <title>3D tour</title>
+  <link rel="stylesheet" href="libs/framework7/css/framework7.min.css">
+  <!--- <link rel="stylesheet" href="libs/vuetify/vuetify.min.css"> -->
+  <link rel="stylesheet" href="css/icons.css">
+  <link rel="stylesheet" href="css/app.css">
+  <script src="libs/vue2-google-maps/vue-google-maps.js"></script>
+</head>
+<body>
+  <script src="tour/tour.js"></script>
+  <script>
+	const vueApp = undefined;
+  </script>
+  <div id="app">
+    <f7-app :params="f7params">
+
+      <!-- Main View -->
+      <f7-view id="main-view" main>
+        <f7-page>
+          <div id="pano" style="width:100%;height:100%;">
+          </div>
+        </f7-page>
+      </f7-view>
+
+    </f7-app>
+  </div>
+
+  <!-- About Page Template -->
+  <template id="page-gmap">
+    <f7-page>
+     <f7-page-content class="no-scroll">
+        <div style="position: absolute; z-index: inherit; background-color: white; width: 32px; height: 32px; border-radius: 16px;">
+          <f7-link
+                  icon-size="32"
+                  icon-only
+                  icon-color="blue"
+                  icon-if-ios="f7:close_round_fill"
+                  icon-if-md="material:cancel"
+                  back>
+          </f7-link>
+        </div>
+        <div id="show-table-icon" v-if="showTableIcon" style="position: absolute; top: 4px; left: 40px; z-index: inherit; height: 32px; width: 32px">
+          <f7-link @click="showTable = !showTable">
+            <f7-icon color="blue" f7="list_fill"></f7-icon>
+          </f7-link>
+        </div>
+        <div id="show-loading-icon" v-if="loading" style="position: absolute; top: 4px; left: 80px; z-index: inherit; height: 32px; width: 32px">
+            <f7-preloader :size="24" color="red"></f7-preloader>
+        </div>
+       <div v-show="showTable" id="data-table"
+            :style="{
+              'font-size': '12px',
+              'position': 'absolute',
+              'bottom': '28px',
+              'width': '100%',
+              'max-width': '400px',
+              'z-index': '8500',
+              'max-height': `${tableHeight}px`,
+              'height': `${tableHeight}px`,
+              'overflow-y': `auto`}
+            ">
+         <v-data-table
+                 style="background-color: whitesmoke;  border-radius: 5px;"
+                 :headers="headers"
+                 :items="tableData"
+                 :loading="loading"
+                 class="elevation-1"
+                 hide-actions
+                 must-sort
+         >
+           <template slot="items" slot-scope="props">
+             <tr @click="onTableRowClick(props.item.index)">
+               <td align="center">{{ props.item.name }}</td>
+               <td align="center">{{ props.item.distance.distance.text }}, {{ props.item.distance.duration.text }} </td>
+             </tr>
+           </template>
+           <template slot="no-data">
+             <v-alert :value="true" color="error" icon="warning">
+               Sorry, nothing to display here :(
+             </v-alert>
+           </template>
+         </v-data-table>
+       </div>
+        <gmap-map
+                ref="mapRef"
+                :center="center"
+                :zoom="12"
+                map-type-id="terrain"
+                :style="mapStyle"
+                :options="mapOptions"
+        >
+          <gmap-marker :position="center" :icon="centerIcon"></gmap-marker>
+          <gmap-info-window :options="infoOptions" :position="infoWindowPos" :opened="infoWinOpen" @closeclick="infoWinOpen=false">
+            <div v-html="infoContent"></div>
+          </gmap-info-window>
+        </gmap-map>
+
+       <div style="padding-left: 5px">
+         <f7-button :disabled="loading" color="blue" data-value="school" small :active="selectedCheckBox.indexOf('school') >= 0" @click="checkSelected">Schools</f7-button>
+         <f7-button :disabled="loading" color="orange" data-value="entertainment" small :active="selectedCheckBox.indexOf('entertainment') >= 0" @click="checkSelected">Entertainment</f7-button>
+         <f7-button :disabled="loading" color="purple" data-value="eat-drink" small :active="selectedCheckBox.indexOf('eat-drink') >= 0" @click="checkSelected">To eat & drink</f7-button>
+         <f7-button :disabled="loading" color="cyan" data-value="stores" small :active="selectedCheckBox.indexOf('stores') >= 0" @click="checkSelected">To buy</f7-button>
+       </div>
+
+     </f7-page-content>
+    </f7-page>
+  </template>
+
+  <!-- Page Not Found Template -->
+  <template id="page-not-found">
+    <f7-page>
+      <f7-navbar title="Not found" back-link="Back"></f7-navbar>
+      <f7-block strong>
+        <p>Sorry</p>
+        <p>Requested content not found.</p>
+      </f7-block>
+    </f7-page>
+  </template>
+
+  <!-- Cordova -->
+  <!--
+  <script src="cordova.js"></script>
+  -->
+
+  <!-- Framework7 library -->
+  <script src="libs/framework7/js/framework7.min.js"></script>
+
+  <!-- Vue -->
+  <script src="libs/vue/vue.min.js"></script>
+
+  <!-- Vuex -->
+  <script src="libs/vuex/vuex.min.js"></script>
+
+  <!-- Framework7-Vue plugin -->
+  <script src="libs/framework7-vue/framework7-vue.min.js"></script>
+
+  <!-- Vuetify plugin -->
+  <script src="libs/vuetify/vuetify.min.js"></script>
+
+  <!-- Vue2-google-maps plugin -->
+  <script src="libs/vue2-google-maps/vue-google-maps.js"></script>
+
+  <!-- lodash -->
+  <script src="libs/lodash/core.min.js"></script>
+
+  <!-- Google map lib -->
+  <script type="text/javascript" src="js/gmap.js"></script>
+
+  <!-- Google places lib -->
+  <script type="text/javascript" src="js/googleMapPlacesLib.js"></script>
+
+  <!-- Your custom app scripts -->
+  <script src="js/app.js"></script>
+  <script>
+    let map = undefined;
+  </script>
+</body>
+</html>

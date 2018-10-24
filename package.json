@@ -9,10 +9,27 @@
   "keywords": [
     "krpano"
   ],
+  "nodemonConfig": {
+    "delay": "2500",
+    "verbose": true,
+    "watch": [
+      "templates",
+      "planEditor",
+      "templatePWA1"
+    ],
+    "ignore": [
+      "planEditor/public/*.*",
+      "planEditor/public/js/*.*",
+      "planEditor/public/css/*.*"
+    ],
+    "ext": "js,html,css,vue,json",
+    "exec": "node planBuilderDev.js"
+  },
   "author": "Andrey Mikhailichenko",
   "license": "ISC",
   "dependencies": {
     "fs-extra": "^7.0.0",
+    "ftp-deploy": "^2.1.3",
     "xml2js": "^0.4.19"
   }
 }

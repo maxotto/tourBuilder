@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<krpano>
+  <floor_settings current="1"/>
+  <action name="setButtonsByFloor">
+turnOffAllButtons();
+if(floor_settings.current == 1,
+set(layer[fs1Off].visible, false);
+set(layer[fs1On].visible, true);
+);
+</action>
+  <action name="toggleButtons">
+turnOffAllMaps();
+setButtonsByFloor();
+if(floor_settings.current === 1,
+loadscene(get(floor_settings.start_scene_1),null,MERGE,COLORBLEND(1.0,0x000000,easeOutSine));
+,);
+</action>
+  <action name="turnOffAllButtons">
+set(layer[fs1Off].visible, true);
+set(layer[fs1On].visible, false);
+</action>
+</krpano>

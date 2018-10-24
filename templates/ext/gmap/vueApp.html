@@ -10,7 +10,7 @@
                                 'position': 'absolute',
                                 'bottom': '37px',
                                 'left': '5px',
-                                'width': '405px',
+                                'width': `${tableWidth}px`,
                                 'z-index': '8500',
                                 'max-height': `${tableHeight}px`,
                                 'height': `${tableHeight}px`,
@@ -23,8 +23,17 @@
                         >
                             <template slot="items" slot-scope="props">
                                 <tr @click="showBalloon(props.item.markerIndex)">
-                                    <td>{{ props.item.name }}</td>
-                                    <td>{{ props.item.distanceText }}</td>
+                                    <td align="center">{{ props.item.name }}</td>
+                                    <td align="center">{{ props.item.distanceText }}</td>
+                                    <td align="center"><v-rating
+                                            background-color="orange lighten-3"
+                                            color="orange"
+                                            color="yellow darken-3"
+                                            half-increments
+                                            size="8"
+                                            v-model="props.item.rating"></v-rating>
+                                        {{ props.item.rating }}
+                                    </td>
                                 </tr>
                             </template>
                         </v-data-table>
@@ -48,7 +57,7 @@
                                 <google-map
                                         ref="mapRef"
                                         :center="center"
-                                        :zoom="17"
+                                        :zoom="zoom"
                                         :options="mapOptions"
                                         style="width: 100%; height: 100%" id="myPanel">
                                     <google-marker :position="center" :icon="centerIcon"></google-marker>
@@ -57,6 +66,7 @@
                                     </gmap-info-window>
                                 </google-map>
                                 <v-btn-toggle
+                                        id="select-panel"
                                         v-model="valuesToSearch"
                                         multiple
                                         style="position: absolute; z-index: 9000; bottom: 5px; left: 5px">
@@ -79,7 +89,7 @@
                                             :loading="placesList.loading"
                                             :disabled="placesList.loading"
                                     >
-                                        To eat & drink
+                                        Food&drink
                                         <span slot="loader" class="custom-loader">
                                             <v-icon light>cached</v-icon>
                                         </span>
@@ -103,15 +113,21 @@
                                             :loading="placesList.loading"
                                             :disabled="placesList.loading"
                                     >
-                                        To buy
+                                        Shopping
                                         <span slot="loader" class="custom-loader">
                                             <v-icon light>cached</v-icon>
                                         </span>
                                     </v-btn>
                                 </v-btn-toggle>
                                 <v-btn-toggle
+                                        id = "show-table-button"
                                         v-model = "showTableButtonSelected"
-                                        style="position: absolute; z-index: 9000; bottom: 5px; left: 370px">
+                                        :style="{
+                                            'position': 'absolute',
+                                            'z-index': '9000',
+                                            'bottom': '5px',
+                                            'left': `${showTableButtonLeft}px`
+                                        }">
                                     <v-btn
                                        v-if = "showTableButton"
                                        small

@@ -10,6 +10,7 @@ class GoogleMapApp {
         this.map = undefined;
         this.vm = undefined;
         this.placesLib = new GoogleMapPlaces();
+        this.useFixedZoom = 15;
     }
 
 
@@ -24,6 +25,7 @@ class GoogleMapApp {
                 el: '#googleApp',
                 data: {
                   center: self.center,
+                  zoom: 5,
                   centerIcon: {
                       url: 'skin/vtourskin_mapspotactive.png',
                       size: {width: 40, height: 46, f: 'px', b: 'px'},
@@ -46,10 +48,12 @@ class GoogleMapApp {
                   valuesToSearch: [],
                   showTableButton: false,
                   showTableButtonSelected: '',
+                  showTableButtonLeft: 320,
                   showTable: false,
-                  notFound: false,
 
+                  notFound: false,
                   tableHeight: 330,
+                  tableWidth: 330,
                   placesList: {
                       search: '',
                       headersSmallScreen: [
@@ -70,6 +74,12 @@ class GoogleMapApp {
                           {
                               text: 'Distance',
                               value: 'distanceValue',
+                              sortable: true,
+                              align: 'center',
+                          },
+                          {
+                              text: 'Rating',
+                              value: 'rating',
                               sortable: true,
                               align: 'center',
                           }
@@ -118,21 +128,39 @@ class GoogleMapApp {
                     this.onTableParentResize();
                 },
                 methods: {
-                  setMedia(media){
-                      if (!media.matches) {
-                          this.xs_dialog = false;
-                      }
-                  },
                   onTableParentResize(){
-                    const parentHeight =this.getHeightById('googleApp');
-                    this.tableHeight = parentHeight - 37;
+                    const parentSize =this.getSizeById('googleApp');
+                    this.tableHeight = parentSize.height - 37;
+                    const selectBlockSize = this.getSizeById('select-panel');
+                    this.showTableButtonLeft = selectBlockSize.width;
+                    const showTableButtonSize = this.getSizeById('show-table-button');
+                    this.tableWidth = selectBlockSize.width+showTableButtonSize.width -5;
                   },
                   getHeightById(elmID) {
-                      var elmPadding, elmHeight, elmMargin, elm = document.getElementById(elmID);
-                      elmHeight = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('height'));
-                      elmMargin = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-bottom'));
-                      elmPadding = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-bottom'));
-                      return (elmHeight + elmMargin + elmPadding);
+                    const size = this.getSizeById(elmID);
+                    return (size.height);
+                  },
+                  getSizeById(elmID){
+                    var elmPadding, elmHeight, elmWidth, elmMargin, elm = document.getElementById(elmID);
+                    const out = {
+                      height: 0,
+                      width: 0
+                    };
+
+                    elmHeight = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('height'));
+                    elmMargin = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-bottom'));
+                    elmPadding = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-top')) + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-bottom'));
+                    out.height = elmHeight + elmMargin + elmPadding;
+
+                    elmWidth = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('width'));
+                    elmMargin = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-left'))
+                      + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('margin-right'));
+                    elmPadding = parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-left'))
+                      + parseInt(document.defaultView.getComputedStyle(elm, '').getPropertyValue('padding-right'));
+                    out.width = elmWidth + elmMargin + elmPadding;
+
+                    return out;
+
                   },
                   runSearch(){
                       self.findPlaces();
@@ -148,36 +176,41 @@ class GoogleMapApp {
                     self.center.lat = config.lat;
                     self.center.lng = config.lng;
                     this.center = self.center;
+                    self.useFixedZoom = config.useFixedZoom;
+                    this.useFixedZoom = self.useFixedZoom;
+                    if(this.useFixedZoom !== false){
+                      this.zoom = this.useFixedZoom;
+                    } else {
+                      this.zoom = config.iniZoom;
+                    }
                     self.language = config.language;
                     self.googleMapUnits = config.googleMapUnits;
                     self.findPlaces();
                   },
                   showBalloon(markerIndex){
-                        if ( markerIndex === this.currentInfoWindowIdx ){
-                            this.infoWinOpen = !this.infoWinOpen;
-                        } else {
-                            this.currentInfoWindowIdx = markerIndex;
-                            const marker = this.markers[markerIndex];
-                            const place = this.placeObjects[markerIndex];
-                            const listItem = this.placesList.places[markerIndex];
-                            const balloonText = "<div style=\"color: #1e88e5\">" +
-                              "<h3>" + place.name + "</h3>" +
-                              "<span style='color: #0000b6'><u><b>Address:</b></u> " + place.address + "</span><br>" +
-                              "<span style='color: mediumblue'><u><b>Distance/time:</b></u> " + listItem.distanceText + "</span>" +
-                              "</div>";
-                            this.infoContent = balloonText;
-                            this.infoWindowPos = marker.position;
-                            this.infoWinOpen = true;
-                            const bounds = new google.maps.LatLngBounds();
-                            bounds.extend(self.center);
-                            bounds.extend(place.geometry.location);
-                            self.map.fitBounds(bounds);
-                            self.map.setZoom(self.map.getZoom()-1);
-                        }
+                    if ( markerIndex === this.currentInfoWindowIdx ){
+                        this.infoWinOpen = !this.infoWinOpen;
+                    } else {
+                      this.currentInfoWindowIdx = markerIndex;
+                      const marker = this.markers[markerIndex];
+                      const place = this.placeObjects[markerIndex];
+                      const listItem = this.placesList.places[markerIndex];
+                      this.infoContent = "<div style=\"color: #1e88e5\">" +
+                        "<h3>" + place.name + "</h3>" +
+                        "<span style='color: #0000b6'><u><b>Address:</b></u> " + place.address + "</span><br>" +
+                        "<span style='color: mediumblue'><u><b>Distance/time:</b></u> " + listItem.distanceText + "</span><br>" +
+                        "<span style='color: mediumblue'><u><b>Rating:</b></u> " + listItem.rating + "</span>";
+                      this.infoWindowPos = marker.position;
+                      this.infoWinOpen = true;
+                      const bounds = new google.maps.LatLngBounds();
+                      bounds.extend(self.center);
+                      bounds.extend(place.geometry.location);
+                      self.map.fitBounds(bounds);
+                      self.map.setZoom(self.map.getZoom()-1);
                     }
+                  }
                 },
             });
-            matchMedia('(max-width: 599px)').addListener(this.vm.setMedia);
             this.ready = true;
         }
     }
@@ -215,6 +248,7 @@ class GoogleMapApp {
                 distanceValue: place.distance.distance.value,
                 distanceText: place.distance.distance.text + ', ' + place.distance.duration.text,
                 name: place.name,
+                rating: place.rating,
                 markerIndex: i,
             });
             this.vm.placeObjects.push(place);
@@ -248,7 +282,9 @@ class GoogleMapApp {
             this.vm.markers.push(marker);
             bounds.extend(place.geometry.location);
         }
-        this.map.fitBounds(bounds);
+        if(this.useFixedZoom === false){
+          this.map.fitBounds(bounds);
+        }
         if(count <3 ) this.map.setZoom(this.map.getZoom()-1);
     }
 

@@ -1,0 +1,54 @@
+/* Your app styles here */
+/* todo https://blogs.msdn.microsoft.com/kurlak/2013/11/03/hiding-vertical-scrollbars-with-pure-css-in-chrome-ie-6-firefox-opera-and-safari/ */
+.md .button {
+    text-transform: none !important;
+    display: inline-block;
+}
+
+.md .button.color-purple {
+    color: #b40097;
+}
+.md .button.color-purple.button-active,
+.md .button.color-purple.button-fill,
+.md .button.color-purple.button-fill-md,
+.md .button.color-purple.tab-link-active {
+    background-color: #b40097;
+    color: #fff;
+}
+
+.md .button.color-cyan {
+    color: #00ced3;
+}
+.md .button.color-cyan.button-active,
+.md .button.color-cyan.button-fill,
+.md .button.color-cyan.button-fill-md,
+.md .button.color-cyan.tab-link-active {
+    background-color: #00ced3;
+    color: #fff;
+}
+
+table.v-table tbody td, table.v-table tbody th {
+    height: auto!important;
+}
+
+.element, .outer-container {
+    width: 200px;
+    height: 200px;
+}
+
+.outer-container {
+    border: 5px solid purple;
+    position: relative;
+    overflow: hidden;
+}
+
+.inner-container {
+    position: absolute;
+    left: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.inner-container::-webkit-scrollbar {
+    display: none;
+}

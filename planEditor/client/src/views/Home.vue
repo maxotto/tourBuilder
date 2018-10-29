@@ -86,6 +86,12 @@ export default {
       return data;
     },
   },
+  beforeRouteUpdate (to, from, next) {
+    // обрабатываем изменение параметров маршрута...
+    // не забываем вызвать next()
+    console.log(to, from);
+    next();
+  },
   mounted(){
     this.$store.dispatch('fetchXmlData');
   }

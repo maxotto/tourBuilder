@@ -17,10 +17,10 @@
                 <v-form v-model="valid">
                     <v-text-field
                             v-model="title"
-                            :rules="nameRules"
                             label="Title"
                             required
                     ></v-text-field>
+                    <select-folder></select-folder>
                     <v-select
                             :items="templatesList"
                             label="Select template to generate"
@@ -55,12 +55,16 @@
 </template>
 
 <script>
+  import selectFolder from '@/components/selectFolder.vue'
+  import SelectFolder from "../components/selectFolder";
   export default {
     name: "newProject",
-    data: function () {
+      components: {SelectFolder},
+      data: function () {
       return {
         title: '',
         address: '',
+        inFolder: './',
         template: '',
         templatesList: [
           'First'

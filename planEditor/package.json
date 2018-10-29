@@ -15,6 +15,7 @@
     "jimp": "^0.5.4",
     "merge-img": "^2.1.2",
     "mongoose": "^5.3.7",
-    "morgan": "~1.9.0"
+    "morgan": "~1.9.0",
+    "rich-filemanager-node": "^0.1.5"
   }
 }

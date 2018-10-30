@@ -1,14 +1,8 @@
 <template>
     <v-select
             v-model="select"
-            :hint="`${select.state}, ${select.abbr}`"
             :items="items"
-            item-text="state"
-            item-value="abbr"
-            label="Select"
-            persistent-hint
-            return-object
-            single-line
+            label="Select folder of input 3D pano"
     ></v-select>
 </template>
 
@@ -18,31 +12,33 @@
         name: "selectFolder",
         data () {
             return {
-                current: '../..',
-                select: { state: 'Florida', abbr: 'FL' },
+                fullSelectedPath: '..',
+                select: '',
                 items: [
-                    { state: 'Florida', abbr: 'FL' },
-                    { state: 'Georgia', abbr: 'GA' },
-                    { state: 'Nebraska', abbr: 'NE' },
-                    { state: 'California', abbr: 'CA' },
-                    { state: 'New York', abbr: 'NY' }
                 ]
             }
         },
         watch: {
             select(val){
-                this.updateList(this.current);
+              this.updateList();
             },
         },
         methods: {
-            updateList(current){
-                axios.get('/readfolder?c=' + current)
-                    .then(response => {console.log(response.data)} )
+            updateList(){
+                axios.get('/readfolder?s=' + this.select + '&f=' + this.fullSelectedPath)
+                    .then(response => {
+                      if(response.data.success){
+                        this.select = response.data.current;
+                        this.fullSelectedPath = response.data.current;
+                        this.items = response.data.items;
+                        this.$emit('clicked', this.select);
+                      }
+                    })
                     .catch(e => console.log(e));
             }
         },
         mounted(){
-
+          this.updateList();
         }
     }
 </script>

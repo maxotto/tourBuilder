@@ -53,7 +53,7 @@
         <v-layout row wrap>
             <v-flex xm6 offset-xm3>
                 <v-card-actions>
-                    <v-btn flat color="green" @click="createProject">Create</v-btn>
+                    <v-btn color="green" :disabled="!canSave" @click="createProject">Create</v-btn>
                 </v-card-actions>
             </v-flex>
         </v-layout>
@@ -85,6 +85,17 @@
           lat: 43.6567919,
           lng: -79.6010328,
         }
+      }
+    },
+    computed: {
+      canSave(){
+        return (
+          this.title !== '' &&
+          this.address !== '' &&
+          this.inFolder !== './' &&
+          this.center.lat !== 43.6567919 &&
+          this.center.lng !== -79.6010328
+        );
       }
     },
     methods: {

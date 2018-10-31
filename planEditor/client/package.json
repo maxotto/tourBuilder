@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.0.0-rc.1",
+    "@mdi/font": "^3.0.39",
     "axios": "^0.18.0",
     "three": "^0.97.0",
     "three-orbit-controls": "^82.1.0",

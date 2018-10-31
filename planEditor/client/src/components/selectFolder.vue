@@ -9,19 +9,27 @@
 <script>
     import axios from 'axios'
     export default {
-        name: "selectFolder",
+      name: "selectFolder",
+      props: ['iniPath'],
         data () {
             return {
                 fullSelectedPath: '..',
                 select: '',
                 items: [
-                ]
+                ],
+
             }
         },
         watch: {
             select(val){
               this.updateList();
             },
+          iniPath(val){
+            console.log(val);
+            this.fullSelectedPath = val;
+            this.select = './';
+            this.updateList();
+          }
         },
         methods: {
             updateList(){

@@ -81,7 +81,6 @@
                     <v-btn color="blue darken-1" flat @click.native="dlgCancel">Cancel</v-btn>
                     <v-btn color="blue darken-1" :disabled="!canSaveNew" flat @click.native="dlgSave">Save</v-btn>
                 </v-card-actions>
-                Edited Item: {{editedItem}}<br>
             </v-card>
         </v-dialog>
         <v-data-table
@@ -113,8 +112,6 @@
                 </td>
             </template>
         </v-data-table>
-        Edited Item: {{editedItem}}<br>
-        default Item: {{newItem}}
     </div>
     <h1>There will be list of krPano projects</h1>
 </template>

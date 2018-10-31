@@ -14,14 +14,6 @@
             <v-list-tile-title>Home</v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile to="/new">
-          <v-list-tile-action>
-            <v-icon>mdi-folder-plus</v-icon>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title>Create KrPano project</v-list-tile-title>
-          </v-list-tile-content>
-        </v-list-tile>
         <v-list-tile to="/projects">
           <v-list-tile-action>
             <v-icon>mdi-panorama</v-icon>

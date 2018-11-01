@@ -33,8 +33,44 @@ const ProjectSchema = new Schema({
       required: true,
     },
   },
+  state: {
+    floors: {
+      type: Boolean,
+      required: true,
+    },
+    floorsImages: {
+      type: Boolean,
+      required: true,
+    },
+    hotspots: {
+      type: Boolean,
+      required: true,
+    },
+    lookatTag: {
+      type: Boolean,
+      required: true,
+    },
+    needRebuild: {
+      type: Boolean,
+      required: true,
+    },
+    built: {
+      type: Boolean,
+      required: true,
+    },
+    lookatValue: {
+      type: Boolean,
+      required: true,
+    },
+    planHotspots: {
+      type: Boolean,
+      required: true,
+    },
+  },
 
 });
+
+ProjectSchema.index({template: 1, outFolder: 1}, {unique: true});
 
 ProjectSchema.pre('validate', function (next) {
   if (this.folder === this.outFolder) {
@@ -42,6 +78,8 @@ ProjectSchema.pre('validate', function (next) {
   }
   next();
 });
+
+
 
 const ProjectModel = mongoose.model('projects', ProjectSchema);
 

@@ -25,6 +25,23 @@ router.get('/list', function(req, res, next) {
   });
 });
 
+router.get('/:id', function(req, res, next) {
+  Projects.findById(req.params.id, (error, project) => {
+    if (error) {
+      res.send({
+        success: false,
+        message: error.message
+      })
+    } else {
+      res.send({
+        success: true,
+        project: project
+      })
+    }
+  });
+
+} );
+
 router.post('/create', (req, res) => {
   // var db = req.db;
   console.log(req.body);
@@ -35,6 +52,7 @@ router.post('/create', (req, res) => {
     outFolder: req.body.outFolder,
     template: req.body.template,
     location: req.body.location,
+    state: req.body.state,
   });
 
   new_project.save(function (error, data) {
@@ -53,7 +71,7 @@ router.post('/create', (req, res) => {
 });
 
 router.put('/:id', (req, res, next) => {
-  Projects.findById(req.params.id, 'title, address, folder, outFolder, template, location', (error, project) => {
+  Projects.findById(req.params.id, (error, project) => {
     if (error) {
       res.send({
         success: false,
@@ -66,6 +84,7 @@ router.put('/:id', (req, res, next) => {
       project.outFolder = req.body.outFolder;
       project.template = req.body.template;
       project.location = req.body.location;
+      project.state = req.body.state;
       project.save(error => {
         if (error) {
           res.send({

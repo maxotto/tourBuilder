@@ -13,8 +13,8 @@ export default {
     return axios.put('projects/' + params.id, params)
   },
 
-  getPost (params) {
-    return axios.get('projects/' + params.id)
+  getProject (id) {
+    return axios.get('projects/' + id)
   },
 
   deleteProject (id) {

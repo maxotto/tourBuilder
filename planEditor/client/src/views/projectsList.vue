@@ -90,38 +90,44 @@
                 class="elevation-1"
         >
             <template slot="items" slot-scope="props">
-                <td class="text-xs-center">{{ props.item.title }}</td>
-                <td class="text-xs-center">{{ props.item.folder }}</td>
-                <td class="text-xs-center">{{ props.item.outFolder }}</td>
-                <td class="text-xs-center">{{ props.item.address }}</td>
-                <td class="text-xs-center">{{ props.item.template }}</td>
-                <td class="justify-center layout px-0">
-                    <v-icon
-                            small
-                            class="mr-2"
-                            @click="editItem(props.item)"
-                    >
-                        mdi-pencil
-                    </v-icon>
-                    <v-icon
-                            small
-                            @click="deleteItem(props.item)"
-                    >
-                        mdi-delete
-                    </v-icon>
-                </td>
+                <tr>
+                    <td class="text-xs-center">{{ props.item.title }}</td>
+                    <td class="text-xs-center">{{ props.item.folder }}</td>
+                    <td class="text-xs-center">{{ props.item.outFolder }}</td>
+                    <td class="text-xs-center">{{ props.item.address }}</td>
+                    <td class="text-xs-center">{{ props.item.template }}</td>
+                    <td class="justify-center layout px-0">
+                        <action-buttons :state="props.item.state"></action-buttons>
+                        <v-icon
+                                small
+                                class="mr-2"
+                                @click="editItem(props.item)"
+                        >
+                            mdi-pencil
+                        </v-icon>
+                        <v-icon
+                                small
+                                @click="deleteItem(props.item)"
+                        >
+                            mdi-delete
+                        </v-icon>
+
+                    </td>
+                </tr>
             </template>
         </v-data-table>
     </div>
-    <h1>There will be list of krPano projects</h1>
 </template>
 
 <script>
   import ProjectsService from '@/services/ProjectsService';
   import SelectFolder from '@/components/selectFolder.vue';
+  import ActionButtons from '@/components/actionButtons.vue';
+
+
   export default {
     name: "projectsList",
-    components: {SelectFolder},
+    components: {SelectFolder, ActionButtons},
     data () {
       return {
         headers: [
@@ -149,6 +155,7 @@
             lat: 43.6567919,
             lng: -79.6010328,
           },
+          state: {}
         },
         newItem: {
           title: '',
@@ -173,7 +180,7 @@
           visible: false,
           y: 'top',
           x: null,
-          mode: '',
+          mode: 'multi-line',
           timeout: 6000,
           text: 'Hello, I\'m a snackbar'
         },
@@ -202,6 +209,16 @@
           outFolder: data.outFolder,
           template: data.template,
           location: data.location,
+          state: {
+            floors: false,
+            floorsImages: false,
+            hotspots: false,
+            lookatTag: false,
+            needRebuild: false,
+            built: false,
+            lookatValue: false,
+            planHotspots: false,
+          }
         })
           .then(result => {
             if (!result.data.success){
@@ -226,6 +243,7 @@
               template: data.template,
               location: data.location,
               id: data._id,
+              state: data.state,
             }
         )
           .then(result => {

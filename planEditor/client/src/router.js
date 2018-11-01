@@ -4,6 +4,7 @@ import Home from './views/Home.vue'
 import MainPage from './views/mainPage';
 import NewProject from './views/newProject';
 import ProjectsList from './views/projectsList';
+import InitiateProject from './views/initiateProject';
 
 Vue.use(Router);
 
@@ -23,6 +24,12 @@ export default new Router({
       path: '/projects/:id',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/projects/ini/:id',
+      name: 'initiate',
+      component: InitiateProject,
+      props: true
     },
     {
       path: '/',

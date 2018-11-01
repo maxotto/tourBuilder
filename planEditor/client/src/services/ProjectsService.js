@@ -17,6 +17,10 @@ export default {
     return axios.get('projects/' + id)
   },
 
+  getProjectXml (id) {
+    return axios.get('projects/' + id + '/xml')
+  },
+
   deleteProject (id) {
     return axios.delete('projects/' + id)
   }

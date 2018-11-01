@@ -1,6 +1,7 @@
 const Path = require('path');
 var express = require('express');
 var router = express.Router();
+const KrPanoFile = require('../components/krPanoTools');
 const Projects = require('../models/project-model');
 
 router.delete('/:id', function(req, res, next) {
@@ -37,6 +38,28 @@ router.get('/:id', function(req, res, next) {
         success: true,
         project: project
       })
+    }
+  });
+
+} );
+
+router.get('/:id/xml', function(req, res, next) {
+  Projects.findById(req.params.id, (error, project) => {
+    if (error) {
+      res.send({
+        success: false,
+        message: error.message
+      })
+    } else {
+      const tourFileName = Path.resolve(project.folder, 'tour.xml');
+      const tourFileTool = new KrPanoFile(tourFileName);
+      tourFileTool.load().then(xml =>{
+        res.send({
+          success: true,
+          project: 'XML is here',
+          xml: xml,
+        })
+      });
     }
   });
 

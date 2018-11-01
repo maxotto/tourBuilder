@@ -97,7 +97,7 @@
                     <td class="text-xs-center">{{ props.item.address }}</td>
                     <td class="text-xs-center">{{ props.item.template }}</td>
                     <td class="justify-center layout px-0">
-                        <action-buttons :state="props.item.state"></action-buttons>
+                        <action-buttons :state="props.item.state" :id="props.item._id"></action-buttons>
                         <v-icon
                                 small
                                 class="mr-2"

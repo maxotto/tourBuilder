@@ -25,14 +25,14 @@
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical>
             <v-stepper-step :complete="step > 1" step="1">
-                Select number of floors<br>
+                <h3>Select number of floors</h3>
                 and upload appropriate plans` images<br>
             </v-stepper-step>
 
             <v-stepper-content step="1">
-                <v-card color="grey lighten-1" class="mb-5" height="200px">
+                <v-card color="grey lighten-1" class="mb-5">
                     <v-flex xs12 style="margin: 15px;">
-                        <v-subheader class="pl-0">Custom thumb color</v-subheader>
+                        <v-subheader class="pl-0">Select number of floors</v-subheader>
                         <v-slider
                                 style="width: 240px"
                                 v-model="floorsCount"
@@ -44,8 +44,8 @@
                                 step="1"
                         ></v-slider>
                     </v-flex>
-                    <upload-btn
-                            :fileChangedCallback="fileChanged"
+                    <upload-btn  v-for="i in floorsCount" :key="`6${i}`"
+                                 :fileChangedCallback="fileChanged"
                     ></upload-btn>
                 </v-card>
                 <v-btn color="primary" @click="step = 2">Continue</v-btn>
@@ -93,7 +93,12 @@
       return {
         step: 1,
         FormData: undefined,
-        floorsCount: 1,
+        floorsCount: 0,
+        floors: [],
+        floorItem: {
+
+        },
+        tour: undefined,
         project: null,
         snackbar: {
           visible: false,
@@ -143,6 +148,9 @@
             }
 
           })
+          .catch(error => {console.log(error)});
+        ProjectsService.getProjectXml(this.id)
+          .then()
           .catch(error => {console.log(error)});
       },
     },

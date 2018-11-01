@@ -12,6 +12,7 @@ var writeXmlRouter = require('./routes/writexml');
 var getImageRouter = require('./routes/getimage');
 var projectsRouter = require('./routes/projects');
 var readfolderRouter = require('./routes/readfolder');
+var uploadRouter = require('./routes/upload');
 
 var app = express();
 const config = require('./config/config');
@@ -43,5 +44,6 @@ app.use('/writexml', writeXmlRouter);
 app.use('/getimage', getImageRouter);
 app.use('/projects', projectsRouter);
 app.use('/readfolder', readfolderRouter);
+app.use('/upload', uploadRouter);
 
 module.exports = app;

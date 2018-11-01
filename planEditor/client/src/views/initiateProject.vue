@@ -27,7 +27,6 @@
             <v-stepper-step :complete="step > 1" step="1">
                 Select number of floors<br>
                 and upload appropriate plans` images<br>
-                {{formData}}
             </v-stepper-step>
 
             <v-stepper-content step="1">
@@ -45,11 +44,9 @@
                                 step="1"
                         ></v-slider>
                     </v-flex>
-                    <v-btn small color="blue-grey" class="black--text" @click.native="openFileDialog">
-                        Select file
-                        <v-icon right dark>mdi-cloud-upload</v-icon>
-                    </v-btn>
-                    <input type="file" id="file-upload" style="display:none" @change="onFileChange">
+                    <upload-btn
+                            :fileChangedCallback="fileChanged"
+                    ></upload-btn>
                 </v-card>
                 <v-btn color="primary" @click="step = 2">Continue</v-btn>
                 <v-btn flat>Cancel</v-btn>
@@ -83,12 +80,19 @@
 
 <script>
   import ProjectsService from '@/services/ProjectsService';
+  import UploadButton from 'vuetify-upload-button';
+  import axios from "axios";
+
   export default {
     name: "initiateProject",
+    components: {
+      'upload-btn': UploadButton
+    },
     props: ['id'],
     data () {
       return {
         step: 1,
+        FormData: undefined,
         floorsCount: 1,
         project: null,
         snackbar: {
@@ -103,6 +107,25 @@
       }
     },
     methods: {
+      fileChanged(file){
+        console.log(file);
+        if(!this.FormData) this.FormData = new FormData();
+        this.FormData.append('myfile', file, file.name);
+        console.log(this.FormData);
+        axios.post( '/upload/floorImage/'+this.id+'/'+'0',
+          this.FormData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        ).then(function(){
+          console.log('SUCCESS!!');
+        })
+          .catch(function(error){
+            console.log(error);
+          });
+      },
       getProject(){
         ProjectsService.getProject(this.id)
           .then(result => {
@@ -130,7 +153,6 @@
     },
 
     mounted(){
-      this.formData = new FormData();
       this.id = this.$route.params.id;
       this.getProject();
     },

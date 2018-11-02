@@ -4,6 +4,7 @@ var bodyParser = require('body-parser');
 const cors = require('cors');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+require('log-timestamp');
 
 
 var indexRouter = require('./routes/index');

@@ -33,20 +33,25 @@
                 <v-card color="grey lighten-1" class="mb-5">
                     <v-flex xs12 style="margin: 15px;">
                         <v-subheader class="pl-0">Select number of floors</v-subheader>
-                        <v-slider
-                                style="width: 240px"
-                                v-model="floorsCount"
-                                thumb-label="always"
-                                color="red"
-                                ticks="always"
-                                tick-size="1"
-                                :max="4"
-                                step="1"
-                        ></v-slider>
+
+                        <v-layout row wrap v-for="(template, i) in floorsTemplate" :key="`${i}`">
+                            <v-flex xs2>
+                                <v-switch
+                                        :label="`${template.name}`"
+                                        v-model="template.state"
+                                ></v-switch>
+                            </v-flex>
+                            <v-flex xs1>
+                                <img :src="`/getimage/fromtemplate/${id}/floorselector/${i}/up`"/>
+                            </v-flex>
+                            <v-flex xs4>
+                                <upload-block :template="template"></upload-block>
+                            </v-flex>
+                            <v-flex xs3>
+                                <v-card-text class="px-0">uploaded plan</v-card-text>
+                            </v-flex>
+                        </v-layout>
                     </v-flex>
-                    <upload-btn  v-for="i in floorsCount" :key="`6${i}`"
-                                 :fileChangedCallback="fileChanged"
-                    ></upload-btn>
                 </v-card>
                 <v-btn color="primary" @click="step = 2">Continue</v-btn>
                 <v-btn flat>Cancel</v-btn>
@@ -80,14 +85,12 @@
 
 <script>
   import ProjectsService from '@/services/ProjectsService';
-  import UploadButton from 'vuetify-upload-button';
+  import UploadBlock from '@/components/uploadBlock'
   import axios from "axios";
 
   export default {
     name: "initiateProject",
-    components: {
-      'upload-btn': UploadButton
-    },
+    components: {UploadBlock},
     props: ['id'],
     data () {
       return {
@@ -98,6 +101,33 @@
         floorItem: {
 
         },
+        floorsTemplate: [
+          {
+            number:0,
+            name: 'Basement',
+            state: false,
+            cb: 'fileChanged0',
+          },
+          {
+            number:1,
+            name: 'First floor',
+            state: false,
+            cb: 'fileChanged1',
+          },
+          {
+            number:2,
+            name: 'Second floor',
+            state: false,
+            cb: 'fileChanged2',
+          },
+          {
+            number:3,
+            name: 'Third floor',
+            state: false,
+            cb: 'fileChanged3',
+          },
+        ],
+
         tour: undefined,
         project: null,
         snackbar: {
@@ -112,6 +142,10 @@
       }
     },
     methods: {
+      fileChanged0(file){this.fileChanged(0,file)},
+      fileChanged1(file){this.fileChanged(1,file)},
+      fileChanged2(file){this.fileChanged(2,file)},
+      fileChanged3(file){this.fileChanged(3,file)},
       fileChanged(file){
         console.log(file);
         if(!this.FormData) this.FormData = new FormData();
@@ -153,6 +187,12 @@
           .then()
           .catch(error => {console.log(error)});
       },
+      getFloorSelectorPicNames(number){
+        return {
+          up: number + 'FloorUp.jpg',
+          down: number + 'FloorDown.jpg',
+        }
+      }
     },
     watch: {
       id(val){

@@ -45,7 +45,7 @@
                                 <img :src="`/getimage/fromtemplate/${id}/floorselector/${i}/up`"/>
                             </v-flex>
                             <v-flex xs4>
-                                <upload-block :template="template"></upload-block>
+                                <upload-block :template="template" :id="id"></upload-block>
                             </v-flex>
                             <v-flex xs3>
                                 <v-card-text class="px-0">uploaded plan</v-card-text>

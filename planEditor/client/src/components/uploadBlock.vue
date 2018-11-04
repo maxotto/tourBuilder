@@ -1,5 +1,7 @@
 <template>
     <v-layout row wrap :class="`upload${template.number}`">
+
+        {{response}}
         <v-flex xs4>
             <ul>
                 <li v-for="(file, index) in files" :key="file.id">
@@ -15,7 +17,8 @@
         </v-flex>
         <v-flex xs4>
             <file-upload
-                    post-action="/upload/post"
+                    :post-action="`/upload/floorImage/${id}/${template.number}`"
+                    :response="response"
                     extensions="gif,jpg,jpeg,png,webp"
                     accept="image/png,image/gif,image/jpeg,image/webp"
                     :multiple="false"
@@ -54,10 +57,11 @@
   export default {
     name: "uploadBlock",
     components: {FileUpload},
-    props: ['template'],
+    props: ['template', 'id'],
     data() {
       return {
-        files: []
+        files: [],
+        response: {},
       }
     },
     methods: {
@@ -78,6 +82,10 @@
         }
       },
       inputFile(newFile, oldFile) {
+        if (newFile.success !== false) {
+          console.log('success??', newFile, oldFile);
+          this.response = newFile.response;
+        }
         if (newFile && !oldFile) {
           // add
           console.log('add', newFile)

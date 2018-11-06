@@ -5,6 +5,7 @@ const cors = require('cors');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 require('log-timestamp');
+const busboy = require('connect-busboy');
 
 
 var indexRouter = require('./routes/index');
@@ -19,6 +20,7 @@ var app = express();
 const config = require('./config/config');
 app.set('config', config);
 
+app.use(busboy());
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 

@@ -20,7 +20,6 @@ router.post('/floorImage/:id/:floorNumber', (req, res) => {
       req.pipe(req.busboy);
       req.busboy.on('file', function (fieldname, file, filename) {
         const parts = Path.parse(filename);
-        console.log("Uploading: ", parts);
         const newFileName = 'floorMap' + floor + parts.ext;
         fstream = Fs.createWriteStream(Path.resolve(destFolder,newFileName));
         file.pipe(fstream);

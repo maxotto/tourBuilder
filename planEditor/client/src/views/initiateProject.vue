@@ -20,9 +20,6 @@
             </v-btn>
         </v-snackbar>
         <h1>Initiate project</h1>
-        {{project}}<br>
-        {{floorsTemplate}}<br>
-        {{ id }}<br>
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical>
             <v-stepper-step :complete="step > 1" step="1">
@@ -45,10 +42,10 @@
                             <v-flex xs1>
                                 <img :src="`/getimage/fromtemplate/${id}/floorselector/${i}/up`"/>
                             </v-flex>
-                            <v-flex xs4>
+                            <v-flex xs5>
                                 <upload-block :template="template" :recordId="id" @clicked="uploaded"></upload-block>
                             </v-flex>
-                            <v-flex xs3>
+                            <v-flex xs2>
                                 <v-img
                                         :id="`floormap${i}`"
                                         class="floormap"
@@ -194,7 +191,7 @@
           if (index >= 0){
             this.floorsTemplate[index].image = this.emptyImage;
             setTimeout(()=>{
-              this.floorsTemplate[index].image = `getimage/floormap/${this.id}/${index}`;
+              this.floorsTemplate[index].image = `getimage/floormap/${this.id}/${index}?rnd` + +Math.random();
               },100);
 
             console.log(this.floorsTemplate);

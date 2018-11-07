@@ -21,6 +21,7 @@
         </v-snackbar>
         <h1>Initiate project</h1>
         {{project}}<br>
+        {{floorsTemplate}}<br>
         {{ id }}<br>
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical>
@@ -45,10 +46,17 @@
                                 <img :src="`/getimage/fromtemplate/${id}/floorselector/${i}/up`"/>
                             </v-flex>
                             <v-flex xs4>
-                                <upload-block :template="template" :recordId="id"></upload-block>
+                                <upload-block :template="template" :recordId="id" @clicked="uploaded"></upload-block>
                             </v-flex>
                             <v-flex xs3>
-                                <v-card-text class="px-0">uploaded plan</v-card-text>
+                                <v-img
+                                        :id="`floormap${i}`"
+                                        class="floormap"
+                                        :src="`${template.image}`"
+                                        max-height="64"
+                                        aspect-ratio="1"
+                                        contain
+                                />
                             </v-flex>
                         </v-layout>
                     </v-flex>
@@ -101,34 +109,39 @@
         floorItem: {
 
         },
+        emptyImage: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
         floorsTemplate: [
           {
             number:0,
             name: 'Basement',
             state: false,
             cb: 'fileChanged0',
-            files: []
+            files: [],
+            image: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
           },
           {
             number:1,
             name: 'First floor',
             state: false,
             cb: 'fileChanged1',
-            files: []
+            files: [],
+            image: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
           },
           {
             number:2,
             name: 'Second floor',
             state: false,
             cb: 'fileChanged2',
-            files: []
+            files: [],
+            image: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
           },
           {
             number:3,
             name: 'Third floor',
             state: false,
             cb: 'fileChanged3',
-            files: []
+            files: [],
+            image: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
           },
         ],
 
@@ -146,28 +159,9 @@
       }
     },
     methods: {
-      fileChanged0(file){this.fileChanged(0,file)},
-      fileChanged1(file){this.fileChanged(1,file)},
-      fileChanged2(file){this.fileChanged(2,file)},
-      fileChanged3(file){this.fileChanged(3,file)},
-      fileChanged(file){
-        console.log(file);
-        if(!this.FormData) this.FormData = new FormData();
-        this.FormData.append('myfile', file, file.name);
-        console.log(this.FormData);
-        axios.post( '/upload/floorImage/'+this.id+'/'+'0',
-          this.FormData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        ).then(function(){
-          console.log('SUCCESS!!');
-        })
-          .catch(function(error){
-            console.log(error);
-          });
+      uploaded(floorNumber){
+        console.log('Uploaded', floorNumber);
+        this.getProject();
       },
       getProject(){
         ProjectsService.getProject(this.id)
@@ -176,7 +170,7 @@
             if (result.data.success){
               this.project = result.data.project;
               this.lastError = '';
-
+              this.updateFloorMaps();
             } else {
               this.project = null;
               this.lastError = result.data.message;
@@ -190,6 +184,22 @@
         ProjectsService.getProjectXml(this.id)
           .then()
           .catch(error => {console.log(error)});
+      },
+      updateFloorMaps(){
+        this.project.floorSelect.forEach((v, i, a) => {
+          console.log(v,i);
+          const index = this.floorsTemplate.findIndex((element, index, array) => {
+            return (element.number == v.floor);
+          });
+          if (index >= 0){
+            this.floorsTemplate[index].image = this.emptyImage;
+            setTimeout(()=>{
+              this.floorsTemplate[index].image = `getimage/floormap/${this.id}/${index}`;
+              },100);
+
+            console.log(this.floorsTemplate);
+          }
+        });
       },
       getFloorSelectorPicNames(number){
         return {

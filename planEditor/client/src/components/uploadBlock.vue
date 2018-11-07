@@ -1,7 +1,5 @@
 <template>
     <v-layout row wrap class="upload">
-        {{template.number}}
-        {{template.files}}
         <v-flex xs4>
             <ul>
                 <li v-for="(file, index) in template.files" :key="file.id">
@@ -36,7 +34,7 @@
             </file-upload>
         </v-flex>
         <v-flex xs4>
-            <v-btn small v-if="`!$refs.upload${template.number} || !$refs.upload${template.number}.active`" @click.prevent="startUpload(template.number)">
+            <v-btn small v-if="!uploaderActive" @click.prevent="startUpload(template.number)">
                 <v-icon>
                     mdi-upload
                 </v-icon>
@@ -60,7 +58,20 @@
     props: ['template', 'recordId'],
     data() {
       return {
+        uploaderActive: false,
       }
+    },
+    mounted(){
+      const n = 'upload' + this.template.number;
+      this.$watch(
+        () => {
+          return this.$refs[n].active
+        },
+        (val) => {
+          this.uploaderActive = val;
+          // alert('$watch Active: ' + val)
+        }
+      )
     },
     methods: {
       startUpload(floorNumber){
@@ -68,6 +79,7 @@
         console.log(this.$refs);
         this.$refs['upload' + floorNumber].active = true;
       },
+
       inputFilter(newFile, oldFile, prevent) {
         if (newFile && !oldFile) {
           // Before adding a file
@@ -86,8 +98,9 @@
       },
       inputFile(newFile, oldFile) {
         if (newFile.success !== false) {
-          console.log('success??', newFile, oldFile);
+          console.log('success??', newFile, oldFile, this.template.number);
           this.response = newFile.response;
+          this.$emit('clicked', this.template.number);
         }
         if (newFile && !oldFile) {
           // add

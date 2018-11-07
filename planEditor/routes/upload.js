@@ -7,7 +7,6 @@ const Fs = require('fs-extra');
 router.post('/floorImage/:id/:floorNumber', (req, res) => {
   const id = req.params.id;
   const floor = req.params.floorNumber;
-  // todo reaup save to inFOLDER/custom
   Projects.findById(req.params.id, (error, project) => {
     if (error) {
       res.send({
@@ -39,6 +38,7 @@ router.post('/floorImage/:id/:floorNumber', (req, res) => {
             );
           } else {
             project.floorSelect[index].image = filename;
+            project.markModified('floorSelect');
           }
           project.save((error, p) => {
             if(!error){

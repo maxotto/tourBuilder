@@ -19,8 +19,10 @@ router.post('/floorImage/:id/:floorNumber', (req, res) => {
       let fstream;
       req.pipe(req.busboy);
       req.busboy.on('file', function (fieldname, file, filename) {
-        console.log("Uploading: " + filename);
-        fstream = Fs.createWriteStream(Path.resolve(destFolder,filename));
+        const parts = Path.parse(filename);
+        console.log("Uploading: ", parts);
+        const newFileName = 'floorMap' + floor + parts.ext;
+        fstream = Fs.createWriteStream(Path.resolve(destFolder,newFileName));
         file.pipe(fstream);
         fstream.on('close', function () {
           if(!project.floorSelect) {
@@ -33,11 +35,11 @@ router.post('/floorImage/:id/:floorNumber', (req, res) => {
             project.floorSelect.push(
               {
                 floor: floor,
-                image: filename,
+                image: newFileName,
               }
             );
           } else {
-            project.floorSelect[index].image = filename;
+            project.floorSelect[index].image = newFileName;
             project.markModified('floorSelect');
           }
           project.save((error, p) => {

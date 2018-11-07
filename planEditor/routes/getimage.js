@@ -41,4 +41,21 @@ router.get('/fromtemplate/:id/floorselector/:floor/:state', function(req, res, n
   });
 });
 
+router.get('/floormap/:id/:floor', function (req, res, next) {
+  const id = req.params.id;
+  const floor = req.params.floor;
+  Projects.findById(id, (error, project) => {
+    if (error) {
+      res.send({
+        success: false,
+        message: error.message
+      })
+    } else {
+      const templatePath = utils.getImagePathByTemplate(project.template);
+      const fileName = Path.resolve(project.folde, 'custom', floor + 'Floor' + suffix + '.jpg',);
+      res.sendFile(fileName);
+    }
+  });
+});
+
 module.exports = router;

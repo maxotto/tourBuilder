@@ -24,9 +24,35 @@ router.post('/floorImage/:id/:floorNumber', (req, res) => {
         fstream = Fs.createWriteStream(Path.resolve(destFolder,filename));
         file.pipe(fstream);
         fstream.on('close', function () {
-          res.send({
-            success: true,
-            project: project,
+          if(!project.floorSelect) {
+            project.floorSelect = [];
+          }
+          const index = project.floorSelect.findIndex((element, index, array) => {
+            return (element.floor === floor);
+          });
+          if(index === -1){
+            project.floorSelect.push(
+              {
+                floor: floor,
+                image: filename,
+              }
+            );
+          } else {
+            project.floorSelect[index].image = filename;
+          }
+          project.save((error, p) => {
+            if(!error){
+              res.send({
+                success: true,
+                project: p,
+              });
+            } else {
+              res.send({
+                success: false,
+                message: error.message,
+                project: p,
+              })
+            }
           });
         });
       });

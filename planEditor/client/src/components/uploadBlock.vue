@@ -1,10 +1,10 @@
 <template>
-    <v-layout row wrap :class="`upload${template.number}`">
-
-        {{response}}
+    <v-layout row wrap class="upload">
+        {{template.number}}
+        {{template.files}}
         <v-flex xs4>
             <ul>
-                <li v-for="(file, index) in files" :key="file.id">
+                <li v-for="(file, index) in template.files" :key="file.id">
                     <span>{{file.name}}</span> -
                     <span>{{file.size | formatSize}}</span> -
                     <span v-if="file.error">{{file.error}}</span>
@@ -17,16 +17,16 @@
         </v-flex>
         <v-flex xs4>
             <file-upload
-                    :post-action="`/upload/floorImage/${id}/${template.number}`"
-                    :response="response"
+                    :post-action="`/upload/floorImage/${recordId}/${template.number}`"
+                    :input-id="`file${template.number}`"
                     extensions="gif,jpg,jpeg,png,webp"
                     accept="image/png,image/gif,image/jpeg,image/webp"
                     :multiple="false"
                     :size="1024 * 1024 * 10"
-                    v-model="files"
+                    v-model="template.files"
                     @input-filter="inputFilter"
                     @input-file="inputFile"
-                    ref="upload">
+                    :ref="`upload${template.number}`">
                 <v-btn small >
                     <v-icon>
                         mdi-plus
@@ -36,13 +36,13 @@
             </file-upload>
         </v-flex>
         <v-flex xs4>
-            <v-btn small v-if="!$refs.upload || !$refs.upload.active" @click.prevent="$refs.upload.active = true">
+            <v-btn small v-if="`!$refs.upload${template.number} || !$refs.upload${template.number}.active`" @click.prevent="startUpload(template.number)">
                 <v-icon>
                     mdi-upload
                 </v-icon>
                 Start Upload
             </v-btn>
-            <v-btn small v-else @click.prevent="$refs.upload.active = false">
+            <v-btn small v-else @click.prevent="`$refs.upload${template.number}.active = false`">
                 <v-icon>
                     mdi-delete
                 </v-icon>
@@ -57,14 +57,17 @@
   export default {
     name: "uploadBlock",
     components: {FileUpload},
-    props: ['template', 'id'],
+    props: ['template', 'recordId'],
     data() {
       return {
-        files: [],
-        response: {},
       }
     },
     methods: {
+      startUpload(floorNumber){
+        console.log('start this', floorNumber);
+        console.log(this.$refs);
+        this.$refs['upload' + floorNumber].active = true;
+      },
       inputFilter(newFile, oldFile, prevent) {
         if (newFile && !oldFile) {
           // Before adding a file

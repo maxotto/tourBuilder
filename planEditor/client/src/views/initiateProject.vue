@@ -45,7 +45,7 @@
                                 <img :src="`/getimage/fromtemplate/${id}/floorselector/${i}/up`"/>
                             </v-flex>
                             <v-flex xs4>
-                                <upload-block :template="template" :id="id"></upload-block>
+                                <upload-block :template="template" :recordId="id"></upload-block>
                             </v-flex>
                             <v-flex xs3>
                                 <v-card-text class="px-0">uploaded plan</v-card-text>
@@ -107,24 +107,28 @@
             name: 'Basement',
             state: false,
             cb: 'fileChanged0',
+            files: []
           },
           {
             number:1,
             name: 'First floor',
             state: false,
             cb: 'fileChanged1',
+            files: []
           },
           {
             number:2,
             name: 'Second floor',
             state: false,
             cb: 'fileChanged2',
+            files: []
           },
           {
             number:3,
             name: 'Third floor',
             state: false,
             cb: 'fileChanged3',
+            files: []
           },
         ],
 

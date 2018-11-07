@@ -67,6 +67,9 @@ const ProjectSchema = new Schema({
       required: true,
     },
   },
+  floorSelect:{
+    type: Array
+  }
 
 });
 

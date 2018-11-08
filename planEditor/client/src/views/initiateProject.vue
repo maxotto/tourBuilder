@@ -226,29 +226,7 @@
           }
         });
         this.checkSteps();
-/*
-        this.project.floorSelect.forEach((v, i, a) => {
-          console.log(v,i);
-          const index = this.floorsTemplate.findIndex((element, index, array) => {
-            return (element.number == v.floor);
-          });
-          if (index >= 0){
-            this.floorsTemplate[index].image = this.emptyImage;
-            this.floorsTemplate[index].state = true;
-            this.floorsTemplate[index].uploaded = true;
-            setTimeout(()=>{
-              this.floorsTemplate[index].image = `getimage/floormap/${this.id}/${index}?rnd` + +Math.random();
-              },100);
-          } else {
-            console.log('Clear state', this.floorsTemplate);
-            this.floorsTemplate[index].image = this.emptyImage;
-            this.floorsTemplate[index].state = false;
-            this.floorsTemplate[index].uploaded = false;
-          }
-        });
-        */
         setTimeout(()=>{this.ready = true;},100);
-
       },
       getFloorSelectorPicNames(number){
         return {

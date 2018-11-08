@@ -15,6 +15,7 @@ var getImageRouter = require('./routes/getimage');
 var projectsRouter = require('./routes/projects');
 var readfolderRouter = require('./routes/readfolder');
 var uploadRouter = require('./routes/upload');
+var deleteRouter = require('./routes/delete');
 
 var app = express();
 const config = require('./config/config');
@@ -48,5 +49,6 @@ app.use('/getimage', getImageRouter);
 app.use('/projects', projectsRouter);
 app.use('/readfolder', readfolderRouter);
 app.use('/upload', uploadRouter);
+app.use('/delete', deleteRouter);
 
 module.exports = app;

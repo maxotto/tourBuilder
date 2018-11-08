@@ -31,31 +31,32 @@
                 <v-card color="grey lighten-1" class="mb-5">
                     <v-flex xs12 style="margin: 15px;">
                         <v-subheader class="pl-0">Select number of floors</v-subheader>
-
-                        <v-layout row wrap v-for="(template, i) in floorsTemplate" :key="`${i}`">
-                            <v-flex xs2>
-                                <v-switch
-                                        :label="`${template.name}`"
-                                        v-model="template.state"
-                                ></v-switch>
-                            </v-flex>
-                            <v-flex xs1>
-                                <img :src="`/getimage/fromtemplate/${id}/floorselector/${i}/up`"/>
-                            </v-flex>
-                            <v-flex xs5>
-                                <upload-block :template="template" :recordId="id" @clicked="uploaded"></upload-block>
-                            </v-flex>
-                            <v-flex xs2>
-                                <v-img
-                                        :id="`floormap${i}`"
-                                        class="floormap"
-                                        :src="`${template.image}`"
-                                        max-height="64"
-                                        aspect-ratio="1"
-                                        contain
-                                />
-                            </v-flex>
-                        </v-layout>
+                        <div class="floorSelectorContainer">
+                            <v-layout row wrap v-for="(template, i) in floorsTemplate" :key="`${i}`" class="floorSelector" align-content-center>
+                                <v-flex xs3 align-content-center>
+                                    <v-switch
+                                            :label="`${template.name}`"
+                                            v-model="template.state"
+                                    ></v-switch>
+                                </v-flex>
+                                <v-flex xs1 align-content-center>
+                                    <img :src="`/getimage/fromtemplate/${id}/floorselector/${i}/up`"/>
+                                </v-flex>
+                                <v-flex xs4 align-content-center>
+                                    <upload-block :template="template" :recordId="id" @clicked="uploaded" :forceUpload="template.state"></upload-block>
+                                </v-flex>
+                                <v-flex xs4 align-content-center>
+                                    <v-img
+                                            :id="`floormap${i}`"
+                                            class="floormap"
+                                            :src="`${template.image}`"
+                                            max-height="64"
+                                            aspect-ratio="1"
+                                            contain
+                                    />
+                                </v-flex>
+                            </v-layout>
+                        </div>
                     </v-flex>
                 </v-card>
                 <v-btn color="primary" @click="step = 2">Continue</v-btn>
@@ -99,6 +100,7 @@
     props: ['id'],
     data () {
       return {
+        ready: false,
         step: 1,
         FormData: undefined,
         floorsCount: 0,
@@ -112,33 +114,33 @@
             number:0,
             name: 'Basement',
             state: false,
-            cb: 'fileChanged0',
             files: [],
             image: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
+            uploaded: false,
           },
           {
             number:1,
             name: 'First floor',
             state: false,
-            cb: 'fileChanged1',
             files: [],
             image: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
+            uploaded: false,
           },
           {
             number:2,
             name: 'Second floor',
             state: false,
-            cb: 'fileChanged2',
             files: [],
             image: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
+            uploaded: false,
           },
           {
             number:3,
             name: 'Third floor',
             state: false,
-            cb: 'fileChanged3',
             files: [],
             image: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
+            uploaded: false,
           },
         ],
 
@@ -157,13 +159,13 @@
     },
     methods: {
       uploaded(floorNumber){
-        console.log('Uploaded', floorNumber);
+        // console.log('Uploaded', floorNumber);
         this.getProject();
       },
       getProject(){
         ProjectsService.getProject(this.id)
           .then(result => {
-            console.log(result.data);
+            // console.log(result.data);
             if (result.data.success){
               this.project = result.data.project;
               this.lastError = '';
@@ -179,10 +181,33 @@
           })
           .catch(error => {console.log(error)});
         ProjectsService.getProjectXml(this.id)
-          .then()
+          .then(tour => {
+            this.tour = tour;
+          })
           .catch(error => {console.log(error)});
       },
       updateFloorMaps(){
+        this.floorsTemplate.forEach((floor, i) => {
+          const index = this.project.floorSelect.findIndex(elem => {
+            return (floor.number == elem.floor);
+          });
+          if (index >= 0){
+            this.floorsTemplate[i].image = this.emptyImage;
+            this.floorsTemplate[i].state = true;
+            this.floorsTemplate[i].uploaded = true;
+            setTimeout(()=>{
+                this.floorsTemplate[i].image = `getimage/floormap/${this.id}/${i}?rnd` + +Math.random();
+            },100);
+          } else {
+            // console.log('Clear state', this.floorsTemplate);
+            this.floorsTemplate[i].image = this.emptyImage;
+            this.floorsTemplate[i].state = false;
+            this.floorsTemplate[i].uploaded = false;
+            this.floorsTemplate[i].files = [];
+          }
+        });
+
+/*
         this.project.floorSelect.forEach((v, i, a) => {
           console.log(v,i);
           const index = this.floorsTemplate.findIndex((element, index, array) => {
@@ -190,24 +215,63 @@
           });
           if (index >= 0){
             this.floorsTemplate[index].image = this.emptyImage;
+            this.floorsTemplate[index].state = true;
+            this.floorsTemplate[index].uploaded = true;
             setTimeout(()=>{
               this.floorsTemplate[index].image = `getimage/floormap/${this.id}/${index}?rnd` + +Math.random();
               },100);
-
-            console.log(this.floorsTemplate);
+          } else {
+            console.log('Clear state', this.floorsTemplate);
+            this.floorsTemplate[index].image = this.emptyImage;
+            this.floorsTemplate[index].state = false;
+            this.floorsTemplate[index].uploaded = false;
           }
         });
+        */
+        setTimeout(()=>{this.ready = true;},100);
+
       },
       getFloorSelectorPicNames(number){
         return {
           up: number + 'FloorUp.jpg',
           down: number + 'FloorDown.jpg',
         }
+      },
+      detectStateChange(val){
+        let changes = [];
+        val.forEach((newFloor,i)=>{
+          if(!newFloor.state && newFloor.image!==this.emptyImage){
+            changes.push(i);
+          }
+        });
+        // console.log({changes});
+        changes.forEach(change => {
+          this.axios.delete(`/delete/floorImage/${this.id}/${this.floorsTemplate[change].number}`)
+            .then(res => {
+              if(res.data.success){
+                this.getProject();
+              } else {
+                // console.log(res);
+              }
+            })
+            .catch(err=>{
+              // console.log(err);
+            });
+        });
       }
     },
     watch: {
       id(val){
         this.getProject();
+      },
+      floorsTemplate: {
+        handler: function (val){
+          if (this.ready) {
+            this.detectStateChange(val);
+            // console.log("Deep watcher",val);
+          }
+        },
+      deep: true
       }
     },
 
@@ -219,5 +283,10 @@
 </script>
 
 <style scoped>
-
+    .floorSelector{
+        min-height: 85px;
+    }
+    .floorSelectorContainer{
+        max-width: 600px;
+    }
 </style>

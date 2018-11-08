@@ -60,15 +60,16 @@
                     </v-flex>
                 </v-card>
                 <v-btn color="primary" @click="step = 2" :disabled="!checkStep1">Continue</v-btn>
-                <v-btn flat>Cancel</v-btn>
             </v-stepper-content>
 
-            <v-stepper-step :complete="step > 2" step="2">Configure analytics for this app</v-stepper-step>
+            <v-stepper-step :complete="step > 2" step="2">
+                Configure analytics for this app
+            </v-stepper-step>
 
             <v-stepper-content step="2">
                 <v-card color="grey lighten-1" class="mb-5" height="200px"></v-card>
-                <v-btn color="primary" @click="step = 3">Continue</v-btn>
-                <v-btn flat>Cancel</v-btn>
+                <v-btn flat @click="step = 1">Back</v-btn>
+                <v-btn color="primary" @click="step = 3" :disabled="!checkStep2">Continue</v-btn>
             </v-stepper-content>
 
             <v-stepper-step :complete="step > 3" step="3">Select an ad format and name ad unit</v-stepper-step>
@@ -155,7 +156,8 @@
           text: 'Hello, I\'m a snackbar'
         },
         lastError: '',
-        checkStep1: false
+        checkStep1: false,
+        checkStep2: false,
       }
     },
     methods: {

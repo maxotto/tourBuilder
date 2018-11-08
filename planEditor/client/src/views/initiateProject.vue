@@ -59,7 +59,7 @@
                         </div>
                     </v-flex>
                 </v-card>
-                <v-btn color="primary" @click="step = 2">Continue</v-btn>
+                <v-btn color="primary" @click="step = 2" :disabled="!checkStep1">Continue</v-btn>
                 <v-btn flat>Cancel</v-btn>
             </v-stepper-content>
 
@@ -154,10 +154,29 @@
           timeout: 6000,
           text: 'Hello, I\'m a snackbar'
         },
-        lastError: ''
+        lastError: '',
+        checkStep1: false
       }
     },
     methods: {
+      checkSteps(){
+        this.checkStep(1);
+      },
+      checkStep(step){
+        if(step === 1){
+          let ready = true;
+          let hasOne = false;
+          this.floorsTemplate.forEach(floor => {
+            if(floor.state){
+              ready = ready && floor.uploaded;
+            }
+            if(!hasOne){
+              hasOne = floor.state && floor.uploaded;
+            }
+          });
+          this.checkStep1 = ready && hasOne;
+        }
+      },
       uploaded(floorNumber){
         // console.log('Uploaded', floorNumber);
         this.getProject();
@@ -206,7 +225,7 @@
             this.floorsTemplate[i].files = [];
           }
         });
-
+        this.checkSteps();
 /*
         this.project.floorSelect.forEach((v, i, a) => {
           console.log(v,i);
@@ -238,13 +257,13 @@
         }
       },
       detectStateChange(val){
+        this.checkSteps();
         let changes = [];
-        val.forEach((newFloor,i)=>{
+        val.forEach((newFloor,i)=>{ // if there are uploaded image but we set inactive state
           if(!newFloor.state && newFloor.image!==this.emptyImage){
             changes.push(i);
           }
         });
-        // console.log({changes});
         changes.forEach(change => {
           this.axios.delete(`/delete/floorImage/${this.id}/${this.floorsTemplate[change].number}`)
             .then(res => {

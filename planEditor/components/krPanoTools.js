@@ -32,7 +32,7 @@ module.exports = function (xmlFile) {
     const out = {
       krpano:xml
     };
-    const xmlText = builder.buildObject(xml);
+    const xmlText = builder.buildObject(out);
     return new Promise((resolve, reject) => {
       Fs.writeFile(xmlFile, xmlText, (err) => {
         if (err) {
@@ -71,7 +71,10 @@ module.exports = function (xmlFile) {
     return loadXml(xmlFile);
   };
 
-  object.save = function(){
+  object.save = function(xmlObj){
+    if(xmlObj){
+      xml = xmlObj
+    }
     return saveXml();
   };
 

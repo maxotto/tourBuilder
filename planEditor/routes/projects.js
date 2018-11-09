@@ -65,6 +65,36 @@ router.get('/:id/xml', function(req, res, next) {
 
 } );
 
+router.post('/:id/xml', function(req, res, next) {
+  const id = req.params.id;
+  const tour = req.body;
+  Projects.findById(id, (error, project) => {
+    if (error) {
+      res.send({
+        success: false,
+        message: error.message
+      })
+    } else {
+      const tourFileName = Path.resolve(project.folder, 'tour_saved.xml');
+      const tourFileTool = new KrPanoFile(tourFileName);
+      tourFileTool.save(tour)
+        .then(xml =>{
+          res.send({
+            success: true,
+            message: 'Saved'
+          })
+      })
+        .catch(error => {
+          res.send({
+            success: false,
+            message: error.message
+          })
+        });
+    }
+  });
+
+});
+
 router.post('/create', (req, res) => {
   // var db = req.db;
   console.log(req.body);

@@ -68,7 +68,7 @@
             </v-stepper-step>
 
             <v-stepper-content step="2">
-                <v-btn flat @click="step = 1">
+                <v-btn @click="step = 1" dark color="blue">
                     <v-icon>
                         mdi-skip-backward
                     </v-icon>
@@ -117,13 +117,13 @@
                         </v-flex>
                     </v-layout>
                 </v-container>
-                <v-btn flat @click="step = 1">
+                <v-btn @click="step = 1" dark color="blue">
                     <v-icon>
                         mdi-skip-backward
                     </v-icon>
                     Back to floor definitions
                 </v-btn>
-                <v-btn color="green" :disabled="!step2Changed">
+                <v-btn color="green" :disabled="!step2Changed" @click="saveTour">
                     <v-icon>
                         mdi-content-save-all
                     </v-icon>
@@ -223,6 +223,20 @@
       }
     },
     methods: {
+      saveTour(){
+        this.step2Changed = false;
+        this.updateScenes();
+        ProjectsService.saveProjectXml(this.id, this.tour)
+          .then(response => {
+            console.log(response.data);
+          });
+      },
+      updateScenes(){
+        this.scenesData.forEach((scene, i) => {
+          this.tour.scene[i]['$'].floor = scene.floor.toString();
+          this.tour.scene[i]['$'].hotspot = (scene.hotspot)?'true':'false';
+        });
+      },
       updateScenesFloors(){
         this.scenesData.forEach((scene, i) => {
           const found = this.floorSelect.findIndex((fs) => {

@@ -59,7 +59,7 @@
                         </div>
                     </v-flex>
                 </v-card>
-                <v-btn color="primary" @click="step = 2" :disabled="!checkStep1">Continue</v-btn>
+                <v-btn color="primary" @click="step = 2" :disabled="!checkStep1 || !tour">Continue</v-btn>
             </v-stepper-content>
 
             <v-stepper-step :complete="step > 2" step="2">
@@ -68,6 +68,12 @@
             </v-stepper-step>
 
             <v-stepper-content step="2">
+                <v-btn flat @click="step = 1">
+                    <v-icon>
+                        mdi-skip-backward
+                    </v-icon>
+                    Back to floor definitions
+                </v-btn>
                 <v-container grid-list-md text-xs-center v-if="tour && scenesData.length > 0">
                     <v-layout row wrap v-for="(scene, i) in tour.scene" :key="`${i}`">
                         <v-flex xs2>

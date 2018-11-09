@@ -20,7 +20,6 @@
             </v-btn>
         </v-snackbar>
         <h1>Initiate project</h1>
-        {{scenesData}}
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical>
             <v-stepper-step :complete="step > 1" step="1">
@@ -218,11 +217,7 @@
       }
     },
     methods: {
-      checkFloorSet(i){
-
-      },
       updateScenesFloors(){
-        console.log(this.floorSelect);
         this.scenesData.forEach((scene, i) => {
           const found = this.floorSelect.findIndex((fs) => {
             return fs.value == scene.floor;
@@ -340,6 +335,7 @@
       },
       composeScenesForEditor(){
         if(this.tour){
+          this.scenesData=[];
           this.tour.scene.forEach((scene, index) => {
             this.scenesData.push(
               {
@@ -362,6 +358,7 @@
           if (this.ready) {
             this.detectStateChange(val);
             // console.log("Deep watcher",val);
+            this.composeScenesForEditor()
           }
         },
       deep: true

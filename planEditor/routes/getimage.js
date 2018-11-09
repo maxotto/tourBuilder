@@ -21,6 +21,24 @@ router.get('/', function(req, res, next) {
   res.sendFile(fileName);
 });
 
+router.get('/fromtour/:id/scene/thumb/:scene', function(req, res, next) {
+  const id = req.params.id;
+  const scene = req.params.scene;
+  Projects.findById(id, (error, project) => {
+    if (error) {
+      res.send({
+        success: false,
+        message: error.message
+      })
+    } else {
+      const imageName = scene.substring(6);
+      const fileName = Path.resolve(project.folder, 'panos/' + imageName + '.tiles/thumb.jpg');
+      console.log(fileName);
+      res.sendFile(fileName);
+    }
+  });
+});
+
 router.get('/fromtemplate/:id/floorselector/:floor/:state', function(req, res, next) {
   const id = req.params.id;
   const floor = req.params.floor;

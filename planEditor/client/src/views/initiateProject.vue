@@ -20,11 +20,12 @@
             </v-btn>
         </v-snackbar>
         <h1>Initiate project</h1>
+        {{scenesData}}
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical>
             <v-stepper-step :complete="step > 1" step="1">
                 <h3>Select number of floors</h3>
-                and upload appropriate plans` images<br>
+                and upload appropriate maps` images<br>
             </v-stepper-step>
 
             <v-stepper-content step="1">
@@ -39,13 +40,13 @@
                                             v-model="template.state"
                                     ></v-switch>
                                 </v-flex>
-                                <v-flex xs1 align-content-center>
+                                <v-flex xs2 align-content-center>
                                     <img :src="`/getimage/fromtemplate/${id}/floorselector/${i}/up`"/>
                                 </v-flex>
                                 <v-flex xs4 align-content-center>
                                     <upload-block :template="template" :recordId="id" @clicked="uploaded" :forceUpload="template.state"></upload-block>
                                 </v-flex>
-                                <v-flex xs4 align-content-center>
+                                <v-flex xs3 align-content-center>
                                     <v-img
                                             :id="`floormap${i}`"
                                             class="floormap"
@@ -63,12 +64,66 @@
             </v-stepper-content>
 
             <v-stepper-step :complete="step > 2" step="2">
-                Configure analytics for this app
+                <h3>Set floor for each scene.</h3>
+                Mark scenes to put them on the floor's map
             </v-stepper-step>
 
             <v-stepper-content step="2">
-                <v-card color="grey lighten-1" class="mb-5" height="200px"></v-card>
-                <v-btn flat @click="step = 1">Back</v-btn>
+                <v-container grid-list-md text-xs-center v-if="tour && scenesData.length > 0">
+                    <v-layout row wrap v-for="(scene, i) in tour.scene" :key="`${i}`">
+                        <v-flex xs2>
+                            <v-img
+                                    :id="`scene-pic-${i}`"
+                                    class="scene-pic"
+                                    :src="`getimage/fromtour/${id}/scene/thumb/${scene['$'].name}`"
+                                    max-height="120"
+                                    aspect-ratio="1"
+                                    contain
+                            />
+                        </v-flex>
+                        <v-flex xs3>
+                            <p>{{scene['$'].name}}</p>
+                        </v-flex>
+                        <v-flex xs3>
+                            <v-checkbox
+                                    :label="`Hotspot on the map`"
+                                    v-model="scenesData[i].hotspot"
+                                    @change="step2Changed=true"
+                            ></v-checkbox>
+                        </v-flex>
+                        <v-flex xs3>
+                            <v-select
+                                    :items="floorSelect"
+                                    item-text="label"
+                                    item-value="value"
+                                    v-model="scenesData[i].floor"
+                                    box
+                                    label="Select floor"
+                                    @change="step2Changed=true"
+                            ></v-select>
+                        </v-flex>
+                        <v-flex xs1>
+                            <v-icon v-if="scenesData[i].floor >= 0" color="green" large>
+                                mdi-check-all
+                            </v-icon>
+                            <v-icon v-else color="red" large>
+                                mdi-alert-circle
+                            </v-icon>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+                <v-btn flat @click="step = 1">
+                    <v-icon>
+                        mdi-skip-backward
+                    </v-icon>
+                    Back to floor definitions
+                </v-btn>
+                <v-btn color="green" :disabled="!step2Changed">
+                    <v-icon>
+                        mdi-content-save-all
+                    </v-icon>
+                    Save job
+                </v-btn>
                 <v-btn color="primary" @click="step = 3" :disabled="!checkStep2">Continue</v-btn>
             </v-stepper-content>
 
@@ -101,14 +156,17 @@
     props: ['id'],
     data () {
       return {
+        step2Changed: false,
         ready: false,
         step: 1,
+        scenesData:[],
         FormData: undefined,
         floorsCount: 0,
         floors: [],
-        floorItem: {
-
-        },
+        floorSelect: [{
+          value: -1,
+          label: 'Not set'
+        }],
         emptyImage: "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=",
         floorsTemplate: [
           {
@@ -144,7 +202,6 @@
             uploaded: false,
           },
         ],
-
         tour: undefined,
         project: null,
         snackbar: {
@@ -161,6 +218,22 @@
       }
     },
     methods: {
+      checkFloorSet(i){
+
+      },
+      updateScenesFloors(){
+        console.log(this.floorSelect);
+        this.scenesData.forEach((scene, i) => {
+          const found = this.floorSelect.findIndex((fs) => {
+            return fs.value == scene.floor;
+          });
+          if(found === -1){
+            this.scenesData[i].floor = "-1";
+          } else {
+            this.scenesData[i].floor = this.floorSelect[found].value;
+          }
+        })
+      },
       checkSteps(){
         this.checkStep(1);
       },
@@ -201,13 +274,13 @@
 
           })
           .catch(error => {console.log(error)});
-        ProjectsService.getProjectXml(this.id)
-          .then(tour => {
-            this.tour = tour;
-          })
-          .catch(error => {console.log(error)});
+
       },
       updateFloorMaps(){
+        this.floorSelect = [{
+          value: '-1',
+          label: 'Not set'
+        }];
         this.floorsTemplate.forEach((floor, i) => {
           const index = this.project.floorSelect.findIndex(elem => {
             return (floor.number == elem.floor);
@@ -216,6 +289,12 @@
             this.floorsTemplate[i].image = this.emptyImage;
             this.floorsTemplate[i].state = true;
             this.floorsTemplate[i].uploaded = true;
+            this.floorSelect.push(
+              {
+                value: this.floorsTemplate[i].number.toString(),
+                label: this.floorsTemplate[i].name,
+              }
+            );
             setTimeout(()=>{
                 this.floorsTemplate[i].image = `getimage/floormap/${this.id}/${i}?rnd` + +Math.random();
             },100);
@@ -227,6 +306,7 @@
             this.floorsTemplate[i].files = [];
           }
         });
+        this.updateScenesFloors();
         this.checkSteps();
         setTimeout(()=>{this.ready = true;},100);
       },
@@ -257,7 +337,21 @@
               // console.log(err);
             });
         });
-      }
+      },
+      composeScenesForEditor(){
+        if(this.tour){
+          this.tour.scene.forEach((scene, index) => {
+            this.scenesData.push(
+              {
+                name: scene['$'].name,
+                hotspot: scene['$'].hotspot?(scene['$'].hotspot === 'true'):false,
+                floor: scene['$'].floor?(scene['$'].floor):null,
+              }
+            );
+          });
+          this.updateScenesFloors();
+        }
+      },
     },
     watch: {
       id(val){
@@ -277,11 +371,23 @@
     mounted(){
       this.id = this.$route.params.id;
       this.getProject();
+      ProjectsService.getProjectXml(this.id)
+        .then(result => {
+          if(result.data.success){
+            this.tour = result.data.xml;
+            this.composeScenesForEditor();
+          }
+        })
+        .catch(error => {console.log(error)});
     },
   }
 </script>
 
 <style scoped>
+    .container{
+        padding: unset;
+        margin: unset;
+    }
     .floorSelector{
         min-height: 85px;
     }

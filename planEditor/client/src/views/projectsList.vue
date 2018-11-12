@@ -24,6 +24,7 @@
             <v-card>
                 <v-card-title>
                     <span class="headline">{{dlgTitle}}</span>
+                    {{editedItem}}
                 </v-card-title>
 
                 <v-card-text>
@@ -45,17 +46,21 @@
                                         ></v-select>
                                     </v-flex>
                                     <v-flex xs12>
-                                        <select-folder :iniPath="editedItem.folder" @clicked="setInFolder"></select-folder>
-                                    </v-flex>
-                                    <v-flex xs12>
-                                        <select-folder :iniPath="editedItem.outFolder" @clicked="setOutFolder"></select-folder>
-                                    </v-flex>
-                                    <v-flex xs12>
                                         {{editedItem.location}}
                                     </v-flex>
                                     <v-flex xs12>
                                         <br>
-                                        <span style="color: red"><b>{{lastError}}</b></span>
+                                        <span style="color: red"><b>Upload files</b></span>
+                                    </v-flex>
+                                    <v-flex xs12 v-if="editedItem._id">
+                                        <uploader :options="{chunkSize: 52428800, target: '/upload/project/' + editedItem._id, testChunks: false}" class="uploader-example">
+                                            <uploader-unsupport></uploader-unsupport>
+                                            <uploader-drop>
+                                                <p>Drop files here to upload or</p>
+                                                <uploader-btn :directory="true">select folder</uploader-btn>
+                                            </uploader-drop>
+                                            <uploader-list></uploader-list>
+                                        </uploader>
                                     </v-flex>
                                 </v-layout>
                             </v-flex>
@@ -123,13 +128,22 @@
   import ProjectsService from '@/services/ProjectsService';
   import SelectFolder from '@/components/selectFolder.vue';
   import ActionButtons from '@/components/actionButtons.vue';
+  import UploadDirBlock from '@/components/uploadDirBlock.vue';
 
 
   export default {
     name: "projectsList",
-    components: {SelectFolder, ActionButtons},
+    components: {SelectFolder, ActionButtons, UploadDirBlock},
     data () {
       return {
+        options: {
+          // https://github.com/simple-uploader/Uploader/tree/develop/samples/Node.js
+          target: '/upload/project/',
+          testChunks: false
+        },
+        attrs: {
+          accept: 'image/*'
+        },
         headers: [
           {
             text: 'Title',
@@ -146,10 +160,11 @@
         dlgTitle: '',
         editedIndex: -1,
         editedItem: {
+          id: null,
           title: '',
           address: '',
-          folder: '../',
-          outFolder: '../',
+          folder: 'in',
+          outFolder: 'out',
           template: 'First',
           location: {
             lat: 43.6567919,
@@ -158,10 +173,11 @@
           state: {}
         },
         newItem: {
+          id: null,
           title: '',
           address: '',
-          folder: '../',
-          outFolder: '../',
+          folder: 'in',
+          outFolder: 'out',
           template: 'First',
           location: {
             lat: 43.6567919,
@@ -293,6 +309,7 @@
           .catch(e => {console.log(e)});
       },
       editItem (item) {
+        console.log(item);
         this.resetDlg();
         this.editedIndex = this.rows.indexOf(item);
         this.editedItem = Object.assign({}, item);
@@ -337,5 +354,20 @@
 </script>
 
 <style scoped>
-
+    .uploader-example {
+        width: 880px;
+        padding: 15px;
+        margin: 40px auto 0;
+        font-size: 12px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, .4);
+    }
+    .uploader-example .uploader-btn {
+        margin-right: 4px;
+    }
+    .uploader-example .uploader-list {
+        max-height: 440px;
+        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
 </style>

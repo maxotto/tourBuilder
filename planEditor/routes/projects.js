@@ -61,12 +61,20 @@ router.get('/:id/xml', function(req, res, next) {
       if (project) {
         const tourFileName = Path.resolve(project.folder, 'tour.xml');
         const tourFileTool = new KrPanoFile(tourFileName);
-        tourFileTool.load().then(xml =>{
-          res.send({
-            success: true,
-            xml: xml,
+        tourFileTool.load()
+          .then(xml =>{
+            res.send({
+              success: true,
+              xml: xml,
+            })
           })
-        });
+          .catch(error => {
+            res.send({
+              success: false,
+              message: error.message
+            })
+          }
+        );
       } else {
         res.send({
           success: false,

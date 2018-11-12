@@ -7,6 +7,8 @@ import store from './store'
 import router from './router'
 import axios from 'axios'
 import VueAxios from 'vue-axios'
+import uploader from 'vue-simple-uploader'
+Vue.use(uploader);
 Vue.use(VueAxios, axios);
 Vue.config.productionTip = false;
 Vue.use(VueGoogleMaps, {

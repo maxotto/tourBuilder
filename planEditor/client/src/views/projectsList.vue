@@ -53,7 +53,7 @@
                                         <span style="color: red"><b>Upload files</b></span>
                                     </v-flex>
                                     <v-flex xs12 v-if="editedItem._id">
-                                        <uploader :options="{chunkSize: 52428800, target: '/upload/project/' + editedItem._id, testChunks: false}" class="uploader-example">
+                                        <uploader :options="{chunkSize: 52428800*10, target: '/upload/project/' + editedItem._id, testChunks: false}" class="uploader-example">
                                             <uploader-unsupport></uploader-unsupport>
                                             <uploader-drop>
                                                 <p>Drop files here to upload or</p>
@@ -355,7 +355,7 @@
 
 <style scoped>
     .uploader-example {
-        width: 880px;
+        width: 450px;
         padding: 15px;
         margin: 40px auto 0;
         font-size: 12px;
@@ -365,7 +365,7 @@
         margin-right: 4px;
     }
     .uploader-example .uploader-list {
-        max-height: 440px;
+        max-height: 350px;
         overflow: auto;
         overflow-x: hidden;
         overflow-y: auto;

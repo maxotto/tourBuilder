@@ -4,6 +4,8 @@ const os = require('os');
 var router = express.Router();
 const Projects = require('../models/project-model');
 const Fs = require('fs-extra');
+const unzip = require('unzip');
+const fstream = require('fstream');
 
 router.post('/project/:id', (req, res, next) => {
   const id = req.params.id;
@@ -29,16 +31,17 @@ router.post('/project/:id', (req, res, next) => {
       req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
         // console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
         uploadedFile = file;
-        // console.log(fields);
-        const rPath = fields.relativePath.substr(fields.relativePath.indexOf('/')+1);
-        const parts = Path.parse(rPath);
-        // console.log(parts);
-        const destRoot = 'E:/aaa';
-        const destFolder = Path.join(destRoot, parts.dir);
-        Fs.ensureDir(destFolder)
+        const tmpZip = Path.join(os.tmpdir(), filename);
+        console.log(tmpZip);
+        uploadedFile.pipe(Fs.createWriteStream(tmpZip));
+        const destRoot = 'E:/aaa/in';
+        Fs.ensureDir(destRoot)
           .then(() => {
-            saveTo = Path.join(destRoot, rPath);
-            uploadedFile.pipe(Fs.createWriteStream(saveTo));
+            var readStream = Fs.createReadStream(tmpZip);
+            var writeStream = fstream.Writer(destRoot);
+            readStream
+              .pipe(unzip.Parse())
+              .pipe(writeStream)
             res.send({
               success: true,
               message: 'Uploded'

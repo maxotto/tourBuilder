@@ -25,7 +25,6 @@
               this.updateList();
             },
           iniPath(val){
-            console.log(val);
             this.fullSelectedPath = val;
             this.select = './';
             this.updateList();

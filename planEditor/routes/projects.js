@@ -34,10 +34,17 @@ router.get('/:id', function(req, res, next) {
         message: error.message
       })
     } else {
-      res.send({
-        success: true,
-        project: project
-      })
+      if(project){
+        res.send({
+          success: true,
+          project: project
+        })
+      } else {
+        res.send({
+          success: false,
+          message: 'Project not found by ID.'
+        })
+      }
     }
   });
 
@@ -51,15 +58,21 @@ router.get('/:id/xml', function(req, res, next) {
         message: error.message
       })
     } else {
-      const tourFileName = Path.resolve(project.folder, 'tour.xml');
-      const tourFileTool = new KrPanoFile(tourFileName);
-      tourFileTool.load().then(xml =>{
+      if (project) {
+        const tourFileName = Path.resolve(project.folder, 'tour.xml');
+        const tourFileTool = new KrPanoFile(tourFileName);
+        tourFileTool.load().then(xml =>{
+          res.send({
+            success: true,
+            xml: xml,
+          })
+        });
+      } else {
         res.send({
-          success: true,
-          project: 'XML is here',
-          xml: xml,
+          success: false,
+          message: 'Project not found by ID.'
         })
-      });
+      }
     }
   });
 
@@ -75,7 +88,7 @@ router.post('/:id/xml', function(req, res, next) {
         message: error.message
       })
     } else {
-      const tourFileName = Path.resolve(project.folder, 'tour_saved.xml');
+      const tourFileName = Path.resolve(project.folder, 'tour.xml');
       const tourFileTool = new KrPanoFile(tourFileName);
       tourFileTool.save(tour)
         .then(xml =>{

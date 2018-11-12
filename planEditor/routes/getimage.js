@@ -31,10 +31,17 @@ router.get('/fromtour/:id/scene/thumb/:scene', function(req, res, next) {
         message: error.message
       })
     } else {
-      const imageName = scene.substring(6);
-      const fileName = Path.resolve(project.folder, 'panos/' + imageName + '.tiles/thumb.jpg');
-      console.log(fileName);
-      res.sendFile(fileName);
+      if (project) {
+        const imageName = scene.substring(6);
+        const fileName = Path.resolve(project.folder, 'panos/' + imageName + '.tiles/thumb.jpg');
+        console.log(fileName);
+        res.sendFile(fileName);
+      } else {
+        res.send({
+          success: false,
+          message: error.message
+        })
+      }
     }
   });
 });
@@ -51,10 +58,17 @@ router.get('/fromtemplate/:id/floorselector/:floor/:state', function(req, res, n
         message: error.message
       })
     } else {
-      const templatePath = utils.getImagePathByTemplate(project.template);
-      const fileName = Path.resolve(templatePath, 'ext/tour', floor + 'Floor' + suffix + '.jpg',);
-      console.log(fileName);
-      res.sendFile(fileName);
+      if(project){
+        const templatePath = utils.getImagePathByTemplate(project.template);
+        const fileName = Path.resolve(templatePath, 'ext/tour', floor + 'Floor' + suffix + '.jpg',);
+        console.log(fileName);
+        res.sendFile(fileName);
+      } else {
+        res.send({
+          success: false,
+          message: 'Project not found by ID.'
+        })
+      }
     }
   });
 });

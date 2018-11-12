@@ -21,7 +21,7 @@
         </v-snackbar>
         <h1>Initiate project</h1>
         <span style="color: red;"><b> {{lastError}}</b></span><br>
-        <v-stepper v-model="step" vertical>
+        <v-stepper v-model="step" vertical v-if="project">
             <v-stepper-step :complete="step > 1" step="1">
                 <h3>Select number of floors</h3>
                 and upload appropriate maps` images<br>
@@ -274,7 +274,6 @@
       getProject(){
         ProjectsService.getProject(this.id)
           .then(result => {
-            // console.log(result.data);
             if (result.data.success){
               this.project = result.data.project;
               this.lastError = '';

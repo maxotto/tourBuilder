@@ -286,7 +286,6 @@
       getList(){
         ProjectsService.fetchProjects()
           .then(result => {
-            console.log(result.data);
             if (result.data.success) {
               this.rows = result.data.items;
             }
@@ -299,7 +298,6 @@
         this.editedItem = Object.assign({}, item);
         this.markerLocation = this.editedItem.location;
         this.dlgTitle = 'Edit the project';
-        console.log(this.editedItem);
         this.dialog = true;
       },
 

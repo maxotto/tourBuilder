@@ -6,6 +6,7 @@ const Projects = require('../models/project-model');
 const fs = require('fs-extra');
 const unzip = require('unzipper');
 const fstream = require('fstream');
+const utils = require('../components/utils');
 
 router.post('/project/:id', (req, res, next) => {
   const id = req.params.id;
@@ -28,9 +29,8 @@ router.post('/project/:id', (req, res, next) => {
       req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const tmpZip = Path.join(os.tmpdir(), filename);
         file.pipe(fs.createWriteStream(tmpZip));
-        const config = req.app.get('config');
-        const storageRoot = config.storageRoot;
-        const destRoot = Path.resolve(storageRoot,id,'source');
+        const folders = utils.getFoldersById(id, req.app.get('config'));
+        const destRoot = folders.source;
         fs.ensureDir(destRoot)
           .then(() =>{
             console.log(destRoot, 'exists');
@@ -70,14 +70,15 @@ router.post('/project/:id', (req, res, next) => {
 router.post('/floorImage/:id/:floorNumber', (req, res) => {
   const id = req.params.id;
   const floor = req.params.floorNumber;
-  Projects.findById(req.params.id, (error, project) => {
+  Projects.findById(id, (error, project) => {
     if (error) {
       res.send({
         success: false,
         message: error.message
       })
     } else {
-      const destFolder = Path.resolve(project.folder, 'custom');
+      const folders = utils.getFoldersById(id, req.app.get('config'));
+      const destFolder = Path.resolve(folders.source, 'custom');
       fs.ensureDirSync(destFolder);
       let fstream;
       req.pipe(req.busboy);

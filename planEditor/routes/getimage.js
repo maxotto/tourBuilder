@@ -32,8 +32,9 @@ router.get('/fromtour/:id/scene/thumb/:scene', function(req, res, next) {
       })
     } else {
       if (project) {
+        const folders = utils.getFoldersById(id, req.app.get('config'));
         const imageName = scene.substring(6);
-        const fileName = Path.resolve(project.folder, 'panos/' + imageName + '.tiles/thumb.jpg');
+        const fileName = Path.resolve(folders.source, 'panos/' + imageName + '.tiles/thumb.jpg');
         console.log(fileName);
         res.sendFile(fileName);
       } else {
@@ -95,7 +96,8 @@ router.get('/floormap/:id/:floor', function (req, res, next) {
             .send('Not found');
         } else {
           const f = project.floorSelect[index].image;
-          const fileName = Path.resolve(project.folder, 'custom', f);
+          const folders = utils.getFoldersById(id, req.app.get('config'));
+          const fileName = Path.resolve(folders.source, 'custom', f);
           res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
           res.header('Expires', '-1');
           res.header('Pragma', 'no-cache');

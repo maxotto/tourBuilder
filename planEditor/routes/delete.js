@@ -15,7 +15,8 @@ router.delete('/floorImage/:id/:floorNumber', (req, res) => {
         message: error.message
       })
     } else {
-      const destFolder = Path.resolve(project.folder, 'custom');
+      const folders = utils.getFoldersById(id, req.app.get('config'));
+      const destFolder = Path.resolve(folders.source, 'custom');
       const index = project.floorSelect.findIndex((element, index, array) => {
         return (element.floor === floor);
       });

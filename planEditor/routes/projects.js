@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 const KrPanoFile = require('../components/krPanoTools');
 const Projects = require('../models/project-model');
+const utils = require('../components/utils');
 
 router.delete('/:id', function(req, res, next) {
   Projects.remove({_id: req.params.id}, err => {
@@ -59,7 +60,8 @@ router.get('/:id/xml', function(req, res, next) {
       })
     } else {
       if (project) {
-        const tourFileName = Path.resolve(project.folder, 'tour.xml');
+        const folders = utils.getFoldersById(req.params.id, req.app.get('config'));
+        const tourFileName = Path.resolve(folders.source, 'tour.xml');
         const tourFileTool = new KrPanoFile(tourFileName);
         tourFileTool.load()
           .then(xml =>{
@@ -96,7 +98,8 @@ router.post('/:id/xml', function(req, res, next) {
         message: error.message
       })
     } else {
-      const tourFileName = Path.resolve(project.folder, 'tour.xml');
+      const folders = utils.getFoldersById(req.params.id, req.app.get('config'));
+      const tourFileName = Path.resolve(folders.source, 'tour.xml');
       const tourFileTool = new KrPanoFile(tourFileName);
       tourFileTool.save(tour)
         .then(xml =>{

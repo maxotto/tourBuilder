@@ -167,8 +167,8 @@
           id: null,
           title: '',
           address: '',
-          folder: 'in',
-          outFolder: 'out',
+          folder: 'source',
+          outFolder: 'destination',
           template: 'First',
           location: {
             lat: 43.6567919,
@@ -180,8 +180,8 @@
           id: null,
           title: '',
           address: '',
-          folder: 'in',
-          outFolder: 'out',
+          folder: 'source',
+          outFolder: 'destination',
           template: 'First',
           location: {
             lat: 43.6567919,

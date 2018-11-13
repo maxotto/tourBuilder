@@ -1,18 +1,16 @@
 const Path = require('path');
-var express = require('express');
+const express = require('express');
 const os = require('os');
-var router = express.Router();
+const router = express.Router();
 const Projects = require('../models/project-model');
-const Fs = require('fs-extra');
-const unzip = require('unzip');
+const fs = require('fs-extra');
+const unzip = require('unzipper');
 const fstream = require('fstream');
 
 router.post('/project/:id', (req, res, next) => {
   const id = req.params.id;
-  let uploadedFile;
-  let saveTo;
   const fields = {};
-  Projects.findById(req.params.id, (error, project) => {
+  Projects.findById(id, (error, project) => {
     if (error) {
       res.send({
         success: false,
@@ -25,52 +23,46 @@ router.post('/project/:id', (req, res, next) => {
       })
     } else {
       req.busboy.on('field', (fieldname, value) => {
-        // console.log(fieldname,'=', value);
         fields[fieldname] = value;
       });
-      req.busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-        // console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
-        uploadedFile = file;
+      req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const tmpZip = Path.join(os.tmpdir(), filename);
-        console.log(tmpZip);
-        uploadedFile.pipe(Fs.createWriteStream(tmpZip));
-        const destRoot = 'E:/aaa/in';
-        Fs.ensureDir(destRoot)
-          .then(() => {
-            var readStream = Fs.createReadStream(tmpZip);
-            var writeStream = fstream.Writer(destRoot);
-            readStream
-              .pipe(unzip.Parse())
-              .pipe(writeStream)
-            res.send({
-              success: true,
-              message: 'Uploded'
-            })
-          })
-          .catch(err => {
-            console.error(err);
-            res.send({
-              success: false,
-              message: err.message
-            })
-
-          });
+        file.pipe(fs.createWriteStream(tmpZip));
+        const config = req.app.get('config');
+        const storageRoot = config.storageRoot;
+        const destRoot = Path.resolve(storageRoot,id,'source');
+        fs.ensureDir(destRoot)
+          .then(() =>{
+            console.log(destRoot, 'exists');
+            return fs.emptyDir(destRoot)
+          }
+        ).then(()=>{
+          console.log(destRoot, 'is empty');
+          return fs.createReadStream(tmpZip)
+            .pipe(unzip.Extract({ path: destRoot })
+              .on('entry', (entry) => {
+                // console.log(entry.path);
+              })
+              .on('error', err => console.error('error', err))
+              .on('finish', () => {
+                console.log('Unzip finished');
+                res.send({
+                  success: true,
+                  message: 'Uploded'
+                });
+                fs.removeSync(tmpZip);
+                console.log(tmpZip, 'deleted');
+              })
+              .on('close', () => {
+                // console.log('close')
+              })
+            );
+        });
+      });
+      req.busboy.on('finish', () => {
+        // console.log('busboy on finish');
       });
       req.pipe(req.busboy);
-      /*
-      req.pipe(req.busboy);
-      req.busboy.on('file', function (fieldname, file, filename) {
-        console.log({fieldname});
-        console.log({file});
-        console.log({filename});
-      });
-      req.busboy.on('finish', function() {
-        console.log('Upload complete');
-        res.writeHead(200, { 'Connection': 'close' });
-        res.end("That's all folks!");
-      });
-      return req.pipe(req.busboy);
-      */
     }
   });
 });
@@ -86,13 +78,13 @@ router.post('/floorImage/:id/:floorNumber', (req, res) => {
       })
     } else {
       const destFolder = Path.resolve(project.folder, 'custom');
-      Fs.ensureDirSync(destFolder);
+      fs.ensureDirSync(destFolder);
       let fstream;
       req.pipe(req.busboy);
       req.busboy.on('file', function (fieldname, file, filename) {
         const parts = Path.parse(filename);
         const newFileName = 'floorMap' + floor + parts.ext;
-        fstream = Fs.createWriteStream(Path.resolve(destFolder,newFileName));
+        fstream = fs.createWriteStream(Path.resolve(destFolder,newFileName));
         file.pipe(fstream);
         fstream.on('close', function () {
           if(!project.floorSelect) {

@@ -20,7 +20,8 @@
     "ignore": [
       "planEditor/public/*.*",
       "planEditor/public/js/*.*",
-      "planEditor/public/css/*.*"
+      "planEditor/public/css/*.*",
+      "planEditor/storage/*.*"
     ],
     "ext": "js,html,css,vue,json",
     "exec": "node planBuilderDev.js"

@@ -52,12 +52,17 @@
                                         <br>
                                         <span style="color: red"><b>Upload files</b></span>
                                     </v-flex>
-                                    <v-flex xs12 v-if="editedItem._id">
-                                        <uploader :options="{chunkSize: 52428800*10, target: '/upload/project/' + editedItem._id, testChunks: false}" class="uploader-example">
+                                    <v-flex xs12 v-show="editedItem._id">
+                                        <uploader
+                                                ref="uploader"
+                                                :options="options"
+                                                class="uploader-example"
+                                                @complete="uploaded"
+                                        >
                                             <uploader-unsupport></uploader-unsupport>
                                             <uploader-drop>
                                                 <p>Drop files here to upload or</p>
-                                                <uploader-btn :directory="true">select folder</uploader-btn>
+                                                <uploader-btn :attrs="attrs">select files</uploader-btn>
                                             </uploader-drop>
                                             <uploader-list></uploader-list>
                                         </uploader>
@@ -128,21 +133,20 @@
   import ProjectsService from '@/services/ProjectsService';
   import SelectFolder from '@/components/selectFolder.vue';
   import ActionButtons from '@/components/actionButtons.vue';
-  import UploadDirBlock from '@/components/uploadDirBlock.vue';
-
 
   export default {
     name: "projectsList",
-    components: {SelectFolder, ActionButtons, UploadDirBlock},
+    components: {SelectFolder, ActionButtons},
     data () {
       return {
+        uploader: undefined,
         options: {
-          // https://github.com/simple-uploader/Uploader/tree/develop/samples/Node.js
-          target: '/upload/project/',
+          chunkSize: 52428800*10,
+          target: this.getTarget,
           testChunks: false
         },
         attrs: {
-          accept: 'image/*'
+          accept: 'application/zip'
         },
         headers: [
           {
@@ -217,6 +221,16 @@
       }
     },
     methods: {
+      getTarget(){
+        return '/upload/project/' + this.editedItem._id
+      },
+
+      uploaded(result){
+        console.log({result});
+        this.snackbar.text = "File uploaded and unzipped!";
+        this.snackbar.visible = true;
+      },
+
       createProject (data) {
         ProjectsService.addProject({
           title: data.title,
@@ -298,6 +312,7 @@
         this.editedItem = Object.assign({}, this.newItem);
         this.markerLocation = this.newItem.location;
         this.editedIndex = -1;
+        this.uploader.cancel();
       },
       getList(){
         ProjectsService.fetchProjects()
@@ -313,6 +328,7 @@
         this.resetDlg();
         this.editedIndex = this.rows.indexOf(item);
         this.editedItem = Object.assign({}, item);
+        this.options.target = '/upload/project/'+this.editedItem._id;
         this.markerLocation = this.editedItem.location;
         this.dlgTitle = 'Edit the project';
         this.dialog = true;
@@ -348,6 +364,9 @@
       },
     },
     mounted(){
+      this.$nextTick(() => {
+      this.uploader = this.$refs.uploader.uploader;
+      });
       this.getList();
     }
   }

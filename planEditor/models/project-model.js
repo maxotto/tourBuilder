@@ -61,7 +61,10 @@ const ProjectSchema = new Schema({
   },
   floorSelect:{
     type: Array
-  }
+  },
+  tour: {
+    type: String
+  },
 
 });
 

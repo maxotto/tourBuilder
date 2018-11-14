@@ -58,6 +58,8 @@ router.post('/project/:id', (req, res, next) => {
                     project.state = tourFileTool.getState(project);
                     project.markModified('state.floors');
                     project.markModified('state.hotspots');
+                    project.tour = JSON.stringify(xml);
+                    project.markModified('tour');
                     project.save((error, p) => {
                       if(!error){
                         res.send({

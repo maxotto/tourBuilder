@@ -169,7 +169,8 @@
             lat: 43.6567919,
             lng: -79.6010328,
           },
-          state: {}
+          state: {},
+          tour: "{}"
         },
         newItem: {
           id: null,
@@ -180,6 +181,8 @@
             lat: 43.6567919,
             lng: -79.6010328,
           },
+          state: {},
+          tour: "{}"
         },
         template: 'First',
         templatesList: [
@@ -219,7 +222,6 @@
       },
 
       uploaded(result){
-        console.log({result});
         this.snackbar.text = "File uploaded and unzipped!";
         this.snackbar.visible = true;
       },
@@ -228,8 +230,6 @@
         ProjectsService.addProject({
           title: data.title,
           address: data.address,
-          folder: data.folder,
-          outFolder: data.outFolder,
           template: data.template,
           location: data.location,
           state: {
@@ -241,7 +241,8 @@
             built: false,
             lookatValue: false,
             planHotspots: false,
-          }
+          },
+          tour: "{}"
         })
           .then(result => {
             if (!result.data.success){

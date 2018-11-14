@@ -143,6 +143,7 @@ router.post('/create', (req, res) => {
     template: req.body.template,
     location: req.body.location,
     state: req.body.state,
+    tour: req.body.tour,
   });
 
   new_project.save(function (error, data) {
@@ -173,6 +174,7 @@ router.put('/:id', (req, res, next) => {
       project.template = req.body.template;
       project.location = req.body.location;
       project.state = req.body.state;
+      project.tour = req.body.tour;
       project.save(error => {
         if (error) {
           res.send({

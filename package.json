@@ -21,7 +21,9 @@
       "planEditor/public/*.*",
       "planEditor/public/js/*.*",
       "planEditor/public/css/*.*",
-      "planEditor/storage/*.*"
+      "planEditor/storage/*.*",
+      "planEditor/node_modules/*.*",
+      "planEditor/client/node_modules/*.*"
     ],
     "ext": "js,html,css,vue,json",
     "exec": "node planBuilderDev.js"

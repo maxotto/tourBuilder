@@ -20,7 +20,6 @@
             </v-btn>
         </v-snackbar>
         <h1>Initiate project</h1>
-        {{project.state}}
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical v-if="project">
             <v-stepper-step :complete="step > 1" step="1">
@@ -278,6 +277,8 @@
           .then(result => {
             if (result.data.success){
               this.project = result.data.project;
+              this.tour = JSON.parse(result.data.project.tour);
+              this.composeScenesForEditor();
               this.lastError = '';
               this.updateFloorMaps();
             } else {
@@ -345,7 +346,7 @@
             .then(res => {
               if(res.data.success){
                 this.getProject();
-                this.loadXml();
+                // this.loadXml();
               } else {
                 // console.log(res);
               }
@@ -400,7 +401,7 @@
     mounted(){
       this.id = this.$route.params.id;
       this.getProject();
-      this.loadXml();
+      // this.loadXml();
     },
   }
 </script>

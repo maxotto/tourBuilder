@@ -102,8 +102,6 @@
             <template slot="items" slot-scope="props">
                 <tr>
                     <td class="text-xs-center">{{ props.item.title }}</td>
-                    <td class="text-xs-center">{{ props.item.folder }}</td>
-                    <td class="text-xs-center">{{ props.item.outFolder }}</td>
                     <td class="text-xs-center">{{ props.item.address }}</td>
                     <td class="text-xs-center">{{ props.item.template }}</td>
                     <td class="justify-center layout px-0">
@@ -151,13 +149,12 @@
         headers: [
           {
             text: 'Title',
-            value: 'title'
+            value: 'title',
+            align: 'center'
           },
-          { text: 'In Folder', value: 'folder' },
-          { text: 'Out Folder', value: 'outFolder' },
-          { text: 'Address', value: 'address' },
-          { text: 'Template', value: 'template' },
-          { text: 'Actions', value: '_id', sortable: false},
+          { text: 'Address', value: 'address', align: 'center' },
+          { text: 'Template', value: 'template', align: 'center' },
+          { text: 'Actions', value: '_id', sortable: false, align: 'center'},
         ],
         rows: [],
         dialog: false,
@@ -167,8 +164,6 @@
           id: null,
           title: '',
           address: '',
-          folder: 'source',
-          outFolder: 'destination',
           template: 'First',
           location: {
             lat: 43.6567919,
@@ -180,8 +175,6 @@
           id: null,
           title: '',
           address: '',
-          folder: 'source',
-          outFolder: 'destination',
           template: 'First',
           location: {
             lat: 43.6567919,

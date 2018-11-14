@@ -20,6 +20,7 @@
             </v-btn>
         </v-snackbar>
         <h1>Initiate project</h1>
+        {{project.state}}
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical v-if="project">
             <v-stepper-step :complete="step > 1" step="1">

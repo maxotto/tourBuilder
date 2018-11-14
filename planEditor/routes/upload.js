@@ -8,6 +8,10 @@ const unzip = require('unzipper');
 const fstream = require('fstream');
 const utils = require('../components/utils');
 
+
+/**
+ * Uploads project ZIP, unzips it in project's SOURCE folder
+ */
 router.post('/project/:id', (req, res, next) => {
   const id = req.params.id;
   const fields = {};
@@ -67,6 +71,10 @@ router.post('/project/:id', (req, res, next) => {
   });
 });
 
+
+/**
+ * Uploads floor's image, update project record to set new floor details
+ */
 router.post('/floorImage/:id/:floorNumber', (req, res) => {
   const id = req.params.id;
   const floor = req.params.floorNumber;
@@ -103,8 +111,11 @@ router.post('/floorImage/:id/:floorNumber', (req, res) => {
             );
           } else {
             project.floorSelect[index].image = newFileName;
-            project.markModified('floorSelect');
           }
+          project.state.floorsImages = true;
+          project.markModified('floorSelect');
+          project.markModified('state.floorsImages');
+
           project.save((error, p) => {
             if(!error){
               res.send({

@@ -31,6 +31,10 @@ router.delete('/floorImage/:id/:floorNumber', (req, res) => {
           .then(result => {
             project.floorSelect.splice(index,1);
             project.markModified('floorSelect');
+            if(project.floorSelect.length === 0){
+              project.state.floorsImages = false;
+              project.markModified('state.floorsImages');
+            }
             project.save((error, p) => {
               if(!error){
                 res.send({

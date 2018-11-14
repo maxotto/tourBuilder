@@ -11,14 +11,6 @@ const ProjectSchema = new Schema({
     type: String,
     required: true,
   },
-  folder: {
-    type: String,
-    required: true,
-  },
-  outFolder: {
-    type: String,
-    required: true,
-  },
   template: {
     type: String,
     required: true,
@@ -72,17 +64,6 @@ const ProjectSchema = new Schema({
   }
 
 });
-
-ProjectSchema.index({template: 1, outFolder: 1}, {unique: true});
-
-ProjectSchema.pre('validate', function (next) {
-  if (this.folder === this.outFolder) {
-    this.invalidate('Folder', 'In and Out folders must be different');
-  }
-  next();
-});
-
-
 
 const ProjectModel = mongoose.model('projects', ProjectSchema);
 

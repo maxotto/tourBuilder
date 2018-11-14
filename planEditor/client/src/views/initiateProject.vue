@@ -230,6 +230,7 @@
         ProjectsService.saveProjectXml(this.id, this.tour)
           .then(response => {
             console.log(response.data);
+            this.getProject();
           });
       },
       updateScenes(){
@@ -344,6 +345,7 @@
             .then(res => {
               if(res.data.success){
                 this.getProject();
+                this.loadXml();
               } else {
                 // console.log(res);
               }
@@ -368,6 +370,16 @@
           this.updateScenesFloors();
         }
       },
+      loadXml(){
+        ProjectsService.getProjectXml(this.id)
+          .then(result => {
+            if(result.data.success){
+              this.tour = result.data.xml;
+              this.composeScenesForEditor();
+            }
+          })
+          .catch(error => {console.log(error)});
+      }
     },
     watch: {
       id(val){
@@ -388,14 +400,7 @@
     mounted(){
       this.id = this.$route.params.id;
       this.getProject();
-      ProjectsService.getProjectXml(this.id)
-        .then(result => {
-          if(result.data.success){
-            this.tour = result.data.xml;
-            this.composeScenesForEditor();
-          }
-        })
-        .catch(error => {console.log(error)});
+      this.loadXml();
     },
   }
 </script>

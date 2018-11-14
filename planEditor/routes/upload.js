@@ -7,7 +7,7 @@ const fs = require('fs-extra');
 const unzip = require('unzipper');
 const fstream = require('fstream');
 const utils = require('../components/utils');
-
+const KrPanoFile = require('../components/krPanoTools');
 
 /**
  * Uploads project ZIP, unzips it in project's SOURCE folder
@@ -31,7 +31,7 @@ router.post('/project/:id', (req, res, next) => {
         fields[fieldname] = value;
       });
       req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        const tmpZip = Path.join(os.tmpdir(), filename);
+        const tmpZip = Path.join(os.tmpdir(), 'id_'+id+'.zip');
         file.pipe(fs.createWriteStream(tmpZip));
         const folders = utils.getFoldersById(id, req.app.get('config'));
         const destRoot = folders.source;
@@ -50,12 +50,37 @@ router.post('/project/:id', (req, res, next) => {
               .on('error', err => console.error('error', err))
               .on('finish', () => {
                 console.log('Unzip finished');
-                res.send({
-                  success: true,
-                  message: 'Uploded'
-                });
-                fs.removeSync(tmpZip);
-                console.log(tmpZip, 'deleted');
+                const folders = utils.getFoldersById(id, req.app.get('config'));
+                const tourFileName = Path.resolve(folders.source, 'tour.xml');
+                const tourFileTool = new KrPanoFile(tourFileName);
+                return tourFileTool.load()
+                  .then(xml =>{
+                    project.state = tourFileTool.getState(project);
+                    project.markModified('state.floors');
+                    project.markModified('state.hotspots');
+                    project.save((error, p) => {
+                      if(!error){
+                        res.send({
+                          success: true,
+                          message: 'Uploaded'
+                        })
+                      } else {
+                        res.send({
+                          success: false,
+                          message: error.message
+                        })
+                      }
+                    });
+                    fs.removeSync(tmpZip);
+                    console.log(tmpZip, 'deleted');
+                  })
+                  .catch(error => {
+                      res.send({
+                        success: false,
+                        message: error.message
+                      })
+                    }
+                  );
               })
               .on('close', () => {
                 // console.log('close')

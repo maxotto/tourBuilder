@@ -10,6 +10,7 @@ router.delete('/:id', function(req, res, next) {
     if (err) {
       res.sendStatus(500)
     } else {
+      // todo delete folder too
       res.sendStatus(200)
     }
   });
@@ -103,10 +104,24 @@ router.post('/:id/xml', function(req, res, next) {
       const tourFileTool = new KrPanoFile(tourFileName);
       tourFileTool.save(tour)
         .then(xml =>{
-          res.send({
-            success: true,
-            message: 'Saved'
-          })
+          const newState = tourFileTool.getState(project);
+          console.log(newState);
+          project.state = newState;
+          project.markModified('state.floors');
+          project.markModified('state.hotspots');
+          project.save((error, p) => {
+            if(!error){
+              res.send({
+                success: true,
+                message: 'Saved'
+              })
+            } else {
+              res.send({
+                success: false,
+                message: error.message
+              })
+            }
+          });
       })
         .catch(error => {
           res.send({
@@ -125,8 +140,6 @@ router.post('/create', (req, res) => {
   var new_project = new Projects({
     title: req.body.title,
     address: req.body.address,
-    folder: req.body.folder,
-    outFolder: req.body.outFolder,
     template: req.body.template,
     location: req.body.location,
     state: req.body.state,
@@ -157,8 +170,6 @@ router.put('/:id', (req, res, next) => {
     } else {
       project.title = req.body.title;
       project.address = req.body.address;
-      project.folder = req.body.folder;
-      project.outFolder = req.body.outFolder;
       project.template = req.body.template;
       project.location = req.body.location;
       project.state = req.body.state;

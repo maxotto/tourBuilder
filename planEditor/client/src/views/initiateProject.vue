@@ -20,6 +20,7 @@
             </v-btn>
         </v-snackbar>
         <h1>Initiate project</h1>
+        <template v-if="project">{{project.state}}</template>
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical v-if="project">
             <v-stepper-step :complete="step > 1" step="1">
@@ -226,11 +227,8 @@
       saveTour(){
         this.step2Changed = false;
         this.updateScenes();
-        ProjectsService.saveProjectXml(this.id, this.tour)
-          .then(response => {
-            console.log(response.data);
-            this.getProject();
-          });
+        this.project.tour = JSON.stringify(this.tour);
+        this.saveProject();
       },
       updateScenes(){
         this.scenesData.forEach((scene, i) => {
@@ -239,6 +237,7 @@
         });
       },
       updateScenesFloors(){
+
         this.scenesData.forEach((scene, i) => {
           const found = this.floorSelect.findIndex((fs) => {
             return fs.value == scene.floor;
@@ -272,15 +271,38 @@
         // console.log('Uploaded', floorNumber);
         this.getProject();
       },
+      saveProject(){
+        ProjectsService.updateProject({
+          title: this.project.title,
+          address: this.project.address,
+          folder: this.project.folder,
+          outFolder: this.project.outFolder,
+          template: this.project.template,
+          location: this.project.location,
+          id: this.project._id,
+          state: this.project.state,
+          tour: this.project.tour,
+        })
+          .then(result => {
+            if (!result.data.success){
+              this.snackbar.text = result.data.message;
+              this.lastError = result.data.message;
+              this.snackbar.visible = true;
+            } else {
+              this.getProject();
+            }
+          })
+          .catch(err => {console.log(err)});
+      },
       getProject(){
         ProjectsService.getProject(this.id)
           .then(result => {
             if (result.data.success){
               this.project = result.data.project;
               this.tour = JSON.parse(result.data.project.tour);
+              this.updateFloorMaps();
               this.composeScenesForEditor();
               this.lastError = '';
-              this.updateFloorMaps();
             } else {
               this.project = null;
               this.lastError = result.data.message;
@@ -346,7 +368,6 @@
             .then(res => {
               if(res.data.success){
                 this.getProject();
-                // this.loadXml();
               } else {
                 // console.log(res);
               }
@@ -371,16 +392,6 @@
           this.updateScenesFloors();
         }
       },
-      loadXml(){
-        ProjectsService.getProjectXml(this.id)
-          .then(result => {
-            if(result.data.success){
-              this.tour = result.data.xml;
-              this.composeScenesForEditor();
-            }
-          })
-          .catch(error => {console.log(error)});
-      }
     },
     watch: {
       id(val){
@@ -401,7 +412,6 @@
     mounted(){
       this.id = this.$route.params.id;
       this.getProject();
-      // this.loadXml();
     },
   }
 </script>

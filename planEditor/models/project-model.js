@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const commonLib = require('../common/common-lib');
 
 const ProjectSchema = new Schema({
   title: {
@@ -66,6 +67,12 @@ const ProjectSchema = new Schema({
     type: String
   },
 
+});
+
+ProjectSchema.pre('save', function(next) {
+  this.state = commonLib.calcState(this);
+  this.markModified('state.floors');
+  next();
 });
 
 const ProjectModel = mongoose.model('projects', ProjectSchema);

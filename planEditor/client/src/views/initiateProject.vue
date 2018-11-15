@@ -154,7 +154,6 @@
 <script>
   import ProjectsService from '@/services/ProjectsService';
   import UploadBlock from '@/components/uploadBlock'
-  import axios from "axios";
 
   export default {
     name: "initiateProject",

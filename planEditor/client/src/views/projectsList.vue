@@ -24,7 +24,7 @@
             <v-card>
                 <v-card-title>
                     <span class="headline">{{dlgTitle}}</span>
-                    {{editedItem}}
+                    {{editedItem.state}}
                 </v-card-title>
 
                 <v-card-text>

@@ -90,6 +90,11 @@ router.get('/:id/xml', function(req, res, next) {
 } );
 
 router.post('/:id/xml', function(req, res, next) {
+  res.send({
+    success: false,
+    message: 'Deprecated call'
+  });
+  return;
   const id = req.params.id;
   const tour = req.body;
   Projects.findById(id, (error, project) => {

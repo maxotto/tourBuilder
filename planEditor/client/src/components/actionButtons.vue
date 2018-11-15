@@ -39,10 +39,12 @@
     wathch:{
       id(val){
           this.setiniURL();
+          this.setAllowByState(this.state);
       }
     },
     mounted(){
       this.setiniURL();
+      this.setAllowByState(this.state);
     },
   }
 </script>

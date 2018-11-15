@@ -8,6 +8,7 @@ const unzip = require('unzipper');
 const fstream = require('fstream');
 const utils = require('../components/utils');
 const KrPanoFile = require('../components/krPanoTools');
+const commonLib = require('../common/common-lib');
 
 /**
  * Uploads project ZIP, unzips it in project's SOURCE folder
@@ -45,7 +46,7 @@ router.post('/project/:id', (req, res, next) => {
           return fs.createReadStream(tmpZip)
             .pipe(unzip.Extract({ path: destRoot })
               .on('entry', (entry) => {
-                // console.log(entry.path);
+                console.log(entry.path);
               })
               .on('error', err => console.error('error', err))
               .on('finish', () => {
@@ -55,9 +56,6 @@ router.post('/project/:id', (req, res, next) => {
                 const tourFileTool = new KrPanoFile(tourFileName);
                 return tourFileTool.load()
                   .then(xml =>{
-                    project.state = tourFileTool.getState(project);
-                    project.markModified('state.floors');
-                    project.markModified('state.hotspots');
                     project.tour = JSON.stringify(xml);
                     project.markModified('tour');
                     project.save((error, p) => {
@@ -80,7 +78,8 @@ router.post('/project/:id', (req, res, next) => {
                       res.send({
                         success: false,
                         message: error.message
-                      })
+                      });
+                      console.log(error);
                     }
                   );
               })
@@ -88,7 +87,10 @@ router.post('/project/:id', (req, res, next) => {
                 // console.log('close')
               })
             );
-        });
+        }).catch( error => {
+            console.log(error);
+          }
+        );
       });
       req.busboy.on('finish', () => {
         // console.log('busboy on finish');
@@ -140,9 +142,9 @@ router.post('/floorImage/:id/:floorNumber', (req, res) => {
             project.floorSelect[index].image = newFileName;
           }
           project.state.floorsImages = true;
+          project.state = commonLib.calcState(project);
           project.markModified('floorSelect');
           project.markModified('state.floorsImages');
-
           project.save((error, p) => {
             if(!error){
               res.send({

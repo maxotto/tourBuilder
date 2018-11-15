@@ -5,6 +5,7 @@ const utils = require('../components/utils');
 const Projects = require('../models/project-model');
 const Fs = require('fs-extra');
 const KrPanoFile = require('../components/krPanoTools');
+const commonLib = require('../common/common-lib');
 
 router.delete('/floorImage/:id/:floorNumber', (req, res) => {
   const id = req.params.id;
@@ -17,8 +18,6 @@ router.delete('/floorImage/:id/:floorNumber', (req, res) => {
       })
     } else {
       const folders = utils.getFoldersById(id, req.app.get('config'));
-      const tourFileName = Path.resolve(folders.source, 'tour.xml');
-      const tourFileTool = new KrPanoFile(tourFileName);
       const destFolder = Path.resolve(folders.source, 'custom');
       const index = project.floorSelect.findIndex((element, index, array) => {
         return (element.floor === floor);
@@ -32,11 +31,6 @@ router.delete('/floorImage/:id/:floorNumber', (req, res) => {
         const fileToDel = Path.resolve(destFolder, project.floorSelect[index].image) ;
         Fs.unlink(fileToDel)
           .then(() => {
-            return tourFileTool.load();
-          })
-          .then(xml => {
-            // TODO delete must turn off state.floors if it touched floors that set already
-            project.state = tourFileTool.getState(project);
             project.markModified('state.floors');
             project.markModified('state.hotspots');
             project.floorSelect.splice(index,1);

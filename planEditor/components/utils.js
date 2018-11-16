@@ -1,5 +1,4 @@
 const Path = require('path');
-const app = require('../app');
 
 exports.getImagePathByTemplate = function(template){
   if(template === 'First'){
@@ -9,6 +8,7 @@ exports.getImagePathByTemplate = function(template){
 };
 exports.getFoldersById = function(id, config){
   return {
+    root: Path.resolve(config.storageRoot, id),
     source: Path.resolve(config.storageRoot, id, 'source'),
     final: Path.resolve(config.storageRoot, id, 'final'),
   };

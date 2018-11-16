@@ -8,20 +8,21 @@ exports.calcState = function(project){
   let hasHotspot = [];
   const floors = project.floorSelect.map(x => x.floor);
   const xml = JSON.parse(project.tour);
-  xml.scene.forEach(scene => {
-    if (!(scene['$'].floor && floors.indexOf(scene['$'].floor) >= 0)) {
-      floorsAreSet = false;
-    }
-
-    // check2 - every floor must have one hotspot on scene
-    if ((scene['$'].hotspot && scene['$'].hotspot === 'true' )) {
-      if (hasHotspot.indexOf(scene['$'].floor) === -1){
-        hasHotspot.push(scene['$'].floor);
+  if (xml.scene) {
+    xml.scene.forEach(scene => {
+      if (!(scene['$'].floor && floors.indexOf(scene['$'].floor) >= 0)) {
+        floorsAreSet = false;
       }
-    }
-  });
-  newState.hotspots = (floors.length === hasHotspot.length);
-  newState.floors = floorsAreSet;
 
+      // check2 - every floor must have one hotspot on scene
+      if ((scene['$'].hotspot && scene['$'].hotspot === 'true' )) {
+        if (hasHotspot.indexOf(scene['$'].floor) === -1){
+          hasHotspot.push(scene['$'].floor);
+        }
+      }
+    });
+    newState.hotspots = (floors.length === hasHotspot.length);
+    newState.floors = floorsAreSet;
+  }
   return newState;
 };

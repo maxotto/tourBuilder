@@ -27,5 +27,9 @@ export default {
 
   deleteProject (id) {
     return axios.delete('projects/' + id)
+  },
+
+  buildProject (id) {
+    return axios.get('projects/build/' + id)
   }
 }

@@ -45,6 +45,21 @@
                                                 v-model="editedItem.template"
                                         ></v-select>
                                     </v-flex>
+                                    <v-flex xs6>
+                                        <v-checkbox
+                                                :label="`Show map button`"
+                                                v-model="editedItem.showMap"
+                                        ></v-checkbox>
+                                    </v-flex>
+                                    <v-flex xs6>
+                                        <v-checkbox
+                                                :label="`Use custom map`"
+                                                v-model="editedItem.useCustomMap"
+                                        ></v-checkbox>
+                                    </v-flex>
+                                    <v-flex xs12>
+                                        <v-text-field v-model="editedItem.loadingtext" label="Loading text"></v-text-field>
+                                    </v-flex>
                                     <v-flex xs12>
                                         {{editedItem.location}}
                                     </v-flex>
@@ -165,6 +180,13 @@
           title: '',
           address: '',
           template: 'First',
+          showMap: true,
+          useCustomMap: true,
+          language: 'en',
+          loadingtext: '',
+          googleMapUnits: 'imperial',
+          useFixedZoom: true,
+          iniZoom: 17,
           location: {
             lat: 43.6567919,
             lng: -79.6010328,
@@ -177,6 +199,13 @@
           title: '',
           address: '',
           template: 'First',
+          showMap: true,
+          useCustomMap: true,
+          language: 'en',
+          loadingtext: '',
+          googleMapUnits: 'imperial',
+          useFixedZoom: true,
+          iniZoom: 17,
           location: {
             lat: 43.6567919,
             lng: -79.6010328,
@@ -232,6 +261,13 @@
           address: data.address,
           template: data.template,
           location: data.location,
+          showMap: data.showMap,
+          useCustomMap: data.useCustomMap,
+          language: data.language,
+          loadingtext: data.loadingtext,
+          googleMapUnits: data.googleMapUnits,
+          useFixedZoom: data.useFixedZoom,
+          iniZoom: data.iniZoom,
           state: {
             floors: false,
             floorsImages: false,
@@ -267,7 +303,15 @@
               template: data.template,
               location: data.location,
               id: data._id,
+              showMap: data.showMap,
+              useCustomMap: data.useCustomMap,
+              language: data.language,
+              loadingtext: data.loadingtext,
+              googleMapUnits: data.googleMapUnits,
+              useFixedZoom: data.useFixedZoom,
+              iniZoom: data.iniZoom,
               state: data.state,
+              tour: data.tour,
             }
         )
           .then(result => {
@@ -362,6 +406,9 @@
       this.uploader = this.$refs.uploader.uploader;
       });
       this.getList();
+      this.$socket.on('unzip', function (data) {
+        console.log(data);
+      });
     }
   }
 </script>

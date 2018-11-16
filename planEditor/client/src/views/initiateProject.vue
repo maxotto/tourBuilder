@@ -20,7 +20,6 @@
             </v-btn>
         </v-snackbar>
         <h1>Initiate project</h1>
-        <v-btn small color="success" @click="clickButton">Test</v-btn>
         <template v-if="project">{{project.state}}</template>
         <span style="color: red;"><b> {{lastError}}</b></span><br>
         <v-stepper v-model="step" vertical v-if="project">
@@ -224,11 +223,6 @@
       }
     },
     methods: {
-      clickButton: function(val){
-        // $socket is socket.io-client instance
-        console.log(this.$socket);
-        this.$socket.emit('chat message', 'Проба');
-      },
       saveTour(){
         this.step2Changed = false;
         this.updateScenes();

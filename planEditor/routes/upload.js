@@ -47,6 +47,8 @@ router.post('/project/:id', (req, res, next) => {
             .pipe(unzip.Extract({ path: destRoot })
               .on('entry', (entry) => {
                 console.log(entry.path);
+                const socket = req.app.get('socket');
+                socket.emit('unzip', { file: entry.path });
               })
               .on('error', err => console.error('error', err))
               .on('finish', () => {
@@ -62,7 +64,8 @@ router.post('/project/:id', (req, res, next) => {
                       if(!error){
                         res.send({
                           success: true,
-                          message: 'Uploaded'
+                          message: 'Uploaded',
+                          project: p
                         })
                       } else {
                         res.send({

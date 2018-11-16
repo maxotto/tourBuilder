@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-btn small color="success" :disabled="!ini" :to="iniURL">Initiate</v-btn>
-        <v-btn small color="success" :disabled="!build">Build</v-btn>
+        <v-btn small color="success" :disabled="!build" :to="buildURL">Build</v-btn>
         <v-btn small color="success" :disabled="!plan">Set plan</v-btn>
         <v-btn small color="success" :disabled="!lookat">Set look at</v-btn>
     </div>
@@ -18,11 +18,15 @@
         plan: false,
         lookat: false,
         iniURL: '',
+        'buildURL': '',
       }
     },
     methods: {
       setiniURL(){
         this.iniURL = "/projects/ini/" + this.id;
+      },
+      setBuildURL(){
+        this.buildURL = "/projects/build/" + this.id;
       },
       setAllowByState(state){
         this.build =
@@ -39,11 +43,13 @@
     wathch:{
       id(val){
           this.setiniURL();
+          this.setBuildURL();
           this.setAllowByState(this.state);
       }
     },
     mounted(){
       this.setiniURL();
+      this.setBuildURL();
       this.setAllowByState(this.state);
     },
   }

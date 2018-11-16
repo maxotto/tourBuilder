@@ -16,6 +16,17 @@ const ProjectSchema = new Schema({
     type: String,
     required: true,
   },
+  showMap: Boolean,
+  useCustomMap: Boolean,
+  language: String,
+  loadingtext: String,
+  googleMapUnits: String,
+  useFixedZoom: Boolean,
+  iniZoom: Number,
+  floorMapShift:{
+    x: Number,
+    y: Number,
+  },
   location: {
     lat: {
       type: Number,

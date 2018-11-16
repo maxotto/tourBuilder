@@ -1,9 +1,30 @@
 const Path = require('path');
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 const KrPanoFile = require('../components/krPanoTools');
 const Projects = require('../models/project-model');
 const utils = require('../components/utils');
+const fs = require('fs-extra');
+
+router.get('/build/:id', function(req, res, next) {
+  Projects.findById(req.params.id, (error, project) => {
+    if (error) {
+      res.sendStatus(404);
+    } else {
+      const builder = require('../components/builder');
+      builder.run(project)
+      .then(p => {
+        console.log({p});
+        res.send({
+          success: true,
+          message: `Build is passed`,
+          project: p,
+        });
+      }
+      );
+    }
+  });
+});
 
 router.delete('/:id', function(req, res, next) {
   Projects.remove({_id: req.params.id}, err => {
@@ -11,7 +32,18 @@ router.delete('/:id', function(req, res, next) {
       res.sendStatus(500)
     } else {
       // todo delete folder too
-      res.sendStatus(200)
+      const folders = utils.getFoldersById(req.params.id, req.app.get('config'));
+      const projectRoot = folders.root;
+      fs.remove(projectRoot)
+        .then(
+          () => {
+            res.sendStatus(200)
+          }
+        )
+        .catch(err => {
+          console.error(err);
+          res.sendStatus(500);
+        });
     }
   });
 });
@@ -147,6 +179,13 @@ router.post('/create', (req, res) => {
     address: req.body.address,
     template: req.body.template,
     location: req.body.location,
+    showMap: req.body.showMap,
+    useCustomMap: req.body.useCustomMap,
+    language: req.body.language,
+    loadingtext: req.body.loadingtext,
+    googleMapUnits: req.body.googleMapUnits,
+    useFixedZoom: req.body.useFixedZoom,
+    iniZoom: req.body.iniZoom,
     state: req.body.state,
     tour: req.body.tour,
   });
@@ -178,8 +217,16 @@ router.put('/:id', (req, res, next) => {
       project.address = req.body.address;
       project.template = req.body.template;
       project.location = req.body.location;
+      project.showMap = req.body.showMap;
+      project.useCustomMap = req.body.useCustomMap;
+      project.language = req.body.language;
+      project.loadingtext = req.body.loadingtext;
+      project.googleMapUnits = req.body.googleMapUnits;
+      project.useFixedZoom = req.body.useFixedZoom;
+      project.iniZoom = req.body.iniZoom;
       project.state = req.body.state;
       project.tour = req.body.tour;
+      console.log(project);
       project.save(error => {
         if (error) {
           res.send({

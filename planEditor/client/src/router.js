@@ -5,6 +5,7 @@ import MainPage from './views/mainPage';
 import NewProject from './views/newProject';
 import ProjectsList from './views/projectsList';
 import InitiateProject from './views/initiateProject';
+import BuildProject from './views/buildProject';
 
 Vue.use(Router);
 
@@ -29,6 +30,12 @@ export default new Router({
       path: '/projects/ini/:id',
       name: 'initiate',
       component: InitiateProject,
+      props: true
+    },
+    {
+      path: '/projects/build/:id',
+      name: 'build',
+      component: BuildProject,
       props: true
     },
     {

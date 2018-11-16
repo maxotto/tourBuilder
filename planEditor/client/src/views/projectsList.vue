@@ -269,6 +269,7 @@
           useFixedZoom: data.useFixedZoom,
           iniZoom: data.iniZoom,
           state: {
+            uploaded: false,
             floors: false,
             floorsImages: false,
             hotspots: false,

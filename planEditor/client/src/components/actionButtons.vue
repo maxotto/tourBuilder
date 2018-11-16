@@ -1,5 +1,6 @@
 <template>
     <div>
+        <v-btn small color="success" :disabled="!upload">Upload</v-btn>
         <v-btn small color="success" :disabled="!ini" :to="iniURL">Initiate</v-btn>
         <v-btn small color="success" :disabled="!build" :to="buildURL">Build</v-btn>
         <v-btn small color="success" :disabled="!plan">Set plan</v-btn>
@@ -13,12 +14,13 @@
     props: ['state', 'id'],
     data () {
       return {
-        ini: true,
+        upload: true,
+        ini: false,
         build: false,
         plan: false,
         lookat: false,
         iniURL: '',
-        'buildURL': '',
+        buildURL: '',
       }
     },
     methods: {
@@ -29,6 +31,7 @@
         this.buildURL = "/projects/build/" + this.id;
       },
       setAllowByState(state){
+        this.upload = !state.uploaded;
         this.build =
           state.floors &&
           state.floorsImages &&

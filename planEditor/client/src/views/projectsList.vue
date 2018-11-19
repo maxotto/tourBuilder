@@ -67,21 +67,6 @@
                                         <br>
                                         <span style="color: red"><b>Upload files</b></span>
                                     </v-flex>
-                                    <v-flex xs12 v-show="editedItem._id">
-                                        <uploader
-                                                ref="uploader"
-                                                :options="options"
-                                                class="uploader-example"
-                                                @complete="uploaded"
-                                        >
-                                            <uploader-unsupport></uploader-unsupport>
-                                            <uploader-drop>
-                                                <p>Drop files here to upload or</p>
-                                                <uploader-btn :attrs="attrs">select files</uploader-btn>
-                                            </uploader-drop>
-                                            <uploader-list></uploader-list>
-                                        </uploader>
-                                    </v-flex>
                                 </v-layout>
                             </v-flex>
                             <v-flex xs6>
@@ -120,7 +105,7 @@
                     <td class="text-xs-center">{{ props.item.address }}</td>
                     <td class="text-xs-center">{{ props.item.template }}</td>
                     <td class="justify-center layout px-0">
-                        <action-buttons :state="props.item.state" :id="props.item._id"></action-buttons>
+                        <action-buttons :state="props.item.state" :id="props.item._id" ></action-buttons>
                         <v-icon
                                 small
                                 class="mr-2"
@@ -144,12 +129,11 @@
 
 <script>
   import ProjectsService from '@/services/ProjectsService';
-  import SelectFolder from '@/components/selectFolder.vue';
   import ActionButtons from '@/components/actionButtons.vue';
 
   export default {
     name: "projectsList",
-    components: {SelectFolder, ActionButtons},
+    components: {ActionButtons},
     data () {
       return {
         uploader: undefined,

@@ -28,6 +28,8 @@
                             :options="options"
                             class="uploader-example"
                             @complete="uploaded"
+                            @file-success="fileSuccess"
+                            @file-error="fileError"
                     >
                         <uploader-unsupport></uploader-unsupport>
                         <uploader-drop>
@@ -87,9 +89,17 @@
       getTarget(){
         return '/upload/project/' + this.id
       },
-
-      upload(){
-
+      fileSuccess(rootFile, file, message, chunk){
+        console.log(rootFile, file, message, chunk);
+      },
+      fileError(rootFile, file, message, chunk){
+        console.log(rootFile, file, message, chunk);
+      },
+      uploaded(res){
+        console.log(res);
+      },
+      catchAll(res){
+        console.log(res);
       },
       setiniURL(){
         this.iniURL = "/projects/ini/" + this.id;
@@ -122,6 +132,9 @@
       this.setiniURL();
       this.setBuildURL();
       this.setAllowByState(this.state);
+      this.$socket.on('unzip', function (data) {
+        // console.log(data);
+      });
     },
   }
 </script>

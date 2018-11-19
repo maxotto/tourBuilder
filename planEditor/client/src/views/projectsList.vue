@@ -335,7 +335,7 @@
         this.editedItem = Object.assign({}, this.newItem);
         this.markerLocation = this.newItem.location;
         this.editedIndex = -1;
-        this.uploader.cancel();
+        // this.uploader.cancel();
       },
       getList(){
         ProjectsService.fetchProjects()
@@ -388,12 +388,9 @@
     },
     mounted(){
       this.$nextTick(() => {
-      this.uploader = this.$refs.uploader.uploader;
+      // this.uploader = this.$refs.uploader.uploader;
       });
       this.getList();
-      this.$socket.on('unzip', function (data) {
-        console.log(data);
-      });
     }
   }
 </script>

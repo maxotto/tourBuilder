@@ -43,11 +43,11 @@ router.post('/project/:id', (req, res, next) => {
           }
         ).then(()=>{
           console.log(destRoot, 'is empty');
+          const socket = req.app.get('socket');
           return fs.createReadStream(tmpZip)
             .pipe(unzip.Extract({ path: destRoot })
               .on('entry', (entry) => {
-                console.log(entry.path);
-                const socket = req.app.get('socket');
+                //console.log(entry.path);
                 socket.emit('unzip', { file: entry.path });
               })
               .on('error', err => console.error('error', err))

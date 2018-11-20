@@ -59,7 +59,19 @@ router.post('/project/:id', (req, res, next) => {
                 return tourFileTool.load()
                   .then(xml =>{
                     project.tour = JSON.stringify(xml);
+                    project.state={
+                      uploaded: true,
+                      floors: false,
+                      floorsImages: false,
+                      hotspots: false,
+                      lookatTag: false,
+                      needRebuild: false,
+                      built: false,
+                      lookatValue: false,
+                      planHotspots: false,
+                    };
                     project.markModified('tour');
+                    project.markModified('state');
                     project.save((error, p) => {
                       if(!error){
                         res.send({

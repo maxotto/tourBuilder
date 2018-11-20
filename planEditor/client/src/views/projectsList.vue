@@ -101,11 +101,15 @@
         >
             <template slot="items" slot-scope="props">
                 <tr>
-                    <td class="text-xs-center">{{ props.item.title }}</td>
+                    <td class="text-xs-center">{{ props.item.title }}, state={{props.item.state}}</td>
                     <td class="text-xs-center">{{ props.item.address }}</td>
                     <td class="text-xs-center">{{ props.item.template }}</td>
                     <td class="justify-center layout px-0">
-                        <action-buttons :state="props.item.state" :id="props.item._id" ></action-buttons>
+                        <action-buttons
+                                :state="props.item.state"
+                                :id="props.item._id"
+                                @unzipped="unzipped"
+                        ></action-buttons>
                         <v-icon
                                 small
                                 class="mr-2"
@@ -230,13 +234,14 @@
       }
     },
     methods: {
-      getTarget(){
-        return '/upload/project/' + this.editedItem._id
-      },
-
-      uploaded(result){
-        this.snackbar.text = "File uploaded and unzipped!";
-        this.snackbar.visible = true;
+      unzipped(res){
+        const responce = JSON.parse(res);
+        console.log({responce});
+        if(responce.success){
+          this.snackbar.text = "File uploaded and unzipped!";
+          this.snackbar.visible = true;
+          this.getList();
+        }
       },
 
       createProject (data) {
@@ -396,6 +401,9 @@
 </script>
 
 <style scoped>
+    table.v-table tbody td, table.v-table tbody th {
+        height: auto!important;
+    }
     .uploader-example {
         width: 450px;
         padding: 15px;

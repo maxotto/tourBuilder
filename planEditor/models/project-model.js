@@ -38,6 +38,10 @@ const ProjectSchema = new Schema({
     },
   },
   state: {
+    uploaded: {
+      type: Boolean,
+      required: true,
+    },
     floors: {
       type: Boolean,
       required: true,

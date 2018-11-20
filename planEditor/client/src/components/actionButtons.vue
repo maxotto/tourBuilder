@@ -1,19 +1,9 @@
 <template>
-    <div>{{options}}
+    <div>{{currentState}}
         <v-dialog
                 v-model="dialog"
                 width="500"
         >
-            <v-btn
-                    slot="activator"
-                    color="red lighten-2"
-                    dark
-                    small
-                    :disabled="!upload"
-            >
-                Upload
-            </v-btn>
-
             <v-card>
                 <v-card-title
                         class="headline grey lighten-2"
@@ -54,6 +44,14 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-btn
+                color="success"
+                small
+                :disabled="!upload"
+                @click="dialog = true"
+        >
+            Upload
+        </v-btn>
         <v-btn small color="success" :disabled="!ini" :to="iniURL">Initiate</v-btn>
         <v-btn small color="success" :disabled="!build" :to="buildURL">Build</v-btn>
         <v-btn small color="success" :disabled="!plan">Set plan</v-btn>
@@ -90,16 +88,12 @@
         return '/upload/project/' + this.id
       },
       fileSuccess(rootFile, file, message, chunk){
-        console.log(rootFile, file, message, chunk);
+        //console.log(rootFile, file, message, chunk);
+        this.$emit('unzipped', message);
       },
       fileError(rootFile, file, message, chunk){
-        console.log(rootFile, file, message, chunk);
-      },
-      uploaded(res){
-        console.log(res);
-      },
-      catchAll(res){
-        console.log(res);
+        //console.log(rootFile, file, message, chunk);
+        this.$emit('unzipped', message);
       },
       setiniURL(){
         this.iniURL = "/projects/ini/" + this.id;
@@ -109,6 +103,7 @@
       },
       setAllowByState(state){
         this.upload = !state.uploaded;
+        this.ini = state.uploaded && !state.built;
         this.build =
           state.floors &&
           state.floorsImages &&
@@ -120,13 +115,22 @@
         this.plan = state.built && !state.needRebuild;
       }
     },
+    computed:{
+      currentState: {
+        get(){
+          console.log('State change', this.state);
+          this.setAllowByState(this.state);
+          return this.state;
+        },
+      }
+    },
     wathch:{
       id(val){
           this.setiniURL();
           this.setBuildURL();
           this.setAllowByState(this.state);
           this.options.target = this.getTarget();
-      }
+      },
     },
     mounted(){
       this.setiniURL();

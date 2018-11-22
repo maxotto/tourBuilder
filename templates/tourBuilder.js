@@ -296,7 +296,7 @@ module.exports = function (config, ftp_deploy) {
       if (floorsList.hasOwnProperty(floor)){
         let imageUrl = `map_${floor}_floor.png`;
         config.floorSelect.forEach(item => {
-          if(item.floor === Number(floor)){
+          if(item.floor == Number(floor)){
             imageUrl = item.image;
           }
         });

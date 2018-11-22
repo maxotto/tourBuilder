@@ -6,26 +6,6 @@ const Projects = require('../models/project-model');
 const utils = require('../components/utils');
 const fs = require('fs-extra');
 
-router.get('/build/:id', function(req, res, next) {
-  Projects.findById(req.params.id, (error, project) => {
-    if (error) {
-      res.sendStatus(404);
-    } else {
-      const builder = require('../components/builder');
-      builder.run(project)
-      .then(p => {
-        console.log({p});
-        res.send({
-          success: true,
-          message: `Build is passed`,
-          project: p,
-        });
-      }
-      );
-    }
-  });
-});
-
 router.delete('/:id', function(req, res, next) {
   Projects.remove({_id: req.params.id}, err => {
     if (err) {

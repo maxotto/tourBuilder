@@ -36,7 +36,11 @@ router.get('/:id', function(req, res, next) {
           },
           floorSelect: project.floorSelect,
         };
-        build(config);
+        buildMe(config);
+        res.send({
+          success: true,
+          message: 'Built'
+        })
       } else {
         res.send({
           success: false,
@@ -47,10 +51,10 @@ router.get('/:id', function(req, res, next) {
   });
 
 } );
-
-const build = function(config){
+module.exports = router;
+const buildMe = function(config){
   const Builder = require(config.templatesFolder+'/tourBuilder');
-  const myBuilder = Builder(config, ftp_deploy);
+  const myBuilder = Builder(config, undefined);
   myBuilder.run()
     .then(res => {
       console.log(res, 'Build finished.');console.log("\007");

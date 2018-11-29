@@ -1,10 +1,12 @@
 <template>
     <div>
-        Build Project page
-        {{id}}
-        <v-btn small color="success" @click="clickButton">Socket send Test</v-btn>
+        Build Project
         <v-btn small color="success" @click="startBuild">Start build</v-btn>
+        <div class="log">
+            <template v-for="row in logTxt">{{row}}<br></template>
+        </div>
     </div>
+
 </template>
 
 <script>
@@ -13,6 +15,11 @@
   export default {
     name: "buildProject",
     props: ['id'],
+    data () {
+      return {
+        logTxt: [],
+      }
+    },
     methods: {
       startBuild: function(){
         ProjectsService.buildProject(this.id)
@@ -30,10 +37,22 @@
     this.$socket.on('news', function (data) {
       console.log(data);
     });
+      this.$socket.on('build', (data) => {
+        const self = this;
+        self.logTxt.push(data.message);
+//         console.log(self.logTxt, data.message);
+      });
     },
   }
 </script>
 
 <style scoped>
+    .log{
+        width: 500px;
+        border-style: solid;
+        border-width: 5px;
+        border-color: #00d800;
+        background-color: #e0e0e0;
 
+    }
 </style>

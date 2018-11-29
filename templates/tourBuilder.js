@@ -3,9 +3,16 @@ const Xml2js = require('xml2js');
 const Path = require('path');
 
 module.exports = function (config, ftp_deploy) {
-
+  const socket = config.socket;
   const log = function(...args){
     console.log(...args);
+    let txt = '';
+    for (i = 0; i < arguments.length; i++) {
+
+      txt += ' ' + arguments[i].toString();
+    }
+    socket.emit('build', { message: txt});
+
   };
   log('Module created with config', config);
   config.FtpConfig = ftp_deploy;
@@ -53,6 +60,8 @@ module.exports = function (config, ftp_deploy) {
             if (err) {
               reject(err);
             } else {
+              const parts = Path.parse(file);
+              log(parts.base, 'loaded')
               resolve(result);
             }
           });
@@ -69,6 +78,8 @@ module.exports = function (config, ftp_deploy) {
         if (err) {
           reject(err);
         } else {
+          const parts = Path.parse(file);
+          log(parts.base, 'saved');
           resolve('done');
         }
       })

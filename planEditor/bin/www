@@ -28,8 +28,8 @@ const io = require('socket.io')(server, {
   // path: '/socket',
   // serveClient: false,
   // below are engine.IO options
-  pingInterval: 10000,
-  pingTimeout: 5000,
+  pingInterval: 100000,
+  pingTimeout: 50000,
   cookie: false
 });
 

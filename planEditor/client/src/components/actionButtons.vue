@@ -53,8 +53,8 @@
             Upload
         </v-btn>
         <v-btn small color="success" :disabled="!ini" :to="iniURL">Initiate</v-btn>
-        <v-btn small color="success" :disabled="!build" :to="buildURL">Build</v-btn>
-        <!--- <v-btn small color="success" :disabled="!build" @click="buildDlgShow=true">Build</v-btn> --->
+        <!--- <v-btn small color="success" :disabled="!build" :to="buildURL">Build</v-btn> --->
+        <v-btn small color="success" :disabled="!build" @click="buildDlgShow=true">Build</v-btn>
         <v-btn small color="success" :disabled="!plan">Set plan</v-btn>
         <v-btn small color="success" :disabled="!lookat">Set look at</v-btn>
         <build-dlg :id="id" :show="buildDlgShow" @closeDlg="closeBuildDlg"></build-dlg>

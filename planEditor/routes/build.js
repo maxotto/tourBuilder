@@ -37,11 +37,20 @@ router.get('/:id', function(req, res, next) {
           },
           floorSelect: project.floorSelect,
         };
-        buildMe(config);
-        res.send({
-          success: true,
-          message: 'Built'
-        })
+        buildMe(config)
+            .then(()=>{
+              res.send({
+                success: true,
+                message: 'Built'
+              })
+            })
+            .catch((err)=>{
+              res.send({
+                success: false,
+                message: err
+              });
+              console.log(err);
+            });
       } else {
         res.send({
           success: false,
@@ -56,12 +65,6 @@ module.exports = router;
 const buildMe = function(config){
   const Builder = require(config.templatesFolder+'/tourBuilder');
   const myBuilder = Builder(config, undefined);
-  myBuilder.run()
-    .then(res => {
-      console.log(res, 'Build finished.');console.log("\007");
-    })
-    .catch(err => {
-      console.log(err);
-    });
+  return myBuilder.run();
 
 }

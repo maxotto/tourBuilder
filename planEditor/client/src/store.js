@@ -5,12 +5,22 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    //Plan Editor and LookAt Editor values
     xmlData: undefined,
     scenes: undefined,
     saving: false,
     error: '',
+    // projectList values
+    currentId: undefined,
+    needToReloadCurrent: false,
   },
   getters:{
+    getNeedToReloadCurrent: state => {
+      return state.needToReloadCurrent;
+    },
+    getCurrentId: state => {
+      return state.currentId;
+    },
     getXmlData: state => {
       return state.xmlData;
     },
@@ -25,6 +35,12 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    setNeedToReloadCurrent(state, value) {
+      state.needToReloadCurrent = value;
+    },
+    setCurrentId(state, value) {
+      state.currentId = value;
+    },
     setXmlData(state, value){
       state.xmlData = value;
     },
@@ -46,6 +62,7 @@ export default new Vuex.Store({
     }
   },
   actions: {
+
     fetchXmlData({commit}){
       commit('setError', '');
       axios.get('/readxml')

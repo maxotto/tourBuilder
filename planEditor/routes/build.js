@@ -39,10 +39,22 @@ router.get('/:id', function(req, res, next) {
         };
         buildMe(config)
             .then(()=>{
-              res.send({
-                success: true,
-                message: 'Built'
-              })
+              // todo set BUILT state to true and save project
+              project.state.built = true;
+              project.markModified('state.built');
+              project.save((error, p) => {
+                if(!error){
+                  res.send({
+                    success: true,
+                    message: 'Built'
+                  })
+                } else {
+                  res.send({
+                    success: false,
+                    message: error.message
+                  })
+                }
+              });
             })
             .catch((err)=>{
               res.send({

@@ -54,7 +54,7 @@
         </v-btn>
         <v-btn small color="success" :disabled="!ini" :to="iniURL">Initiate</v-btn>
         <!--- <v-btn small color="success" :disabled="!build" :to="buildURL">Build</v-btn> --->
-        <v-btn small color="success" :disabled="!build" @click="buildDlgShow=true">Build</v-btn>
+        <v-btn small color="success" :disabled="!build" @click="$store.commit('setCurrentId', id); buildDlgShow=true">Build</v-btn>
         <v-btn small color="success" :disabled="!plan">Set plan</v-btn>
         <v-btn small color="success" :disabled="!lookat">Set look at</v-btn>
         <build-dlg :id="id" :show="buildDlgShow" @closeDlg="closeBuildDlg"></build-dlg>
@@ -89,8 +89,9 @@
       }
     },
     methods: {
-      closeBuildDlg(val){
+      closeBuildDlg(success){
         this.buildDlgShow = false;
+        this.setAllowByState(this.state);
       },
       getTarget(){
         return '/upload/project/' + this.id
@@ -134,19 +135,23 @@
     },
     wathch:{
       id(val){
-          this.setiniURL();
-          this.setBuildURL();
-          this.setAllowByState(this.state);
-          this.options.target = this.getTarget();
+        this.setiniURL();
+        this.setBuildURL();
+        this.setAllowByState(this.state);
+        this.options.target = this.getTarget();
       },
+      currentState: {
+        handler: function(newValue) {
+          // this.setAllowByState(newValue);
+          console.log("New state: ", newValue)
+        },
+        deep: true
+      }
     },
     mounted(){
       this.setiniURL();
       this.setBuildURL();
       this.setAllowByState(this.state);
-      this.$socket.on('unzip', function (data) {
-        // console.log(data);
-      });
     },
   }
 </script>

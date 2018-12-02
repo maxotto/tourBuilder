@@ -101,7 +101,7 @@
         >
             <template slot="items" slot-scope="props">
                 <tr>
-                    <td class="text-xs-center">{{ props.item.title }}, state={{props.item.state}}</td>
+                    <td class="text-xs-center">{{ props.item.title }}</td>
                     <td class="text-xs-center">{{ props.item.address }}</td>
                     <td class="text-xs-center">{{ props.item.template }}</td>
                     <td class="justify-center layout px-0">
@@ -220,7 +220,20 @@
         lastError: '',
       }
     },
+    watch: {
+      needToReloadCurrent(val){
+        console.log('projectList.watch.NeedToReloadCurrent', val);
+        if(val === true){
+          this.updateProject(this.$store.getters['getCurrentId']);
+        }
+      },
+
+    },
     computed: {
+      needToReloadCurrent(){
+        console.log('projectList.computed.getNeedToReloadCurrent');
+        return this.$store.getters['getNeedToReloadCurrent'];
+      },
       canSaveNew(){
         return (
           this.editedItem.title !== '' &&
@@ -236,6 +249,7 @@
     methods: {
       unzipped(res){
         const responce = JSON.parse(res);
+        // todo alnalyze response and do different things
         console.log({responce});
         if(responce.success){
           this.snackbar.text = "File uploaded and unzipped!";
@@ -324,7 +338,6 @@
         this.editedItem.outFolder = folder;
       },
       dlgSave(){
-        console.log(this.editedItem);
         if(this.editedItem._id){
           this.saveProject(this.editedItem)
         } else {
@@ -346,13 +359,30 @@
         ProjectsService.fetchProjects()
           .then(result => {
             if (result.data.success) {
+              result.data.items.forEach((item, i)=>{
+                this.$set( this.rows, i, item );
+              });
               this.rows = result.data.items;
             }
           })
           .catch(e => {console.log(e)});
       },
+      updateProject(id){
+        ProjectsService.getProject(id)
+            .then(result => {
+                if(result.data.success){
+                  const project = result.data.project;
+                  const index = this.rows.findIndex(aRow => {
+                    return aRow['_id'] === id;
+                  });
+                  this.$set( this.rows, index, project );
+                }
+            })
+            .catch(err => {
+              console.log(err);
+            });
+      },
       editItem (item) {
-        console.log(item);
         this.resetDlg();
         this.editedIndex = this.rows.indexOf(item);
         this.editedItem = Object.assign({}, item);

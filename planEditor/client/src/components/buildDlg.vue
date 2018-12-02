@@ -5,7 +5,7 @@
             persistent
     >
         <v-card>
-            <v-card-title class="headline"> Build Project {{id}} {{inProcess}}</v-card-title>
+            <v-card-title class="headline">Build Project</v-card-title>
             <div>
                 <div class="log" id="log">
                     <template v-for="row in logTxt">{{row}}<br></template>
@@ -13,7 +13,7 @@
             </div>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn small color="success" @click="startBuild">Start build</v-btn>
+                <v-btn small color="success" @click="startBuild" :disabled="inProcess">Start build</v-btn>
                 <v-btn
                         color="green darken-1"
                         flat="flat"
@@ -38,20 +38,25 @@
         logTxt: [],
         logDiv: undefined,
         inProcess: false,
+        success: false,
       }
     },
     methods: {
       closeDlg(){
         this.logTxt=[];
-        this.$emit('closeDlg', true);
+        this.$emit('closeDlg', this.success);
       },
       startBuild: function(){
         this.inProcess = true;
+        this.success = false;
         ProjectsService.buildProject(this.id)
             .then(res=>{
               this.inProcess = false;
+              this.success = true;
               this.logDiv.scrollTop = this.logDiv.scrollHeight - this.logDiv.clientHeight;
-              console.log(res)})
+              alert('Project is built!');
+              this.$store.commit('setNeedToReloadCurrent', true);
+            })
             .catch(err=>{
               // this.logDiv.scrollTop = this.logDiv.scrollHeight - this.logDiv.clientHeight;
               this.inProcess = false;

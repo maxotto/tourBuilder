@@ -6,10 +6,8 @@
     >
         <v-card>
             <v-card-title class="headline">Build Project</v-card-title>
-            <div>
-                <div class="log" id="log">
-                    <template v-for="row in logTxt">{{row}}<br></template>
-                </div>
+            <div class="log" id="log">
+                <template v-for="row in logTxt">{{row}}<br></template>
             </div>
             <v-card-actions>
                 <v-spacer></v-spacer>
@@ -47,15 +45,22 @@
         this.$emit('closeDlg', this.success);
       },
       startBuild: function(){
+        this.logTxt=[];
         this.inProcess = true;
         this.success = false;
         ProjectsService.buildProject(this.id)
             .then(res=>{
+              if(res.data.success){
+                this.success = true;
+                alert('Project is built!');
+                this.$store.commit('setNeedToReloadCurrent', true);
+              } else {
+                this.logTxt.push(JSON.stringify(res.data.message));
+                setTimeout(()=>{alert('There was an error during build!')},100);
+                console.log(res.data.message);
+              }
               this.inProcess = false;
-              this.success = true;
               this.logDiv.scrollTop = this.logDiv.scrollHeight - this.logDiv.clientHeight;
-              alert('Project is built!');
-              this.$store.commit('setNeedToReloadCurrent', true);
             })
             .catch(err=>{
               // this.logDiv.scrollTop = this.logDiv.scrollHeight - this.logDiv.clientHeight;
@@ -78,13 +83,14 @@
 
 <style scoped>
     .log{
-        width: 500px;
+        margin:0 auto;
+        width: 95%;
         max-height: 350px;
         height: 350px;
         border-style: solid;
-        border-width: 5px;
-        border-color: #00d800;
+        border-width: 2px;
+        border-color: #b7b7b7;
         background-color: #e0e0e0;
-        overflow-y: scroll;
+        overflow-y: auto;
     }
 </style>

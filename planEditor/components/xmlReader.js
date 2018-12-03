@@ -1,13 +1,17 @@
 const Fs = require('fs-extra');
 const Xml2js = require('xml2js');
 const Path = require('path');
-module.exports = function (config) {
+const utils = require('../components/utils');
+module.exports = function (config, id) {
     const log = function(...args){
         console.log(...args);
     };
-    // todo workPath depends on template used. Invent config for this
-    const extPath = Path.resolve(config.outFolder,'ext/tour');
-    const tourXmlPath = Path.resolve(config.outFolder,'tour.xml');
+  console.log({config});
+  // todo workPath depends on template used. Invent config for this
+  const folders = utils.getFoldersById(id, config);
+  console.log({folders});
+    const extPath = Path.resolve(folders.final,'ext/tour');
+    const tourXmlPath = Path.resolve(folders.final,'tour.xml');
     const floooMapXmlPath = Path.resolve(extPath,'floorMap.xml');
     const hotSpotParents = {};
     // log('Xml reader created with config', config);

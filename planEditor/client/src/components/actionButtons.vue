@@ -55,8 +55,7 @@
         <v-btn small color="success" :disabled="!ini" :to="iniURL">Initiate</v-btn>
         <!--- <v-btn small color="success" :disabled="!build" :to="buildURL">Build</v-btn> --->
         <v-btn small color="success" :disabled="!build" @click="$store.commit('setCurrentId', id); buildDlgShow=true">Build</v-btn>
-        <v-btn small color="success" :disabled="!plan">Set plan</v-btn>
-        <v-btn small color="success" :disabled="!lookat">Set look at</v-btn>
+        <v-btn small color="success" :disabled="!plan" :to="planEditorURL">Set plan&lookat</v-btn>
         <build-dlg :id="id" :show="buildDlgShow" @closeDlg="closeBuildDlg"></build-dlg>
     </div>
 </template>
@@ -78,6 +77,7 @@
         lookat: false,
         iniURL: '',
         buildURL: '',
+        planEditorURL: '',
         options: {
           chunkSize: 52428800*10,
           target: this.getTarget,
@@ -103,6 +103,9 @@
       fileError(rootFile, file, message, chunk){
         //console.log(rootFile, file, message, chunk);
         this.$emit('unzipped', message);
+      },
+      setPlanEditor(){
+        this.planEditorURL = "/project/" + this.id;
       },
       setiniURL(){
         this.iniURL = "/projects/ini/" + this.id;
@@ -138,6 +141,7 @@
       id(val){
         this.setiniURL();
         this.setBuildURL();
+        this.setPlanEditor();
         this.setAllowByState(this.state);
         this.options.target = this.getTarget();
       },
@@ -152,6 +156,7 @@
     mounted(){
       this.setiniURL();
       this.setBuildURL();
+      this.setPlanEditor();
       this.setAllowByState(this.state);
     },
   }

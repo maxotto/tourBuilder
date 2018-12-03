@@ -63,9 +63,9 @@ export default new Vuex.Store({
   },
   actions: {
 
-    fetchXmlData({commit}){
+    fetchXmlData({commit}, id){
       commit('setError', '');
-      axios.get('/readxml')
+      axios.get('/readxml/' + id)
       .then(function (response) {
         commit('setXmlData', response.data.planHotspotsData);
         commit('setScenes', response.data.lookATData);
@@ -86,9 +86,9 @@ export default new Vuex.Store({
         dataType = data.dataType;
       }
       commit('setError', '');
-      axios.post('/writexml?type='+dataType, data).then(response => {
+      axios.post(`/writexml/${data.id}?type=`+dataType, data).then(response => {
         if(response.data.status === 'ok'){
-          dispatch('fetchXmlData');
+          dispatch('fetchXmlData', data.id);
         } else {
           console.log(response.data.message);
         }

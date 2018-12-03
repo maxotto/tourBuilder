@@ -5,17 +5,19 @@ const utils = require('../components/utils');
 const Projects = require('../models/project-model');
 
 /* read data from XML. */
-router.get('/', function(req, res, next) {
+router.get('/:id', function(req, res, next) {
+  const id = req.params.id;
   const config = req.app.get('config');
+  const folders = utils.getFoldersById(id, config);
   let fileName;
   if(req.query.image){
-    fileName = Path.resolve(config.outFolder, 'ext/tour', req.query.image);
+    fileName = Path.resolve(folders.final, 'ext/tour', req.query.image);
   }
   if(req.query.scene){
     if(req.query.vr){
-      fileName = Path.resolve(config.outFolder, 'panos', req.query.scene+'.tiles','vr', 'pano_' + req.query.vr + '.jpg');
+      fileName = Path.resolve(folders.final, 'panos', req.query.scene+'.tiles','vr', 'pano_' + req.query.vr + '.jpg');
     } else {
-      fileName = Path.resolve(config.outFolder, 'panos', req.query.scene+'.tiles', 'thumb.jpg');
+      fileName = Path.resolve(folders.final, 'panos', req.query.scene+'.tiles', 'thumb.jpg');
     }
   }
   res.sendFile(fileName);

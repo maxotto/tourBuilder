@@ -35,6 +35,7 @@
                     </v-layout>
                 </v-flex>
                 <v-flex xs9 id="container">
+                    container
                 </v-flex>
             </v-layout>
             <div style="overflow-x: scroll; height: 100%; width: 100%">
@@ -69,6 +70,7 @@
     },
     data: function () {
       return {
+        id: undefined,
         changed: false,
         changedList:[],
         selected: {
@@ -118,7 +120,7 @@
           if(val.hasOwnProperty(s)){
             this.scenesData[s] = {};
             this.scenesData[s].hotspots = val[s];
-            this.scenesData[s].url = "/getimage?scene="+s.substring(6);
+            this.scenesData[s].url = this.getUrlBySceneName(s);
             this.scenesData[s].name = s;
           }
         }
@@ -126,8 +128,7 @@
     },
     computed:{
       scenes(){
-        const data = this.$store.getters['getScenes'];
-        return data;
+        return this.$store.getters['getScenes'];
       },
       saving(){
         return this.$store.getters['getSaving'];
@@ -139,7 +140,7 @@
     },
     methods: {
       saveJob(){
-        this.$store.dispatch('saveLookAtJob', {scenesData: this.scenesData, dataType: 'lookat'});
+        this.$store.dispatch('saveLookAtJob', {id: this.id, scenesData: this.scenesData, dataType: 'lookat'});
       },
 
       isChangedScene: function(scene){
@@ -167,7 +168,7 @@
         return out;
       },
       getUrlBySceneName: function(s){
-        return "/getimage?scene="+s.substring(6);
+        return `/getimage/${this.id}?scene=`+s.substring(6);
       },
       selectHotSpot: function(hs){
         this.selected.hsName = hs.name;
@@ -295,6 +296,7 @@
   },
     mounted: function(){
       window.addEventListener( 'resize', this.onWindowResize, false );
+      this.id = this.$route.params.id;
     }
   }
 </script>

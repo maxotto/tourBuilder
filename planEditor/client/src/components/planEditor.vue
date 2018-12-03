@@ -3,6 +3,7 @@
     <v-container grid-list-md text-xs-center>
       <v-layout row wrap>
         <v-flex xs2>
+          {{id}}
           <v-card>
             <h2>X: {{x}}, Y: {{y}}</h2>
           </v-card>
@@ -52,6 +53,7 @@ export default {
   },
   data: function () {
     return {
+      id: '',
       hoverIsDraggable: false,
       width: 100,
       height: 100,
@@ -99,7 +101,7 @@ export default {
   },
   methods: {
     saveJob(){
-      this.$store.dispatch('saveFloorJob', {floor: this.floor, hotspots: this.hotspots});
+      this.$store.dispatch('saveFloorJob', {id: this.id, floor: this.floor, hotspots: this.hotspots});
 
     },
     updateHotSpots: function(floor){
@@ -295,7 +297,7 @@ export default {
       currentHS(hs){
         const sceneImg = document.getElementById('scene-img');
         if(hs>=0){
-          sceneImg.src = '/getimage?scene=' + this.hotspots[hs].parent.name.substring(6);
+          sceneImg.src = `/getimage/${this.id}?scene=` + this.hotspots[hs].parent.name.substring(6);
           this.x = this.hotspots[hs].x;
           this.y = this.hotspots[hs].y;
         } else {
@@ -319,14 +321,15 @@ export default {
           _this.ctx.drawImage(_this.img,0,0);
 
         };
-        this.img.src = '/getimage?image=' + image;
+        this.img.src = `/getimage/${this.id}?image=` + image;
         this.updateHotSpots(val);
         this.drawHotSpots();
         this.valid = false;
       }
   },
   mounted: function(){
-    console.log('mounted');
+    this.id = this.$route.params.id;
+    console.log('mounted', this.id);
     var _this = this;
     this.canvas = this.$refs.canvas;
     this.ctx = this.canvas.getContext("2d");
@@ -342,7 +345,7 @@ export default {
         h: _this.hotspotImg.height};
       _this.ctx.drawImage(_this.hotspotImg,0,0);
     };
-    this.hotspotImg.src = '/getimage?image=camicon.png';
+    this.hotspotImg.src = `/getimage/${this.id}?image=camicon.png`;
     setInterval(function(){ _this.draw(); }, _this.interval);
     this.canvas.addEventListener('mousedown', function(e){_this.onMouseDown(e);}, true);
     this.canvas.addEventListener('mousemove', function(e){_this.onMouseMove(e);}, true);

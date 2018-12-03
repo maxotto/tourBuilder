@@ -22,7 +22,7 @@ export default new Router({
       component: ProjectsList
     },
     {
-      path: '/projects/:id',
+      path: '/project/:id',
       name: 'home',
       component: Home
     },

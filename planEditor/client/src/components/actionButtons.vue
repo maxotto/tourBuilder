@@ -122,6 +122,7 @@
           state.lookatTag;
 
         this.plan = state.built && !state.needRebuild;
+        this.plan = state.built && !state.needRebuild;
       }
     },
     computed:{

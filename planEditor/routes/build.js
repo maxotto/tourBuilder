@@ -41,7 +41,9 @@ router.get('/:id', function(req, res, next) {
             .then(()=>{
               // todo set BUILT state to true and save project
               project.state.built = true;
+              project.state.lookatTag = true;
               project.markModified('state.built');
+              project.markModified('state.lookatTag');
               project.save((error, p) => {
                 if(!error){
                   res.send({

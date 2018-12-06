@@ -48,7 +48,8 @@ router.post('/project/:id', (req, res, next) => {
             .pipe(unzip.Extract({ path: destRoot })
               .on('entry', (entry) => {
                 //console.log(entry.path);
-                socket.emit('unzip', { file: entry.path });
+                // todo https://stackoverflow.com/questions/29872317/express-4-routes-using-socket-io
+                // socket.emit('unzip', { file: entry.path });
               })
               .on('error', err => console.error('error', err))
               .on('finish', () => {

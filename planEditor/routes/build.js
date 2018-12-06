@@ -14,7 +14,8 @@ router.get('/:id', function(req, res, next) {
       if(project){
         const folders = utils.getFoldersById(req.params.id, req.app.get('config'));
         const config = {
-          socket: req.app.get('socket'),
+          // todo https://stackoverflow.com/questions/29872317/express-4-routes-using-socket-io
+          // socket: req.app.get('socket'),
           inFolder: folders.source,
           outFolder: folders.final,
           templatesFolder: utils.getImagePathByTemplate(project.template),

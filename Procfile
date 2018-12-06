@@ -1,1 +1,1 @@
-web: ./planEditor/bin/www npm start
+web: node ./planEditor/bin/www

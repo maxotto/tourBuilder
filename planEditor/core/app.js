@@ -8,18 +8,18 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 require('log-timestamp');
 const busboy = require('connect-busboy');
-const config = require('./config/config');
+const config = require('../config/config');
 
 
-var indexRouter = require('./routes/index');
-var readXmlRouter = require('./routes/readxml');
-var writeXmlRouter = require('./routes/writexml');
-var getImageRouter = require('./routes/getimage');
-var projectsRouter = require('./routes/projects');
-var readfolderRouter = require('./routes/readfolder');
-var uploadRouter = require('./routes/upload');
-var deleteRouter = require('./routes/delete');
-var buildRouter = require('./routes/build');
+var indexRouter = require('../routes/index');
+var readXmlRouter = require('../routes/readxml');
+var writeXmlRouter = require('../routes/writexml');
+var getImageRouter = require('../routes/getimage');
+var projectsRouter = require('../routes/projects');
+var readfolderRouter = require('../routes/readfolder');
+var uploadRouter = require('../routes/upload');
+var deleteRouter = require('../routes/delete');
+var buildRouter = require('../routes/build');
 
 module.exports = function(port, db) {
   var app = express();
@@ -34,7 +34,7 @@ module.exports = function(port, db) {
   app.use(express.json());
   app.use(express.urlencoded({ extended: false }));
   app.use(cookieParser());
-  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(path.join(__dirname, '/../public')));
   app.use(cors());
 
   app.use('/', indexRouter);

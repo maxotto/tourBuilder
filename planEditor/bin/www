@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-const db = require("../db")();
+const db = require("../core/db")();
 const port = normalizePort(process.env.PORT || '3000');
-const server = require('../app')(port ,db );
+const server = require('../core/app')(port ,db );
 const debug = require('debug')('planeditor:server');
 
 server.listen(port);

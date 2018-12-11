@@ -3,10 +3,13 @@ const LocalSettings = require('./localSettings');
 config = {
   outFolder: LocalSettings.outFolder,
 };
+console.log('Run');
 var exec = require('child_process').exec;
 exec('buildPlanEditorClient.cmd', function callback(error, stdout, stderr){
   if(error) {
     console.log(error);
+  } else if(stderr) {
+    console.log(stderr);
   } else {
     console.log(stdout);
     const Server = require('./planEditor/bin/www');

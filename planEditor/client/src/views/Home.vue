@@ -27,7 +27,7 @@
           </v-tab-item>
           <v-tab-item key="2">
               <v-layout column align-center>
-                  <look-at-editor></look-at-editor>
+                <look-at-editor></look-at-editor>
               </v-layout>
           </v-tab-item>
       </v-tabs>
@@ -67,6 +67,7 @@ export default {
   },
   data: function () {
     return {
+      id: undefined,
       floor: '',
       items: []
     }
@@ -81,13 +82,21 @@ export default {
             name: plan,
             image: data[plan].image
           });
+
         }
       }
       return data;
     },
   },
+  beforeRouteUpdate (to, from, next) {
+    // обрабатываем изменение параметров маршрута...
+    // не забываем вызвать next()
+    console.log(to, from);
+    next();
+  },
   mounted(){
-    this.$store.dispatch('fetchXmlData');
+    this.id = this.$route.params.id;
+    this.$store.dispatch('fetchXmlData', this.id);
   }
 }
 </script>

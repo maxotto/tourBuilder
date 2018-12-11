@@ -38,12 +38,9 @@ class GoogleMapPlaces{
             return this.addDistancePromise(places);
           })
             .then(places => {
-              return this.addDetailsPromise(places);
-            })
-            .then(places => {
-                this.cache[category] = places;
-                return Promise.resolve(this.cache[category]);
-              });
+              this.cache[category] = places;
+              return Promise.resolve(this.cache[category]);
+            });
         }
         promises.push(promise);
       }
@@ -52,10 +49,10 @@ class GoogleMapPlaces{
       const fullList = GoogleMapPlaces.makeOneList(results); //method is STATIC! no THIS here
       return Promise.resolve(fullList);
     })
-        .catch((error) => {
-          console.log(error);
-          alert("GoogleMapPlaces error: " + error);
-        });
+      .catch((error) => {
+        console.log(error);
+        alert("GoogleMapPlaces error: " + error);
+      });
   }
 
   addDetailsPromise(places){
@@ -94,16 +91,16 @@ class GoogleMapPlaces{
     let units = google.maps.UnitSystem.METRIC;
     if (this.googleMapUnits === 'IMPERIAL') units = google.maps.UnitSystem.IMPERIAL;
     return this.getDistancePromise(this.center, destinations, 'DRIVING', units)
-        .then(distanceInfo => {
-          distanceInfo.rows[0].elements.forEach((d,i) => {
-            places[i].distance = d;
-            // console.log(JSON.stringify(d));
-          });
-          distanceInfo.destinationAddresses.forEach((a,i) => {
-            places[i].address = a;
-          });
-          return Promise.resolve(places);
+      .then(distanceInfo => {
+        distanceInfo.rows[0].elements.forEach((d,i) => {
+          places[i].distance = d;
+          // console.log(JSON.stringify(d));
         });
+        distanceInfo.destinationAddresses.forEach((a,i) => {
+          places[i].address = a;
+        });
+        return Promise.resolve(places);
+      });
   }
 
   static makeOneList(found){
@@ -143,27 +140,27 @@ class GoogleMapPlaces{
         }
       });
     })
-        .then((distances) => {
-          return Promise.resolve(distances);
-        })
-        .catch((error) => {
-          if (error.status === "OVER_QUERY_LIMIT"){
-            if (this.maxAttempts > 0) {
-              return new Promise((resolve, reject) => {
-                setTimeout(()=> {
-                  resolve();
-                }, this.attemptsTimeout);
-              }).then(() => {
-                // alert('start new attempt');
-                return this.getDistancePromise(origin, destinations, travelMode, unitSystem);
-              });
-            } else {
-              return Promise.reject(error);
-            }
+      .then((distances) => {
+        return Promise.resolve(distances);
+      })
+      .catch((error) => {
+        if (error.status === "OVER_QUERY_LIMIT"){
+          if (this.maxAttempts > 0) {
+            return new Promise((resolve, reject) => {
+              setTimeout(()=> {
+                resolve();
+              }, this.attemptsTimeout);
+            }).then(() => {
+              // alert('start new attempt');
+              return this.getDistancePromise(origin, destinations, travelMode, unitSystem);
+            });
           } else {
             return Promise.reject(error);
           }
-        });
+        } else {
+          return Promise.reject(error);
+        }
+      });
   }
 
   getDetailsPromise(placeId, fields){
@@ -184,27 +181,27 @@ class GoogleMapPlaces{
         }
       });
     })
-        .then((place) => {
-          return Promise.resolve(place);
-        })
-        .catch((error) => {
-          if (error.status === "OVER_QUERY_LIMIT"){
-            if (this.maxAttempts > 0) {
-              return new Promise((resolve, reject) => {
-                setTimeout(()=> {
-                  resolve();
-                }, this.attemptsTimeout);
-              }).then(() => {
-                // alert('start new attempt');
-                return this.getDetailsPromise(placeId, fields);
-              });
-            } else {
-              return Promise.reject(error);
-            }
+      .then((place) => {
+        return Promise.resolve(place);
+      })
+      .catch((error) => {
+        if (error.status === "OVER_QUERY_LIMIT"){
+          if (this.maxAttempts > 0) {
+            return new Promise((resolve, reject) => {
+              setTimeout(()=> {
+                resolve();
+              }, this.attemptsTimeout);
+            }).then(() => {
+              // alert('start new attempt');
+              return this.getDetailsPromise(placeId, fields);
+            });
           } else {
             return Promise.reject(error);
           }
-        });
+        } else {
+          return Promise.reject(error);
+        }
+      });
   }
 
   nearBySearchPromise(request){

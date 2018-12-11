@@ -1,13 +1,16 @@
 const Fs = require('fs-extra');
 const Xml2js = require('xml2js');
 const Path = require('path');
-module.exports = function (config, data, dataType) {
+const utils = require('../components/utils');
+
+module.exports = function (config, id, data, dataType) {
   const log = function(...args){
     console.log(...args);
   };
   // todo workPath depends on template used. Invent config for this
-  const extPath = Path.resolve(config.outFolder,'ext/tour');
-  const tourXmlPath = Path.resolve(config.outFolder,'tour.xml');
+  const folders = utils.getFoldersById(id, config);
+  const extPath = Path.resolve(folders.final,'ext/tour');
+  const tourXmlPath = Path.resolve(folders.final,'tour.xml');
   const floorMapXmlPath = Path.resolve(extPath,'floorMap.xml');
   const floorMapXmlPath1 = Path.resolve(extPath,'floorMapTest.xml');
   const hotSpotParents = {};

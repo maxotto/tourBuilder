@@ -3,9 +3,16 @@ const Xml2js = require('xml2js');
 const Path = require('path');
 
 module.exports = function (config, ftp_deploy) {
-
+  const socket = config.socket;
   const log = function(...args){
     console.log(...args);
+    let txt = '';
+    for (i = 0; i < arguments.length; i++) {
+
+      txt += ' ' + arguments[i].toString();
+    }
+    socket.emit('build', { message: txt});
+
   };
   log('Module created with config', config);
   config.FtpConfig = ftp_deploy;
@@ -17,6 +24,7 @@ module.exports = function (config, ftp_deploy) {
   let mapHotspots = {};
 
   const initOutFolder = function () {
+    const promises = [];
     let itemsToCopy = [
       'panos',
       'plugins',
@@ -27,19 +35,21 @@ module.exports = function (config, ftp_deploy) {
       'tour.xml',
       // 'tour_testingserver.exe'
     ];
-    copy(inFolder, outFolder, itemsToCopy);
+    promises.push(copy(inFolder, outFolder, itemsToCopy));
     itemsToCopy = ['ext'];
-    copy(templatesFolder, outFolder, itemsToCopy);
+    promises.push(copy(templatesFolder, outFolder, itemsToCopy));
     if(config.useCustomMap){
       itemsToCopy = ['index.html'];
-      copy(templatesFolder, outFolder, itemsToCopy);
+      promises.push(copy(templatesFolder, outFolder, itemsToCopy));
     } else {
       itemsToCopy = [
         'tour.html'
       ];
-      copy(inFolder, outFolder, itemsToCopy);
-      Fs.renameSync(Path.resolve(outFolder,'tour.html'), Path.resolve(outFolder,'index.html'));
+      promises.push(copy(inFolder, outFolder, itemsToCopy).then(()=>{
+        return Fs.rename(Path.resolve(outFolder,'tour.html'), Path.resolve(outFolder,'index.html'));
+      }));
     }
+    return Promise.all(promises);
   };
 
   const loadXml = function(file) {
@@ -53,6 +63,8 @@ module.exports = function (config, ftp_deploy) {
             if (err) {
               reject(err);
             } else {
+              const parts = Path.parse(file);
+              log(parts.base, 'loaded')
               resolve(result);
             }
           });
@@ -69,6 +81,8 @@ module.exports = function (config, ftp_deploy) {
         if (err) {
           reject(err);
         } else {
+          const parts = Path.parse(file);
+          log(parts.base, 'saved');
           resolve('done');
         }
       })
@@ -76,11 +90,13 @@ module.exports = function (config, ftp_deploy) {
   };
 
   const copy = function(source, dest, items) {
+    const promises = [];
     items.forEach((item)=>{
       log('Start to copy', item);
-      Fs.copySync(Path.resolve(source, item), Path.resolve(dest, item));
-      log(item, 'copied');
+      promises.push(Fs.copy(Path.resolve(source, item), Path.resolve(dest, item)));
+      // log(item, 'copied');
     });
+    return Promise.all(promises);
   };
 
   const setSkinSettings = function(xml) {
@@ -296,7 +312,7 @@ module.exports = function (config, ftp_deploy) {
       if (floorsList.hasOwnProperty(floor)){
         let imageUrl = `map_${floor}_floor.png`;
         config.floorSelect.forEach(item => {
-          if(item.floor === Number(floor)){
+          if(item.floor == Number(floor)){
             imageUrl = item.image;
           }
         });
@@ -368,36 +384,37 @@ module.exports = function (config, ftp_deploy) {
 
   o.run = function(){
     log('Start run');
-    initOutFolder();
-    return loadXml(Path.resolve(outFolder, 'tour.xml'))
-      .then( xml => {
-        mainXML = xml;
-        xml = setIncludes(xml);
-        xml = setSkinSettings(xml);
-        xml = updateScenes(xml);
-        xml = setTitle(xml);
-        return saveXml(xml, Path.resolve(outFolder, 'tour.xml'));
-      })
-      .then(() => {
-        return loadXml(Path.resolve(outFolder, 'ext/tour/floorMap.xml'));
-      })
-      .then((xml) => {
-        xml = composeFloorMap(xml);
-        return saveXml(xml, Path.resolve(outFolder, 'ext/tour/floorMap.xml'));
-      })
-      .then(() => {
-        return loadXml(Path.resolve(outFolder, 'ext/tour/floorSelector.xml'));
-      })
-      .then((xml) => {
-        xml = composeFloorSelector(xml);
-        return saveXml(xml, Path.resolve(outFolder, 'ext/tour/floorSelector.xml'));
-      })
-      .then(() => {
-        return loadXml(Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
-      })
-      .then((xml) => {
-        if(config.useCustomMap){
-          xml.krpano.action[0]['_'] = `if(show == null, set(show,true); );
+    return initOutFolder().then(()=> {
+      log('Files copied');
+      return loadXml(Path.resolve(outFolder, 'tour.xml'))
+        .then( xml => {
+          mainXML = xml;
+          xml = setIncludes(xml);
+          xml = setSkinSettings(xml);
+          xml = updateScenes(xml);
+          xml = setTitle(xml);
+          return saveXml(xml, Path.resolve(outFolder, 'tour.xml'));
+        })
+        .then(() => {
+          return loadXml(Path.resolve(outFolder, 'ext/tour/floorMap.xml'));
+        })
+        .then((xml) => {
+          xml = composeFloorMap(xml);
+          return saveXml(xml, Path.resolve(outFolder, 'ext/tour/floorMap.xml'));
+        })
+        .then(() => {
+          return loadXml(Path.resolve(outFolder, 'ext/tour/floorSelector.xml'));
+        })
+        .then((xml) => {
+          xml = composeFloorSelector(xml);
+          return saveXml(xml, Path.resolve(outFolder, 'ext/tour/floorSelector.xml'));
+        })
+        .then(() => {
+          return loadXml(Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
+        })
+        .then((xml) => {
+          if(config.useCustomMap){
+            xml.krpano.action[0]['_'] = `if(show == null, set(show,true); );
         if(show,
         jscall(googleMap.vm.openApp(
         {
@@ -410,19 +427,20 @@ module.exports = function (config, ftp_deploy) {
           title: ${config.pageTitle} ,
         }));
         );`;
-        } else {
-          xml.krpano.action[0]['$']['name'] = 'switched_off';
-        }
-        return saveXml(xml, Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
-      })
-      .then((res) => {
-        log('Local copy is ready.');
-        if (config.FtpConfig && config.FtpConfig.run) {
-          return deploy();
-        } else {
-          return Promise.resolve('Deploy skipped.');
-        }
-      });
+          } else {
+            xml.krpano.action[0]['$']['name'] = 'switched_off';
+          }
+          return saveXml(xml, Path.resolve(outFolder, 'ext/gmap/googleMap.xml'));
+        })
+        .then((res) => {
+          log('Local copy is ready.');
+          if (config.FtpConfig && config.FtpConfig.run) {
+            return deploy();
+          } else {
+            return Promise.resolve('Deploy skipped.');
+          }
+        });
+    });
   };
 
   return o;

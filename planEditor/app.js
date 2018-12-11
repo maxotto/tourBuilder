@@ -1,3 +1,5 @@
+"use strict";
+var http = require('http');
 var express = require('express');
 var path = require('path');
 var bodyParser = require('body-parser');
@@ -6,6 +8,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 require('log-timestamp');
 const busboy = require('connect-busboy');
+const config = require('./config/config');
 
 
 var indexRouter = require('./routes/index');
@@ -18,39 +21,33 @@ var uploadRouter = require('./routes/upload');
 var deleteRouter = require('./routes/delete');
 var buildRouter = require('./routes/build');
 
-var app = express();
-const config = require('./config/config');
-app.set('config', config);
+module.exports = function(port, db) {
+  var app = express();
+  app.set('port', port);
+  app.set('config', config);
 
-app.use(busboy());
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+  app.use(busboy());
+  app.use(bodyParser.json()); // support json encoded bodies
+  app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
+  app.use(logger('dev'));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
+  app.use(cookieParser());
+  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(cors());
 
-const mongoose = require('mongoose');
-mongoose.Promise = global.Promise;
-mongoose.connect(config.dbURL, config.dbOptions);
+  app.use('/', indexRouter);
+  app.use('/readxml', readXmlRouter);
+  app.use('/writexml', writeXmlRouter);
+  app.use('/getimage', getImageRouter);
+  app.use('/projects', projectsRouter);
+  app.use('/readfolder', readfolderRouter);
+  app.use('/upload', uploadRouter);
+  app.use('/delete', deleteRouter);
+  app.use('/build', buildRouter);
+  var server = http.createServer(app);
+  const io = require('./socket')(server, app);
+  return server;
+};
 
-mongoose.connection
-  .once('open', () => {
-    console.log(`Mongoose - successful connection ...`);
-  })
-  .on('error', error => console.warn(error));
-
-app.use('/', indexRouter);
-app.use('/readxml', readXmlRouter);
-app.use('/writexml', writeXmlRouter);
-app.use('/getimage', getImageRouter);
-app.use('/projects', projectsRouter);
-app.use('/readfolder', readfolderRouter);
-app.use('/upload', uploadRouter);
-app.use('/delete', deleteRouter);
-app.use('/build', buildRouter);
-
-module.exports = app;

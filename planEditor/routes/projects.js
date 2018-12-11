@@ -32,11 +32,18 @@ router.delete('/:id', function(req, res, next) {
 router.get('/list', function(req, res, next) {
   const query = Projects.find();
   query.exec((err, items) => {
-    res.send({
-      success: true,
-      message: `List is here`,
-      items: items,
-    });
+    if(err){
+      res.send({
+        success: false,
+        error: err,
+      });
+    } else {
+      res.send({
+        success: true,
+        message: `List is here`,
+        items: items,
+      });
+    }
   });
 });
 

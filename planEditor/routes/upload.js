@@ -10,11 +10,11 @@ const utils = require('../components/utils');
 const KrPanoFile = require('../components/krPanoTools');
 const commonLib = require('../common/common-lib');
 
-var returnPouter = function(socket){
   /**
    * Uploads project ZIP, unzips it in project's SOURCE folder
    */
   router.post('/project/:id', (req, res, next) => {
+    console.log('Upload/post/', req.params.id);
     const id = req.params.id;
     const fields = {};
     Projects.findById(id, (error, project) => {
@@ -37,19 +37,21 @@ var returnPouter = function(socket){
           file.pipe(fs.createWriteStream(tmpZip));
           const folders = utils.getFoldersById(id, req.app.get('config'));
           const destRoot = folders.source;
+          console.log(destRoot, 'should be exist');
           fs.ensureDir(destRoot)
             .then(() =>{
                 console.log(destRoot, 'exists');
                 return fs.emptyDir(destRoot)
               }
-            ).then(()=>{
+            )
+            .then(()=>{
             console.log(destRoot, 'is empty');
             return fs.createReadStream(tmpZip)
               .pipe(unzip.Extract({ path: destRoot })
                 .on('entry', (entry) => {
                   //console.log(entry.path);
                   // todo https://stackoverflow.com/questions/29872317/express-4-routes-using-socket-io
-                  socket.emit('unzip', { file: entry.path });
+                  // socket.emit('unzip', { file: entry.path });
                 })
                 .on('error', err => console.error('error', err))
                 .on('finish', () => {
@@ -103,7 +105,8 @@ var returnPouter = function(socket){
                   // console.log('close')
                 })
               );
-          }).catch( error => {
+          })
+            .catch( error => {
               console.log(error);
             }
           );
@@ -182,9 +185,6 @@ var returnPouter = function(socket){
     });
 
   });
-
-  return router;
-};
 
 
 module.exports = router;

@@ -10,7 +10,7 @@ import VueAxios from 'vue-axios'
 import uploader from 'vue-simple-uploader'
 import VueSocketio from 'vue-socket.io-extended';
 import io from 'socket.io-client';
-Vue.use(VueSocketio, io('http://localhost:3000'));
+Vue.use(VueSocketio, io('http://localhost:3064'));
 Vue.use(uploader);
 Vue.use(VueAxios, axios);
 Vue.config.productionTip = false;

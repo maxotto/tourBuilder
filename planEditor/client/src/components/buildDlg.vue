@@ -72,6 +72,7 @@
       this.logDiv = document.getElementById("log");
       this.$socket.on('build', (data) => {
         this.logTxt.push(data.message);
+        console.log(data.message);
         Promise.resolve().then(()=>{
           this.logDiv.scrollTop = this.logDiv.scrollHeight - this.logDiv.clientHeight;
         });

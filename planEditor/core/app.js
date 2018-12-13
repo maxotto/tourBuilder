@@ -11,21 +11,25 @@ require('log-timestamp');
 const busboy = require('connect-busboy');
 const config = require('../config/config');
 
-
-var indexRouter = require('../routes/index');
-var readXmlRouter = require('../routes/readxml');
-var writeXmlRouter = require('../routes/writexml');
-var getImageRouter = require('../routes/getimage');
-var projectsRouter = require('../routes/projects');
-var readfolderRouter = require('../routes/readfolder');
-var uploadRouter = require('../routes/upload');
-var deleteRouter = require('../routes/delete');
-var buildRouter = require('../routes/build');
-
 module.exports = function(port, db) {
   var app = express();
+
   app.set('port', port);
   app.set('config', config);
+
+  var server = http.createServer(app);
+  const io = require('./socket')(server, app);
+
+  var indexRouter = require('../routes/index');
+  var readXmlRouter = require('../routes/readxml');
+  var writeXmlRouter = require('../routes/writexml');
+  var getImageRouter = require('../routes/getimage');
+  var projectsRouter = require('../routes/projects');
+  var readfolderRouter = require('../routes/readfolder');
+  var uploadRouter = require('../routes/upload');
+  var deleteRouter = require('../routes/delete');
+  var buildRouter = require('../routes/build')(io);
+
 
   app.use(busboy());
   app.use(bodyParser.json()); // support json encoded bodies
@@ -47,8 +51,7 @@ module.exports = function(port, db) {
   app.use('/upload', uploadRouter);
   app.use('/delete', deleteRouter);
   app.use('/build', buildRouter);
-  var server = http.createServer(app);
-  const io = require('./socket')(server, app);
+
   return server;
 };
 

@@ -1,8 +1,9 @@
 const Path = require('path');
+// var appRoot = require('app-root-path');
 
 exports.getImagePathByTemplate = function(template){
   if(template === 'First'){
-    return Path.resolve('../templates');
+    return require('app-root-path').resolve('../templates');
   }
   return undefined;
 };

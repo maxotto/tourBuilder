@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const db = require("../core/db")();
-const port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3064');
 const server = require('../core/app')(port ,db );
 const debug = require('debug')('planeditor:server');
 

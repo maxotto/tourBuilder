@@ -29,6 +29,7 @@ module.exports = function(port, db) {
   var uploadRouter = require('../routes/upload');
   var deleteRouter = require('../routes/delete');
   var buildRouter = require('../routes/build')(io);
+  var loginRouter = require('../routes/login')();
 
 
   app.use(busboy());
@@ -51,6 +52,7 @@ module.exports = function(port, db) {
   app.use('/upload', uploadRouter);
   app.use('/delete', deleteRouter);
   app.use('/build', buildRouter);
+  app.use('/login', loginRouter);
 
   return server;
 };

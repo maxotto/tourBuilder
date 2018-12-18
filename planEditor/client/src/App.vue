@@ -27,6 +27,53 @@
     <v-toolbar color="indigo" dark fixed app>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>KrPano tour builder</v-toolbar-title>
+      <v-spacer></v-spacer>
+      <v-speed-dial
+              small
+              v-model="fab"
+              :top="top"
+              :bottom="bottom"
+              :right="right"
+              :left="left"
+              :direction="direction"
+              :open-on-hover="hover"
+              :transition="transition"
+      >
+        <v-btn
+                slot="activator"
+                v-model="fab"
+                color="blue darken-2"
+                dark
+                fab
+        >
+          <v-icon>mdi-account-circle</v-icon>
+          <v-icon>mdi-close</v-icon>
+        </v-btn>
+        <v-btn
+                fab
+                dark
+                small
+                color="green"
+        >
+          <v-icon>mdi-pencil</v-icon>
+        </v-btn>
+        <v-btn
+                fab
+                dark
+                small
+                color="indigo"
+        >
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
+        <v-btn
+                fab
+                dark
+                small
+                color="red"
+        >
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
+      </v-speed-dial>
     </v-toolbar>
     <v-content>
       <router-view/>
@@ -43,6 +90,16 @@ export default {
   name: 'App',
   data () {
     return {
+      direction: 'bottom',
+      fab: false,
+      fling: false,
+      hover: true,
+      tabs: null,
+      top: false,
+      right: true,
+      bottom: false,
+      left: false,
+      transition: 'slide-y-reverse-transition',
       drawer: null,
       clipped: true,
       fixed: true,

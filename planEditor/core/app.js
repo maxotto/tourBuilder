@@ -10,6 +10,7 @@ var cookieParser = require('cookie-parser');
 require('log-timestamp');
 const busboy = require('connect-busboy');
 const config = require('../config/config');
+const passport = require('passport');
 
 module.exports = function(port, db) {
   var app = express();
@@ -35,6 +36,9 @@ module.exports = function(port, db) {
   app.use(busboy());
   app.use(bodyParser.json()); // support json encoded bodies
   app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+  app.use(session({ secret: 'kkfjyutnslaslkdkkktui6823oihfskljalkd' }));
+  app.use(passport.initialize());
+  app.use(passport.session());
 
   app.use(logger('dev'));
   app.use(express.json());

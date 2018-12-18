@@ -1,7 +1,8 @@
 "use strict";
 
 const config = require("../config/config");
-const mongoose = require('mongoose');
+const mongoose = require('./mongoose');
+const autoIncrement 	= require("mongoose-auto-increment");
 
 module.exports = function() {
   let db;
@@ -17,6 +18,7 @@ module.exports = function() {
         return err;
       }
     });
+    autoIncrement.initialize(mongoose.connection);
     mongoose.connection
       .once('open', () => {
         console.log(`Mongoose - successful connection ...`);

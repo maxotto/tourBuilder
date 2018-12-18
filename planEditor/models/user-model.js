@@ -1,7 +1,5 @@
 "use strict";
 
-let config    		= require("../config");
-let logger    		= require("../core/logger");
 let C 				= require("../core/constants");
 let fs 				= require("fs");
 let path 			= require("path");
@@ -10,7 +8,7 @@ let _ 				= require("lodash");
 let crypto 			= require("crypto");
 let bcrypt 			= require("bcrypt-nodejs");
 
-let db	    		= require("../core/mongo");
+let db	    		= require("../core/db");
 let mongoose 		= require("../core/mongoose");
 let Schema 			= mongoose.Schema;
 let hashids 		= require("../libs/hashids")("users");

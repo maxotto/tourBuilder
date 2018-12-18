@@ -4,4 +4,5 @@ module.exports = {
   dbOptions: {  useNewUrlParser: true },
   storageRoot: 'E:/aaa/storage',
   sessionSecret: 'dslkygvmnlkejflwk8740986ujhn1267nfgkjh2376p;wekhrt6569996j4lkdlnbnbjreleutgytfhwep;slfd',
+  hashSecret: 'ljkhksjdhdfuoyhw3976596707009lki;lokyksuiroedsdgsyukyukuhelrbkth4eklle',
 };
